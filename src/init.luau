@@ -223,7 +223,7 @@ local function pushi3(cursor, x: number)
 	local pos = getpos(buf)
 	setpos(buf, pos + 3)
 	buffer.writeu8(buf, pos, x % 256)
-	buffer.writeu16(buf, pos + 1, x / 256)
+	buffer.writeu16(buf, pos + 1, x // 256)
 end
 
 local function popi3(cursor)
@@ -255,7 +255,7 @@ local function pushi5(cursor: Cursor, x: number)
 	local pos = getpos(buf)
 	setpos(buf, pos + 5)
 	buffer.writeu8(buf, pos, x)
-	buffer.writeu32(buf, pos + 1, x / 256)
+	buffer.writeu32(buf, pos + 1, x // 256)
 end
 
 local function popi5(cursor: Cursor)
@@ -291,8 +291,8 @@ local function pushi7(cursor: Cursor, x: number)
 	local pos = getpos(buf)
 	setpos(buf, pos + 7)
 	buffer.writeu8(buf, pos, x)
-	buffer.writeu16(buf, pos + 1, x / 256)
-	buffer.writeu32(buf, pos + 3, x / (256 ^ 3))
+	buffer.writeu16(buf, pos + 1, x // 256)
+	buffer.writeu32(buf, pos + 3, x // (256 ^ 3))
 end
 
 local function popi7(cursor: Cursor)
