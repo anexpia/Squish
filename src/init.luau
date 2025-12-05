@@ -300,7 +300,7 @@ local function popi7(cursor: Cursor)
 	local pos = getpos(buf) - 7
 	setpos(buf, pos)
 	local x1 = buffer.readu8(buf, pos)
-	local x2 = buffer.readu16(buf, pos + 1) + x1
+	local x2 = buffer.readu16(buf, pos + 1) * 256 + x1
 	local x3 = buffer.readu32(buf, pos + 3) * (256 ^ 3)
 	local x = x2 + x3
 	return if x >= 2 ^ 55 then x3 - (2 ^ 56) + x2 else x -- subtract before adding x2 to avoid some precision loss in negative numbers
