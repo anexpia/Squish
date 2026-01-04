@@ -219,12 +219,11 @@ local function popi2(cursor: Cursor)
 end
 
 local function pushi3(cursor, x: number)
-	x %= 2 ^ 24
 	local buf = getbuf(cursor)
 	local pos = getpos(buf)
 	setpos(buf, pos + 3)
 	buffer.writeu8(buf, pos, x % 256)
-	buffer.writeu16(buf, pos + 1, x / 256)
+	buffer.writeu16(buf, pos + 1, x // 256)
 end
 
 local function popi3(cursor)
@@ -252,12 +251,11 @@ local function popi4(cursor: Cursor)
 end
 
 local function pushi5(cursor: Cursor, x: number)
-	x %= 2 ^ 40
 	local buf = getbuf(cursor)
 	local pos = getpos(buf)
 	setpos(buf, pos + 5)
 	buffer.writeu8(buf, pos, x)
-	buffer.writeu32(buf, pos + 1, x / 256)
+	buffer.writeu32(buf, pos + 1, x // 256)
 end
 
 local function popi5(cursor: Cursor)
@@ -271,7 +269,6 @@ local function popi5(cursor: Cursor)
 end
 
 local function pushi6(cursor: Cursor, x: number)
-	x %= 2 ^ 48
 	local buf = getbuf(cursor)
 	local pos = getpos(buf)
 	setpos(buf, pos + 6)
@@ -290,13 +287,12 @@ local function popi6(cursor: Cursor)
 end
 
 local function pushi7(cursor: Cursor, x: number)
-	x %= 2 ^ 56
 	local buf = getbuf(cursor)
 	local pos = getpos(buf)
 	setpos(buf, pos + 7)
 	buffer.writeu8(buf, pos, x)
-	buffer.writeu16(buf, pos + 1, x / 256)
-	buffer.writeu32(buf, pos + 3, x / (256 ^ 3))
+	buffer.writeu16(buf, pos + 1, x // 256)
+	buffer.writeu32(buf, pos + 3, x // (256 ^ 3))
 end
 
 local function popi7(cursor: Cursor)
@@ -304,14 +300,13 @@ local function popi7(cursor: Cursor)
 	local pos = getpos(buf) - 7
 	setpos(buf, pos)
 	local x1 = buffer.readu8(buf, pos)
-	local x2 = buffer.readu16(buf, pos + 1)
-	local x3 = buffer.readu32(buf, pos + 3)
-	local x = x1 + x2 * 256 + x3 * (256 ^ 3)
-	return if x >= 2 ^ 55 then x - (2 ^ 56) else x
+	local x2 = buffer.readu16(buf, pos + 1) * 256 + x1
+	local x3 = buffer.readu32(buf, pos + 3) * (256 ^ 3)
+	local x = x2 + x3
+	return if x >= 2 ^ 55 then x3 - (2 ^ 56) + x2 else x -- subtract before adding x2 to avoid some precision loss in negative numbers
 end
 
 local function pushi8(cursor: Cursor, x: number)
-	x %= 2 ^ 64
 	local buf = getbuf(cursor)
 	local pos = getpos(buf)
 	setpos(buf, pos + 8)
@@ -324,9 +319,9 @@ local function popi8(cursor: Cursor)
 	local pos = getpos(buf) - 8
 	setpos(buf, pos)
 	local x1 = buffer.readu32(buf, pos)
-	local x2 = buffer.readu32(buf, pos + 4)
-	local x = x1 + x2 * (256 ^ 4)
-	return if x >= 2 ^ 63 then x - (2 ^ 64) else x
+	local x2 = buffer.readu32(buf, pos + 4) * (256 ^ 4)
+	local x = x1 + x2
+	return if x >= 2 ^ 63 then x2 - (2 ^ 64) + x1 else x -- subtract before adding x1 to avoid some precision loss in negative numbers
 end
 
 local function pushf4(cursor: Cursor, x: number)
