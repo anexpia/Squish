@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkdocs=self.webpackChunkdocs||[]).push([[645],{84410:s=>{s.exports=JSON.parse('{"sourceUrl":"https://github.com/anexpia/Squish/blob/main","baseUrl":"/Squish/","classOrder":[{"classes":["Squish","string","validation"]}],"apiCategories":["Cursor","Basic","Number","Table","LuauType","RobloxType","TypeFunction"]}')}}]);
