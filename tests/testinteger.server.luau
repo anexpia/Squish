@@ -1,22 +1,23 @@
-local Squash = require("../src")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Squish = require(ReplicatedStorage.Squish)
 
 local function get(byte: number)
 	if byte == 1 then
-		return Squash.i8()
+		return Squish.i8()
 	elseif byte == 2 then
-		return Squash.i16()
+		return Squish.i16()
 	elseif byte == 3 then
-		return Squash.i24()
+		return Squish.i24()
 	elseif byte == 4 then
-		return Squash.i32()
+		return Squish.i32()
 	elseif byte == 5 then
-		return Squash.i40()
+		return Squish.i40()
 	elseif byte == 6 then
-		return Squash.i48()
+		return Squish.i48()
 	elseif byte == 7 then
-		return Squash.i56()
+		return Squish.i56()
 	else
-		return Squash.i64()
+		return Squish.i64()
 	end
 end
 
@@ -24,7 +25,7 @@ local RANGE = 10
 
 for b = 1, 8 do
 	local serdes = get(b)
-	local c = Squash.cursor()
+	local c = Squish.cursor()
 
 	local BOUNDARY = 2^(b * 8 - 1)
 	local MAX = 2^(b * 8)
@@ -35,7 +36,7 @@ for b = 1, 8 do
 		serdes.ser(c, i)
 		local v = serdes.des(c)
 		if j ~= v then
-			print(`[SquashTest Integer] {b} | {j} ~= {v}`)
+			print(`[SquishTest Integer] {b} | {j} ~= {v}`)
 		end
 	end
 
@@ -45,7 +46,7 @@ for b = 1, 8 do
 		serdes.ser(c, i)
 		local v = serdes.des(c)
 		if j ~= v then
-			print(`[SquashTest Integer] {b} | {j} ~= {v}`)
+			print(`[SquishTest Integer] {b} | {j} ~= {v}`)
 		end
 	end
 
@@ -55,7 +56,7 @@ for b = 1, 8 do
 		serdes.ser(c, i)
 		local v = serdes.des(c)
 		if j ~= v then
-			print(`[SquashTest Integer] {b} | {j} ~= {v}`)
+			print(`[SquishTest Integer] {b} | {j} ~= {v}`)
 		end
 	end
 end

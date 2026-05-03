@@ -1,8 +1,18 @@
-title = "Squash"  # From Git
-gitRepoUrl = "https://github.com/Data-Oriented-House/Squash" # From Git
+title = "Squish"  # From Git
+gitRepoUrl = "https://github.com/anexpia/Squish" # From Git
 
 gitSourceBranch = "main"
 changelog = false
+
+apiCategories = [
+    "Cursor",
+	"Basic",
+	"Number",
+	"Table",
+	"LuauType",
+	"RobloxType",
+	"TypeFunction"
+]
 
 [home]
 enabled = true
@@ -29,70 +39,14 @@ onBrokenMarkdownLinks = "warn"
 favicon = "/favicon.ico"
 
 # From git:
-organizationName = "Data-Oriented-House"
-projectName = "Squash"
-url = "https://data-oriented-house.github.io"
-baseUrl = "/Squash/"
+organizationName = "anexpia"
+projectName = "Squish"
+url = "https://anexpia.github.io"
+baseUrl = "/Squish/"
 tagline = "Roblox's Comprehensive SerDes Library"
 
 [[classOrder]]
-classes = ["Squash"]
-
-[[classOrder]]
-section = "Luau"
-collapsed = true
-classes = [
-	"string",
-	# "number",
-	# "uint",
-	# "int",
-# 	"vlq",
-# 	"boolean",
-# 	"buffer",
-# 	"tuple",
-# 	"array",
-# 	"map",
-# 	"record",
-# 	"angle",
-]
-
-# [[classOrder]]
-# section = "Roblox"
-# collapsed = true
-# classes = [
-# 	"Axes",
-# 	"BrickColor",
-# 	"CatalogueSearchParams",
-# 	"CFrame",
-# 	"Color3",
-# 	"ColorSequence",
-# 	"ColorSequenceKeypoint",
-# 	"DateTime",
-# 	"EnumItem",
-# 	"Faces",
-# 	"FloatCurveKey",
-# 	"Font",
-# 	"NumberRange",
-# 	"NumberSequence",
-# 	"NumberSequenceKeypoint",
-# 	"OverlapParams",
-# 	"PathWaypoint",
-# 	"PhysicalProperties",
-# 	"Ray",
-# 	"RaycastParams",
-# 	"RaycastResult",
-# 	"Rect",
-# 	"Region3",
-# 	"Region3int16",
-# 	"RotationCurveKey",
-# 	"TweenInfo",
-# 	"UDim",
-# 	"UDim2",
-# 	"Vector2",
-# 	"Vector2int16",
-# 	"Vector3",
-# 	"Vector3int16"
-# ]
+classes = ["Squish", "string", "validation"]
 
 [navbar]
 # hideableSidebar = true
@@ -107,7 +61,7 @@ src = "/favicon.ico"
 
 [footer]
 style = "dark"
-copyright = "Copyright © 2025 SolarScuffle-Bot. Built with Moonwave and Docusaurus"
+copyright = "Copyright © 2025 SolarScuffle-Bot. Built with Moonwave and Docusaurus. Forked by anexpia."
 
 # [[footer.links]]
 # title = "examples"

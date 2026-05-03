@@ -1,6 +1,7 @@
 {
-    "languageMode": "strict",
+    "languageMode": "nonstrict",
     "lint": {
-        "LocalShadow": false
+        "LocalShadow": false,
+        "SameLineStatement": false
     }
 }

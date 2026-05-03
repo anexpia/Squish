@@ -1,17 +1,17 @@
 {
-    "name": "project",
+    "name": "Squish",
     "tree": {
         "$className": "DataModel",
         "ReplicatedStorage": {
             "$ignoreUnknownInstances": true,
-            "$path": "tests/shared",
-            "Squash": {
-                "$path": "default.project.json"
+            "tests": {
+                "$className": "Folder",
+                "$path": "tests"
+            },
+            
+            "Squish": {
+                "$path": "src"
             }
-        },
-        "ServerScriptService": {
-            "$ignoreUnknownInstances": true,
-            "$path": "tests"
         }
     }
 }

@@ -1,20 +1,19 @@
 ---
-sidebar_position: 3
+sidebar_position: 4
 ---
 
 # Advanced Techniques
 
 ## Custom Serializers
-For the performance-concerned, Squash exposes the `Squash.tryrealloc(cursor: Cursor, bytes: number)` method to make implementing custom serializers a breeze. These custom serializers can be used in conjunction with other serializers like the `table`, `record`, `map`, `array`, and `tuple` serializers. For example, if you have thousands of enemies represented by simple data, you may wish to serialize them all in one go without the overhead of the array.
+For the performance-concerned, Squish exposes the `Squish.tryrealloc(cursor: Cursor, bytes: number)` method - among others - to make implementing custom serializers a breeze. These custom serializers can be used in conjunction with other serializers like the `table`, `record`, `map`, `array`, and `tuple` serializers. For example, if you have thousands of enemies represented by simple data, you may wish to serialize them all in one go without the overhead of the array.
 
 ```lua
-local Squash = require(...)
+local Squish = require(...)
 
-local T = Squash.T
-local rec = Squash.record
-local arr = Squash.array
-local i24 = Squash.i24()
-local u16 = Squash.u16()
+local rec = Squish.record
+local arr = Squish.array
+local i24 = Squish.i24()
+local u16 = Squish.u16()
 
 local Serializers = {}
 ```
@@ -22,22 +21,22 @@ local Serializers = {}
 The below example implementation wastes a few bytes at the end of each array to redundantly record a length that can be stored only once. The type could be changed to `{ { x: number, z: number, id: number } }` but that comes with a performance overhead because of so many table creations when deserializing.
 ```lua
 Serializers.enemies = rec {
-	x = T(arr(i24, u16)),
-	z = T(arr(i24, u16)),
-	id = T(arr(u16, u16))
+	x = arr(i24, u16),
+	z = arr(i24, u16),
+	id = arr(u16, u16)
 }
 
 do
-	local c = Squash.cursor()
+	local c = Squish.cursor()
 	Serializers.enemies.ser(c, {
 		x = {-1000, 2, 3, 4},
 		z = {4, 5, 6, 7},
 		id = {10, 11, 12, 13},
 	})
-	Squash.print(c)
-	local b = Squash.tobuffer(c)
+	Squish.print(c)
+	local b = Squish.tobuffer(c)
 
-	local c = Squash.frombuffer(b)
+	local c = Squish.frombuffer(b)
 	local data = Serializers.enemies.des(c)
 	for i = 1, #data.x do
 		print(`x: {data.x[i]}, z: {data.z[i]}, id: {data.id[i]}`)
@@ -58,10 +57,10 @@ end
 
 The below implementation has less overhead and defines a custom format to only store the length once. It can serialize into the `{ { x: number, z: number, id: number } }` format, but then deserialize straight into the `{ x: { number }, z: { number }, id: { number } }` format.
 ```lua
-local getbuf = Squash.getbuf
-local getpos = Squash.getpos
-local setpos = Squash.setpos
-local tryrealloc = Squash.tryrealloc
+local getbuf = Squish.getbuf
+local getpos = Squish.getpos
+local setpos = Squish.setpos
+local tryrealloc = Squish.tryrealloc
 
 Serializers.enemiesManually = {
 	ser = function(cursor, data)
@@ -70,7 +69,7 @@ Serializers.enemiesManually = {
 		tryrealloc(cursor, 8 * n)
 		local buf = getbuf(cursor)
 
-		local p = getpos(buf)
+		local p = getpos(cursor)
 		for i = 1, n do
 			local x, z, id = data.x[i], data.z[i], data.id[i]
 
@@ -93,12 +92,12 @@ Serializers.enemiesManually = {
 		buffer.writeu16(buf, p, n)
 		p += 2
 
-		setpos(buf, p)
+		setpos(cursor, p)
 	end,
 
 	des = function(cursor)
 		local buf = getbuf(cursor)
-		local p = getpos(buf)
+		local p = getpos(cursor)
 
 		p -= 2
 		local n = buffer.readu16(buf, p)
@@ -127,23 +126,23 @@ Serializers.enemiesManually = {
 			data.x[i], data.z[i], data.id[i] = x, z, id
 		end
 
-		setpos(buf, p)
+		setpos(cursor, p)
 
 		return data
 	end,
 } :: SerDes<{ x: { number }, z: { number }, id: { number } }>
 
 do
-	local c = Squash.cursor()
+	local c = Squish.cursor()
 	Serializers.enemiesManually.ser(c, {
 		x = {-1000, 2, 3, 4},
 		z = {4, 5, 6, 7},
 		id = {10, 11, 12, 13},
 	})
-	Squash.print(c)
-	local b = Squash.tobuffer(c)
+	Squish.print(c)
+	local b = Squish.tobuffer(c)
 
-	local c = Squash.frombuffer(b)
+	local c = Squish.frombuffer(b)
 	local data = Serializers.enemiesManually.des(c)
 	for i = 1, #data.x do
 		print(`x: {data.x[i]}, z: {data.z[i]}, id: {data.id[i]}`)

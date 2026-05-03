@@ -4,7 +4,7 @@ sidebar_position: 3
 
 # Packet Format And Insights
 
-Buffers are great for serializing data, but we need to know when to serialize. Certain kinds of data is cheaper to send over the network than others. This page is *very* technical, as it introduces the raw binary format remotes use internally and discusses the overhead of each type of data. If you are looking for how to use Squash go to [How To Serialize?](/docs/how).
+Buffers are great for serializing data, but we need to know when to serialize. Certain kinds of data is cheaper to send over the network than others. This page is *very* technical, as it introduces the raw binary format remotes use internally and discusses the overhead of each type of data. If you are looking for how to use Squish go to [How To Serialize?](/docs/how).
 
 ## How Are Packets Sent And Recieved?
 
@@ -18,7 +18,7 @@ Many of the values packets use can scale in size drastically, but still need to 
 
 ### The Enigmas
 
-Even after literal days of looking at the binary, we still can't quite figure out some of the meanings behind some of the bytes. We have appropriately called these bytes "Enigmas". Over time these enigma bytes have been reduced, but they aren't quite gone yet. If you would like to help identify these bytes, you may download the packet viewer, run the tests you need to, and make a pull request improving [Squash's documentation](https://github.com/Data-Oriented-House/Squash)!
+Even after literal days of looking at the binary, we still can't quite figure out some of the meanings behind some of the bytes. We have appropriately called these bytes "Enigmas". Over time these enigma bytes have been reduced, but they aren't quite gone yet. If you would like to help identify these bytes, you may download the packet viewer, run the tests you need to, and make a pull request improving [Squish's documentation](https://github.com/anexpia/Squish)!
 
 ## Packet Structure
 
@@ -271,7 +271,7 @@ After | "F" | 0×83 | 0×0701 | 0×76c309 | 0×000b | 0×7b | 0×02 | 0×01c5b60
 
 #### General Case
 
-In the general case, CFrames have some arbitrary rotation that is not clean multiples of 90 degrees. This means that the rotation will not or cannot be enumerated, and therefore must be sent entirely. We do not understand the rotation format, but it is 6 bytes long, so forgive the elusive formatting we use. If you would like to help us figure out the rotation format, you may download the packet viewer, run the tests you need to, and make a pull request improving [Squash's documentation](https://github.com/Data-Oriented-House/Squash)!
+In the general case, CFrames have some arbitrary rotation that is not clean multiples of 90 degrees. This means that the rotation will not or cannot be enumerated, and therefore must be sent entirely. We do not understand the rotation format, but it is 6 bytes long, so forgive the elusive formatting we use. If you would like to help us figure out the rotation format, you may download the packet viewer, run the tests you need to, and make a pull request improving [Squish's documentation](https://github.com/anexpia/Squish)!
 
 | Type 0×1b (byte) | X (4 bytes) | Y (4 bytes) | Z (4 bytes) | Id 0×00 (byte) | Rotation (6 bytes) |
 |-|-|-|-|-|-|

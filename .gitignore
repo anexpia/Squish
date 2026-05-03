@@ -3,3 +3,5 @@ build
 
 selene.toml
 sourcemap.json
+package.json
+package-lock.json
