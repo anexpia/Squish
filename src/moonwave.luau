@@ -30,8 +30,8 @@
 --------------------------------------------------------------------------------
 
 --[=[
-    @class validation
-    Namespace containing internal validation utilities and scope tracking.
+	@class validation
+	Namespace containing internal validation utilities and scope tracking.
 ]=]
 
 --- @prop scopesEnabled boolean
@@ -90,43 +90,43 @@
 --------------------------------------------------------------------------------
 
 --[=[
-    @class string
-    This namespace may be called like a function to return a string serdes, or it may be accessed like a table to use the string content.
+	@class string
+	This namespace may be called like a function to return a string serdes, or it may be accessed like a table to use the string content.
 ]=]
 
 --[=[
-    @function packintoalphanumeric
-    @param str string
-    @return buffer
-    @within string
-    Packs the string into 6 bits per character, reducing length by average of 25%.
-    Only supports uppercase & lowercase letters and numbers.
+	@function packintoalphanumeric
+	@param str string
+	@return buffer
+	@within string
+	Packs the string into 6 bits per character, reducing length by average of 25%.
+	Only supports uppercase & lowercase letters and numbers. Unsupported characters are replaced by spaces.
 ]=]
 
 --[=[
-    @function unpackalphanumeric
-    @param buf buffer
-    @return string
-    @within string
-    Converts back the buffer into a string.
+	@function unpackalphanumeric
+	@param buf buffer
+	@return string
+	@within string
+	Converts back the buffer into a string. Remainder bytes at the end of the text are replaced by spaces.
 ]=]
 
 --[=[
-    @function convert
-    @param str string
-    @param inAlphabet string
-    @param outAlphabet string
-    @return string
-    @within string
-    Converts a string, treated as a number in base `inAlphabet`, to a number in base `toAlphabet`.
+	@function convert
+	@param str string
+	@param inAlphabet string
+	@param outAlphabet string
+	@return string
+	@within string
+	Converts a string, treated as a number in base `inAlphabet`, to a number in base `toAlphabet`.
 ]=]
 
 --[=[
-    @function alphabet
-    @param source string
-    @return string
-    @within string
-    Returns the smallest sorted alphabet from a source string.
+	@function alphabet
+	@param source string
+	@return string
+	@within string
+	Returns the smallest sorted alphabet from a source string.
 ]=]
 
 --- @prop binary string
@@ -228,6 +228,12 @@
 --- @param cursor Cursor
 --- Removes a value from the 'references' table using the current vlq.
 
+--- @function addliterals
+--- @within Squish
+--- @param Serdes SerDes
+--- @param ... any...
+--- Adds the provided literals to the serdes.
+
 --------------------------------------------------------------------------------
 -- 2. BASIC (@tag Basic)
 --------------------------------------------------------------------------------
@@ -244,25 +250,25 @@
 -- --- @class dedup
 
 --[=[ 
-    @function dedup
-    @within Squish
-    @tag Basic
-    @param serdes SerDes<T>
-    @return SerDes<T?>
-    Returns a copy of the provided SerDes which can deduplicate the value if provided more than once.\
-    Cannot be used with optional, boolean, nil, and Instance SerDes.
+	@function dedup
+	@within Squish
+	@tag Basic
+	@param serdes SerDes<T>
+	@return SerDes<T?>
+	Returns a copy of the provided SerDes which can deduplicate the value if provided more than once.\
+	Cannot be used with optional, boolean, nil, and Instance SerDes.
 
-    ```lua
-    local arraySerDes = Squish.dedup(Squish.array(Squish.u8()))
-    local arr = { 1, 2, 3, 4, 5 }
+	```lua
+	local arraySerDes = Squish.dedup(Squish.array(Squish.u8()))
+	local arr = { 1, 2, 3, 4, 5 }
 	
-    for i = 1, 3 do 
-    	serdes.ser(cursor, arr)
-    end
+	for i = 1, 3 do 
+		serdes.ser(cursor, arr)
+	end
 	
-    local t1, t2, t3 = serdes.des(cursor), serdes.des(cursor), serdes.des(cursor)
-    print(t1 == t2, t1 == t3) -- will print true, true
-    ```
+	local t1, t2, t3 = serdes.des(cursor), serdes.des(cursor), serdes.des(cursor)
+	print(t1 == t2, t1 == t3) -- will print true, true
+	```
 
 ]=]
 
@@ -280,44 +286,52 @@
 --- @function literal
 --- @within Squish
 --- @tag Basic
---- @param ... any -- Tuple of values.
+--- @param array { any } -- Array of literal values.
 --- @return SerDes<any>
---- Serdes for exactly only values provided to this function.
-
--- --- @class types
-
---[=[
-    @function types
-    @within Squish
-    @tag Basic
-    @param ... T... -- Tuple of serdes.
-    @return SerDes<T...>
-    Serdes for only values serializable by the serdes' provided to this function.\
-    Will error if a type is not included, unless opt() or Nil() are included, in which case it'll serialize as nil.
-
-    ```lua
-    local cursor = Squish.cursor()
-    local typesSerdes = Squish.types(Squish.number(), Squish.string())
-	
-    typesSerdes.ser(cursor, 5)
-    print(typesSerdes.des(cursor)) -- prints 5
-
-    typesSerdes.ser(cursor, "Hello!")
-    print(typesSerdes.des(cursor)) -- prints "Hello!"
-
-    typesSerdes.ser(cursor, true) -- will error.
-    ```
-]=]
+--- Serdes for exactly only values provided to the array.
 
 -- --- @class any
 
 --[=[
-    @function any
-    @within Squish
-    @tag Basic
-    @return SerDes<any>
-    Serdes that accepts almost every datatype except tables.\
-    Do not use this unless you cannot guarantee the types of your values and neither can **[Squish:types]** be used for your purposes.
+	@function any
+	@within Squish
+	@tag Basic
+	@return SerDes<any>
+	Serdes that accepts every datatype Squish supports.
+	Do not use this unless you cannot guarantee the types of your values and neither can **[Squish:variant]** be used for your purposes.
+]=]
+
+-- --- @class variant
+
+--[=[
+	@function variant
+	@within Squish
+	@tag Basic
+	@param types { SerDes<any> } -- Array of allowed serdes.
+	@param literals { any }? -- Array of allowed literal values
+	@return SerDes<any>
+	Takes an array of SerDes and serializes values using the SerDes that matches their type.\
+	Optionally accepts an array of literals, which works like **[Squish:literal]**.
+	
+	If a value is not found in literals, and its serdes is not provided. It will error unless **[Squish.Nil]** was included.\
+	Opt serdes automatically provide the nil serdes when provided.
+]=]
+
+-- --- @class anyFrom
+
+--[=[
+	@function anyFrom
+	@within Squish
+	@tag Basic
+	@param toindex { [string]: number } -- Dictionary mapping types to their id.
+	@param toserdes { [number]: SerDes<any> } -- Array containing SerDes'.
+	@param literalsMap { [any]: number }? -- Dictionary mapping literals to their id.
+	@param literals { [number]: any }? -- Array of literals.
+	@param hassubtypes boolean? -- Enable if there's "subtypes" for serdes, such as an Instance serdes that accepts only parts.
+	@param usenumberfastpath boolean? -- Uses an inlined form of the number serdes.
+	@return SerDes<any>
+	Low-level internal function to build a dynamic serdes for `variant()` and `any()`. 
+	You probably shouldn't use this directly unless you know what you're doing.
 ]=]
 
 --------------------------------------------------------------------------------
@@ -453,9 +467,9 @@
 --- @function number
 --- @within Squish
 --- @tag Number
---- @param floatSerDes SerDes<number> | false? -- Which serdes to use for float numbers, or false to disable.
+--- @param floatAllowed boolean? -- Whether to allow serializing as float, defaults to true.
 --- @return SerDes<number>
---- Serdes for any number.
+--- Serdes for any number. Dynamically selects the smallest possible representation for the numbers.
 
 --- @function range
 --- @within Squish
@@ -505,19 +519,15 @@
 --- Serdes that serializes tables given a schema mapping each string key to a serdes.
 
 --[=[
-    @function table
-    @within Squish
-    @tag Table
-    @param keySchema { [string]: SerDes<any> }
-    @param valueSchema { [string]: SerDes<any> }?
-    @param length (number | SerDes<number>)? -- Optional fixed length or serdes for serializing length.
-    @return SerDes<any>
-    Serdes that serializes tables given a schema mapping types to serializers.\
-    If valueSchema is not provided, values will be serialized using keySchema.\
-    If a type is not defined in the schema, it will be ignored when serializing tables.
-    
-    **This is an expensive and heavy serializer compared to Record, Map, and Array.**
-    **It is highly recommended that you do not use this for tables you know the type of already.**
+	@function table
+	@within Squish
+	@tag Table
+	@param serdes SerDes<T>
+	@return SerDes<{[T]: T}>
+	Returns SerDes for arbitrary tables of any shape, supporting mixed tables, gaps, and circular references.\
+	Uses the provided single `serdes` parameter for serializing both keys and values.
+	
+	**It is highly recommended that you do not use this for tables you know the type of already.**
 ]=]
 
 
@@ -792,7 +802,7 @@
 --- @tag RobloxType
 --- @param serdes SerDes<number>? -- Optional serdes for serializing the positional component, defaults to f32.
 --- @return SerDes<SquishRaycastResult>
---- Serdes for 'RaycastResult datatype.\
+--- Serdes for [RaycastResult] datatype.\
 --- Returns a `SquishRaycastResult` because Roblox does not allow instantiating RaycastResults.
 
 -- --- @class Rect

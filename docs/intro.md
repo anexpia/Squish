@@ -4,7 +4,7 @@ sidebar_position: 1
 
 # What is Squish?
 
-This is a fork of [Squash](https://data-oriented-house.github.io/Squash/), with some [differences](./differences.md) and performance optimizations.
+This is a fork of [Squash](https://data-oriented-house.github.io/Squash/), with many [differences](./differences.md) and performance optimizations.
 
 Squish is a very large library that can efficiently and intelligently serialize and compress your data with little effort. **SerDes** or **Serde** is a common abbreviation used for **Serialization / Deserialization**. It is a way to translate data into raw bytes and back again.
 

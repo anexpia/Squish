@@ -427,7 +427,7 @@ print(Squish.string.convert(y, Squish.string.binary, Squish.string.utf8))
 **[Literal](../api/Squish#literal)**s are individual values that can be enumerated and distinguished using just `u1`s. This is useful for encoding enums of names, orientations, and other unique identifiers with minimal data.
 
 ```lua
-local literal = Squish.literal("a", 2, "c", true, "e")
+local literal = Squish.literal({ "a", 2, "c", true, "e" })
 
 local cursor = Squish.cursor()
 literal.ser(cursor, "c")
@@ -472,28 +472,30 @@ print(mytuple.des(cursor))
 
 ## Multiple Types
 
-Multiple SerDes can be combined into one that supports all provided Serdes using **[types](../api/Squish#types)**.\
-This is useful if your value can be of multiple types.
+Multiple SerDes can be combined into one that supports all provided Serdes using **[variant](../api/Squish#variant)**.\
+This is useful if your value can be of multiple types. It also supports literals if needed.
 
 If a type is provided when serializing which wasn't added to the constructor, it will error unless **[opt](../api/Squish#opt) or [Nil](../api/Squish#Nil)** were provided.
 
  ```lua
 local cursor = Squish.cursor()
-local typesSerdes = Squish.types(Squish.number(), Squish.string())
+local variantSerdes = Squish.variant({ Squish.number(), Squish.string() }, {true})
 
-typesSerdes.ser(cursor, 5)
-print(typesSerdes.des(cursor)) -- prints 5
+variantSerdes.ser(cursor, 5)
+print(variantSerdes.des(cursor)) -- prints 5
 
-typesSerdes.ser(cursor, "Hello!")
-print(typesSerdes.des(cursor)) -- prints "Hello!"
+variantSerdes.ser(cursor, "Hello!")
+print(variantSerdes.des(cursor)) -- prints "Hello!"
 
-typesSerdes.ser(cursor, true) -- will error.
+variantSerdes.ser(cursor, true) -- prints true, because it is added as a literal.
+variantSerdes.ser(cursor, false) -- will error unless Squish.Nil() is provided to the constructor.
+
 ```
 
 ## any
 
 **[any](../api/Squish#any)** is a serdes that accepts every datatype with the exception of `table`.\
-You should only ever use this if you cannot guarantee the type of your values and **[Squish:types](../api/Squish#types)** wouldn't be fit for your purposes.
+You should only ever use this if you cannot guarantee the type of your values and **[Squish:variant](../api/Squish#variant)** wouldn't be fit for your purposes.
 
 ```lua
 local values = {
@@ -680,21 +682,22 @@ Luau tables are extremely versatile data structures that can and do implement ev
 
 Only use this serializer if you cannot guarantee the shape of your table beforehand, as it offers less control and worse size reduction. This is the algorithm that Roblox uses when serializing tables because they can't guarantee the shape of the tables users pass. If you do not know the type of your table but you still need to serialize it, then the **[Squish.table](../api/Squish#table)** serializer is a last resort.
 
-It has to store data for every value, the type of every value, every key, and the type of every key, which makes it significantly larger than the specialized functions. It also does not offer property-specific granularity, instead only letting you map types to serializers for keys and values.
+It has to store data for every value, the type of every value, every key, and the type of every key, which makes it significantly larger than the specialized functions. It does not offer property-specific granularity though it allows for any table structure, such as tables with circular references, mixed tables, gaps, ...
 
-You may define types separately for keys or values, or only keys in which case values will use the same types.
+The serializer takes a single `serdes` parameter which it uses to serialize both keys and values.
 
 ```lua
-local serdes = Squish.table \{
-    number = Squish.f64(),
-    string = Squish.string(),
-    boolean = Squish.boolean(),
-    table = Squish.table \{
-        CFrame = Squish.CFrame(Squish.f32()),
-        Vector3 = Squish.Vector3(Squish.i16()),
-        number = Squish.vlq(),
-    },
-}
+local serdes = Squish.table(Squish.variant({
+    Squish.f64(),
+    Squish.string(),
+    Squish.boolean(),
+    Squish.Nil(),
+    Squish.table(Squish.variant({
+        Squish.CFrame(Squish.f32()),
+        Squish.Vector3(Squish.i16()),
+        Squish.vlq(),
+    })),
+}))
 
 local cursor = Squish.cursor()
 serdes.ser(cursor, \{
@@ -712,10 +715,7 @@ serdes.ser(cursor, \{
         [3] = 256,
     },
 })
-Squish.print(cursor)
--- Pos: 131 / 135
--- Buf: { 71 97 109 105 110 103 33 135 1 0 2 240 162 175 32 205 104 21 192 0 119 111 119 131 1 1 2 208 68 216 240 156 73 215 64 0 1 0 0 0 0 0 0 0 0 0 0 0 0 1 129 0 0 0 0 0 0 0 2 130 0 130 0 0 131 0 131 3 1 0 0 64 64 0 0 0 64 176 242 193 193 1 129 0 1 0 0 0 0 0 0 0 0 0 0 0 0 1 130 0 233 255 11 255 98 1 2 131 0 129 127 0 0 0 0 0 0 0 2 1 0 0 0 0 0 2 228 0 133 3 132 0 0 0 0 }
---                                                                                                                                                                                                                                                                                                                                                                           ^
+
 local buf = Squish.tobuffer(cursor)
 
 local cursor = Squish.frombuffer(buf)

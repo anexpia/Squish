@@ -37,7 +37,7 @@ Squish is **heavily** reliant on the new type solver, thus types for many functi
 - [ **NEW** ] **[dedup](../api/Squish#dedup)**: Serdes that deduplicates serialized values.
 - [ **NEW** ] **[Color3f16](../api/Squish#Color3f16)**: Serdes for color3, but not restricted to \[0-255] range.
 - [ **NEW** ] **[Instance](../api/Squish#Instance)**: Serdes for Instances.
-- [ **NEW** ] **[types](../api/Squish#types)**: Serdes for multiple types.
+- [ **NEW** ] **[variant](../api/Squish#variant)**: Serdes for multiple types and literals combined.
 - [ **NEW** ] **[any](../api/Squish#any)**: Serdes for any type, except tables.
 
 - [ **CHANGE** ] **[boolean](../api/Squish#boolean)**:\
@@ -49,8 +49,7 @@ Squish is **heavily** reliant on the new type solver, thus types for many functi
     - `restricted`: Defines whether the numbers should be clamped to the range of min - max when serializing and deserializing.
 
 - [ **CHANGE** ] **[table](../api/Squish#table)**:\
-    Added second parameter `valueschema` (`length` is now third) for the schema of the values in the table.\
-    If `valueschema` is not provided, will reuse `keyschema` for the values.
+    Replaces the old table implementation. Now accepts a single `serdes` parameter which applies to both keys and values of the table, and supports table deduplication and circular references.
 
 - [ **CHANGE** ] **[vector](../api/Squish#vector)**:\
     All vector functions have been combined into a single one as the old api was confusing (eg. `Squash.vector2` and `Squash.Vector2` were not the same.)\

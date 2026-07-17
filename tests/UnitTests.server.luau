@@ -378,11 +378,11 @@ local function test_dedup()
 	assert_equal(t4, t1, "Serialization and deserialization of dedup [3] failed")
 end
 
-local function test_types()
+local function test_variant()
 	-- Types
 
 	local cursor = Squish.cursor()
-	local serdes = Squish.types(Squish.UDim2(), Squish.Vector3(), Squish.opt(Squish.boolean()), Squish.string(), Squish.u16())
+	local serdes = Squish.variant({Squish.UDim2(), Squish.Vector3(), Squish.delta(Squish.boolean()), Squish.string(), Squish.u16()})
 
 	local values = {
 		UDim2.new(),
@@ -541,7 +541,7 @@ local function run_tests()
 	test_boolean()
 	test_dedup()
 	test_varnum()
-	test_types()
+	test_variant()
 	test_any()
 	print("All tests passed!")
 end
@@ -684,7 +684,7 @@ local float = Squish.f32()
 local vec2 = Squish.Vector2
 local arr = Squish.array
 local map = Squish.map
-local opt = Squish.opt
+local opt = Squish.delta
 local record = Squish.record
 
 local playerserdes = record {
@@ -755,7 +755,7 @@ print(playerserdes.des(cursor))
 
 --* Literals
 
-local literal = Squish.literal("a", 2, "c", true, "e")
+local literal = Squish.literal({ "a", 2, "c", true, "e" })
 
 local cursor = Squish.cursor()
 literal.ser(cursor, "c")
@@ -788,16 +788,16 @@ print(mytuple.des(cursor))
 
 --* Tables
 
-local serdes = Squish.table {
-	number = Squish.f64(),
-	string = Squish.string(),
-	boolean = Squish.boolean(),
-	table = Squish.table {
-		CFrame = Squish.CFrame(Squish.f32()),
-		Vector3 = Squish.Vector3(Squish.i16()),
-		number = Squish.vlq(),
-	},
-}
+local serdes = Squish.table(Squish.variant({
+	Squish.f64(),
+	Squish.string(),
+	Squish.boolean(),
+	Squish.table(Squish.variant({
+		Squish.CFrame(Squish.f32()),
+		Squish.Vector3(Squish.i16()),
+		Squish.vlq(),
+	})),
+}))
 
 local cursor = Squish.cursor()
 serdes.ser(cursor, {
@@ -845,7 +845,7 @@ do
 end
 
 do
-	local serdes, data, n = Squish.array(Squish.opt(Squish.u8())), { 1, 2, nil, nil, 5, 6, 7, 8, nil, 10, 11, 12, 13, nil, 15, 16, 17 } :: { number? }, 17
+	local serdes, data, n = Squish.array(Squish.delta(Squish.u8())), { 1, 2, nil, nil, 5, 6, 7, 8, nil, 10, 11, 12, 13, nil, 15, 16, 17 } :: { number? }, 17
 	local c = Squish.cursor()
 	serdes.ser(c, data)
 	Squish.print(c)
@@ -871,7 +871,7 @@ do
 end
 
 do
-	local serdes, data, n = Squish.array(Squish.opt(Squish.boolean())), { true, nil, false, nil, false, nil, false, nil, false, nil, false, nil, false, nil, false, true, false } :: { boolean? }, 17
+	local serdes, data, n = Squish.array(Squish.delta(Squish.boolean())), { true, nil, false, nil, false, nil, false, nil, false, nil, false, nil, false, nil, false, true, false } :: { boolean? }, 17
 	local c = Squish.cursor()
 	serdes.ser(c, data)
 	Squish.print(c)
@@ -886,7 +886,7 @@ end
 do
 	local T = Squish.T
 	local B = Squish.boolean()
-	local O = Squish.opt
+	local O = Squish.delta
 	local U = Squish.u8()
 
 	local s = {

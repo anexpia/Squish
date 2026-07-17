@@ -38,19 +38,19 @@ export type Cursor = {
 	validationscopes: {string}?,
 }
 
-type MultiSerDes<T...> = SerDes<T...> & {
+export type SerDes<T...> = {
+
+	type: string?,
+
 	multypeinfo: {
-		sorted: {string},
-		toindex: {[string]: number},
-		toserdes: {[string]: SerDes<any>},
+		toindex: {[any]: number}?,
+		toserdes: {[any]: SerDes<any>}?,
+
+		literals: {any}?,
+		literalsMap: {[any]: number}?,
 
 		hassubtypes: boolean?,
-		_hash: string?,
-	}?,
-}
-
-export type SerDes<T...> = {
-	type: string?,
+	}?, 
 
 	ser: typeof(
 		-- Serializes the provided value(s) into the buffer, as defined by the schema.
@@ -808,14 +808,14 @@ do
 		if x >= 2^49 then
 			count = 8
 		else
-			local x: number = x
+			local t_x: number = x
 
-			if x >= 2^28 then
+			if t_x >= 2^28 then
 				count = 4
-				x //= 2^28
+				t_x //= 2^28
 			end
 
-			local bits = 32 - bit32.countlz(bit32.bor(x, 1))
+			local bits = 32 - bit32.countlz(bit32.bor(t_x, 1))
 			count += (bits + 6) // 7
 		end
 		
@@ -1090,7 +1090,7 @@ do
 end
 
 do
-	local --[[mark]]u8 = {
+	local u8 = {
 		type = "number",
 		ser = function(cursor: Cursor, x: number)
 			if VALIDATION_ENABLED then beginValidationScope(cursor, "u8") assertSerializeType(cursor, x, "number") end
@@ -1108,7 +1108,7 @@ do
 		return u8
 	end
 
-	local --[[mark]]u16 = {
+	local u16 = {
 		type = "number",
 		ser = function(cursor: Cursor, x: number)
 			if VALIDATION_ENABLED then beginValidationScope(cursor, "u16") assertSerializeType(cursor, x, "number") end
@@ -1126,7 +1126,7 @@ do
 		return u16
 	end
 
-	local --[[mark]]u24 = {
+	local u24 = {
 		type = "number",
 		ser = function(cursor: Cursor, x: number)
 			if VALIDATION_ENABLED then beginValidationScope(cursor, "u24") assertSerializeType(cursor, x, "number") end
@@ -1144,7 +1144,7 @@ do
 		return u24
 	end
 
-	local --[[mark]]u32 = {
+	local u32 = {
 		type = "number",
 		ser = function(cursor: Cursor, x: number)
 			if VALIDATION_ENABLED then beginValidationScope(cursor, "u32") assertSerializeType(cursor, x, "number") end
@@ -1162,7 +1162,7 @@ do
 		return u32
 	end
 
-	local --[[mark]]u40 = {
+	local u40 = {
 		type = "number",
 		ser = function(cursor: Cursor, x: number)
 			if VALIDATION_ENABLED then beginValidationScope(cursor, "u40") assertSerializeType(cursor, x, "number") end
@@ -1180,7 +1180,7 @@ do
 		return u40
 	end
 
-	local --[[mark]]u48 = {
+	local u48 = {
 		type = "number",
 		ser = function(cursor: Cursor, x: number)
 			if VALIDATION_ENABLED then beginValidationScope(cursor, "u48") assertSerializeType(cursor, x, "number") end
@@ -1198,7 +1198,7 @@ do
 		return u48
 	end
 
-	local --[[mark]]u56 = {
+	local u56 = {
 		type = "number",
 		ser = function(cursor: Cursor, x: number)
 			if VALIDATION_ENABLED then beginValidationScope(cursor, "u56") assertSerializeType(cursor, x, "number") end
@@ -1216,7 +1216,7 @@ do
 		return u56
 	end
 
-	local --[[mark]]u64 = {
+	local u64 = {
 		type = "number",
 		ser = function(cursor: Cursor, x: number)
 			if VALIDATION_ENABLED then beginValidationScope(cursor, "u64") assertSerializeType(cursor, x, "number") end
@@ -1236,7 +1236,7 @@ do
 end
 
 do
-	local --[[mark]]i8 = {
+	local i8 = {
 		type = "number",
 		ser = function(cursor: Cursor, x: number)
 			if VALIDATION_ENABLED then beginValidationScope(cursor, "i8") assertSerializeType(cursor, x, "number") end
@@ -1253,7 +1253,7 @@ do
 		return i8
 	end
 
-	local --[[mark]]i16 = {
+	local i16 = {
 		type = "number",
 		ser = function(cursor: Cursor, x: number)
 			if VALIDATION_ENABLED then beginValidationScope(cursor, "i16") assertSerializeType(cursor, x, "number") end
@@ -1270,7 +1270,7 @@ do
 		return i16
 	end
 
-	local --[[mark]]i24 = {
+	local i24 = {
 		type = "number",
 		ser = function(cursor: Cursor, x: number)
 			if VALIDATION_ENABLED then beginValidationScope(cursor, "i24") assertSerializeType(cursor, x, "number") end
@@ -1287,7 +1287,7 @@ do
 		return i24
 	end
 
-	local --[[mark]]i32 = {
+	local i32 = {
 		type = "number",
 		ser = function(cursor: Cursor, x: number)
 			if VALIDATION_ENABLED then beginValidationScope(cursor, "i32") assertSerializeType(cursor, x, "number") end
@@ -1304,7 +1304,7 @@ do
 		return i32
 	end
 
-	local --[[mark]]i40 = {
+	local i40 = {
 		type = "number",
 		ser = function(cursor: Cursor, x: number)
 			if VALIDATION_ENABLED then beginValidationScope(cursor, "i40") assertSerializeType(cursor, x, "number") end
@@ -1321,7 +1321,7 @@ do
 		return i40
 	end
 
-	local --[[mark]]i48 = {
+	local i48 = {
 		type = "number",
 		ser = function(cursor: Cursor, x: number)
 			if VALIDATION_ENABLED then beginValidationScope(cursor, "i48") assertSerializeType(cursor, x, "number") end
@@ -1338,7 +1338,7 @@ do
 		return i48
 	end
 
-	local --[[mark]]i56 = {
+	local i56 = {
 		type = "number",
 		ser = function(cursor: Cursor, x: number)
 			if VALIDATION_ENABLED then beginValidationScope(cursor, "i56") assertSerializeType(cursor, x, "number") end
@@ -1355,7 +1355,7 @@ do
 		return i56
 	end
 
-	local --[[mark]]i64 = {
+	local i64 = {
 		type = "number",
 		ser = function(cursor: Cursor, x: number)
 			if VALIDATION_ENABLED then beginValidationScope(cursor, "i64") assertSerializeType(cursor, x, "number") end
@@ -1374,7 +1374,7 @@ do
 end
 
 do
-	local --[[mark]]f16 = {
+	local f16 = {
 		type = "number",
 		ser = function(cursor: Cursor, x: number)
 			if VALIDATION_ENABLED then beginValidationScope(cursor, "f16") assertSerializeType(cursor, x, "number") end
@@ -1391,7 +1391,7 @@ do
 		return f16
 	end
 
-	local --[[mark]]f32 = {
+	local f32 = {
 		type = "number",
 		ser = function(cursor: Cursor, x: number)
 			if VALIDATION_ENABLED then beginValidationScope(cursor, "f32") assertSerializeType(cursor, x, "number") end
@@ -1408,7 +1408,7 @@ do
 		return f32
 	end
 
-	local --[[mark]]f64 = {
+	local f64 = {
 		type = "number",
 		ser = function(cursor: Cursor, x: number)
 			if VALIDATION_ENABLED then beginValidationScope(cursor, "f64") assertSerializeType(cursor, x, "number") end
@@ -1545,7 +1545,7 @@ do
 			end
 		end
 
-		local --[[mark]]range: SerDes<number> = {
+		local range: SerDes<number> = {
 			type = "number",
 			ser = function(cursor: Cursor, x: number)
 				if VALIDATION_ENABLED then beginValidationScope(cursor, `range[{hash}]`) assertSerializeType(cursor, x, "number") end
@@ -1612,9 +1612,7 @@ do
 
 		if isnegative then id -= 16 end
 
-		if id == 15 and floatallowed then
-			value = math.huge
-		elseif id == 0 then
+		if id == 0 then
 			value = popu1(cursor)
 		elseif id == 1 then
 			value = popu2(cursor)
@@ -1628,6 +1626,8 @@ do
 			value = popu6(cursor)
 		elseif id == 6 then
 			value = popu7(cursor)
+		elseif id == 15 and floatallowed then
+			value = math.huge
 		else
 			value = popu8(cursor)
 		end
@@ -1635,28 +1635,18 @@ do
 		return if isnegative then -value else value
 	end
 
-	-- Returns SerDes for numbers, with optional parameter for which SerDes to use for float numbers.
-	-- Float numbers default to f64. You can disable encoding as float by providing 'false' to the parameter.
-	function Squish.number(floatSerDes: SerDes<number> | false | nil): SerDes<number>
-		if floatSerDes == nil then
-			floatSerDes = Squish.f64()
-		elseif floatSerDes ~= false then
-			assertIsSerdes(floatSerDes, 1) 
-			assertSerdesType(floatSerDes, "number")
-		end
+	-- Returns SerDes for numbers, dynamically optimizing to the smallest possible representation.
+	-- You can disable encoding as float by providing 'false' to the parameter.
+	function Squish.number(floatAllowed: boolean?): SerDes<number>
+		if floatAllowed == nil then floatAllowed = true end
 
-		if cache[floatSerDes] then
-			return cache[floatSerDes]
+		if cache[floatAllowed] then
+			return cache[floatAllowed]
 		end
-
-		local floatAllowed = floatSerDes ~= false
 
 		local serdes
-
+		
 		if floatAllowed then
-			local fsize, fpush, fpop = getNumberSizePushPop(floatSerDes)
-			fsize += 1
-
 			serdes = {		
 				type = "number",
 				ser = function(cursor: Cursor, x: number)
@@ -1666,16 +1656,27 @@ do
 					if (not isfinite) then
 						if math.isnan(x) then
 							tryrealloc(cursor, 1)
-							pushu1(cursor, 14)
+							pushu1(cursor, 13)
 						else
 							tryrealloc(cursor, 1)
-							pushu1(cursor, 15 + if x ~= math.huge then 16 else 0)
+							pushu1(cursor, if x == math.huge then 11 else 12)
 						end
 					elseif (x % 1 ~= 0 or x >= 2^64) then
-						tryrealloc(cursor, fsize)
-						fpush(cursor, x)
-						pushu1(cursor, 8)
-
+						local m, e = math.frexp(x)
+						
+						if e >= -13 and e <= 16 and (m * 2^11) % 1 == 0 then
+							tryrealloc(cursor, 3)
+							pushf2(cursor, x)
+							pushu1(cursor, 8)
+						elseif e >= -125 and e <= 128 and (m * 2^24) % 1 == 0 then
+							tryrealloc(cursor, 5)
+							pushf4(cursor, x)
+							pushu1(cursor, 9)
+						else
+							tryrealloc(cursor, 9)
+							pushf8(cursor, x)
+							pushu1(cursor, 10)
+						end
 					else 
 						pushu1(cursor, common_serInt(cursor, x))
 					end
@@ -1686,16 +1687,17 @@ do
 				des = function(cursor: Cursor): number
 					local id = popu1(cursor)
 
-					if id == 8 then
-						return fpop(cursor)
-					elseif id == 14 then
-						return math.nan
-					else 
-						return common_desInt(cursor, id, true)
+					if id == 8 then return popf2(cursor)
+					elseif id == 9 then return popf4(cursor)
+					elseif id == 10 then return popf8(cursor)
+					elseif id == 11 then return math.huge
+					elseif id == 12 then return -math.huge 
+					elseif id == 13 then return math.nan
+					else return common_desInt(cursor, id, true)
 					end
 				end,
 			}
-		else 
+		else
 			serdes = {		
 				type = "number",
 				ser = function(cursor: Cursor, x: number)
@@ -1712,7 +1714,7 @@ do
 			}
 		end
 
-		cache[floatSerDes] = serdes	
+		cache[floatAllowed] = serdes	
 		return serdes
 	end
 end
@@ -1823,7 +1825,7 @@ do
 		return result
 	end
 
-	local --[[mark]]stringSerDes: SerDes<string> = {
+	local stringSerDes: SerDes<string> = {
 		type = "string",
 		ser = function(cursor: Cursor, x: string)
 			if VALIDATION_ENABLED then beginValidationScope(cursor, "string") assertSerializeType(cursor, x, "string") end
@@ -1925,7 +1927,7 @@ do
 			return stringCache[length]
 		end
 
-		local --[[mark]]serdes: SerDes<string> = {
+		local serdes: SerDes<string> = {
 			type = "string",
 			ser = function(cursor: Cursor, x: string)
 				if VALIDATION_ENABLED then beginValidationScope(cursor, `string[{length}]`) assertSerializeType(cursor, x, "string") end
@@ -1978,7 +1980,7 @@ do
 
 		assertIsSerdes(serdes, 1)
 
-		local --[[mark]]optSerDes: SerDes<T?> = {
+		local optSerDes: SerDes<T?> = {
 			type = serdes.type,
 			ser = function(cursor: Cursor, x: any)
 				if VALIDATION_ENABLED then beginValidationScope(cursor, "opt") end
@@ -1996,7 +1998,7 @@ do
 			end,
 
 			des = function(cursor)
-				if bit32.btest(popu1(cursor), 2) then
+				if bit32.btest(popu1(cursor), 1) then
 					return serdes.des(cursor)
 				else
 					return nil
@@ -2029,7 +2031,7 @@ do
 			error(`Cannot create dedup SerDes for type {serdes.type}.`)
 		end
 
-		local --[[mark]]dedupSerDes: SerDes<T> = {
+		local dedupSerDes: SerDes<T> = {
 			type = serdes.type,
 			ser = function(cursor: Cursor, x: any)
 				if VALIDATION_ENABLED then beginValidationScope(cursor, "dedup") end
@@ -2044,7 +2046,7 @@ do
 				
 				-- checking is dedupinfo is less than current position inc of des() being used, moving cursor to before the deduplicated value's position.
 				if deduppos and deduppos < getpos(cursor) then
-					pushvlqrealloc(cursor, deduppos)
+					pushvlqrealloc(cursor, deduppos + 1) -- adding 1 because 0 is being used to indicate no deduplication.
 				else 
 					serdes.ser(cursor, x)
 					deduplookup[x] = getpos(cursor)
@@ -2066,27 +2068,29 @@ do
 				end
 				
 				local returnpos
+				local startpos
 				
 				if e == 0 then
-					local pos = getpos(cursor)
-					local info = deduplookup[pos]
+					startpos = getpos(cursor)
+					local info = deduplookup[startpos]
 					
 					if info then
 						setpos(cursor, info.s)
 						return info.value
-					else pos = e end
+					end
 				else 
-					local info = deduplookup[e]
+					startpos = e - 1
+					local info = deduplookup[startpos]
 					
 					if info then return info.value
 					else 
 						returnpos = getpos(cursor)
-						setpos(cursor, e)
+						setpos(cursor, startpos)
 					end
 				end
 				
 				local value = serdes.des(cursor)
-				deduplookup[e] = {
+				deduplookup[startpos] = {
 					s = getpos(cursor),
 					value = value,
 				}
@@ -2107,7 +2111,7 @@ do
 end
 
 do
-	local --[[mark]]bufSerDes: SerDes<buffer> = {
+	local bufSerDes: SerDes<buffer> = {
 		type = "buffer",
 		ser = function(cursor: Cursor, x: buffer)
 			if VALIDATION_ENABLED then beginValidationScope(cursor, "buffer") assertSerializeType(cursor, x, "buffer") end
@@ -2133,7 +2137,7 @@ do
 			return bufCache[length]
 		end
 
-		local --[[mark]]serdes: SerDes<buffer> = {
+		local serdes: SerDes<buffer> = {
 			type = "buffer",
 			ser = function(cursor: Cursor, x: buffer)
 				if VALIDATION_ENABLED then beginValidationScope(cursor, `buffer[{length}]`) assertSerializeType(cursor, x, "buffer") end
@@ -2157,6 +2161,7 @@ end
 
 do
 	local vlqCache: SerDes<number> = {
+		type = "number",
 		ser = if VALIDATION_ENABLED then function(cursor: Cursor, x: number)
 			if VALIDATION_ENABLED then beginValidationScope(cursor, "vlq") assertSerializeType(cursor, x, "number") end
 
@@ -2181,7 +2186,7 @@ local function serbitarr(cursor: Cursor, bits: { boolean }, length: number?)
 
 	local bitsOver = bitCount % 8
 
-	local buf, pos = getbuf(cursor), incrementpos(cursor, 1 + (bitCount // 8))
+	local buf, pos = getbuf(cursor), incrementpos(cursor, (bitCount + 7) // 8)
 
 	local bytesInBits = bitCount - bitsOver
 	for i = 0, bytesInBits - 1, 8 do
@@ -2209,7 +2214,7 @@ local function desbitarr(cursor: Cursor, bitCount: number): { boolean }
 
 	local arr = table.create(bitCount, false)
 	local bytes = bitCount // 8
-	local buf, pos = getbuf(cursor), decrementpos(cursor, 1 + bytes)
+	local buf, pos = getbuf(cursor), decrementpos(cursor, (bitCount + 7) // 8)
 
 	for i = 0, bytes - 1 do 
 		local j = i * 8
@@ -2260,7 +2265,7 @@ do
 		local underlyingSerDes = optMap[serdes]
 		if underlyingSerDes then
 			if underlyingSerDes.type == "boolean" then
-				local --[[mark]]arr: SerDes<{ boolean? }> = {
+				local arr: SerDes<{ boolean? }> = {
 					type = "table",
 					ser = function(cursor: Cursor, xs: {boolean?})
 						if VALIDATION_ENABLED then beginValidationScope(cursor, "optboolarray") assertSerializeType(cursor, xs, "table") end
@@ -2276,8 +2281,8 @@ do
 							end
 						end
 						local actualBoolCount = #bools
-						local boolBytes = 1 + actualBoolCount // 8
-						local flagBytes = 1 + n // 8
+						local boolBytes = (actualBoolCount + 7) // 8
+						local flagBytes = (n + 7) // 8
 						tryrealloc(cursor, boolBytes + flagBytes)
 						serbitarr(cursor, bools)
 						serbitarr(cursor, flags)
@@ -2315,7 +2320,7 @@ do
 				cached[key] = arr
 				return arr :: any
 			else
-				local --[[mark]]arr: SerDes<{ T? }> = {
+				local arr: SerDes<{ T? }> = {
 					type = "table",
 					ser = function(cursor: Cursor, xs: { any }): ()
 						if VALIDATION_ENABLED then beginValidationScope(cursor, "optarray") assertSerializeType(cursor, xs, "table") end
@@ -2334,7 +2339,7 @@ do
 								flags[i] = true
 							end
 						end
-						local flagBytes = 1 + n // 8
+						local flagBytes = (n + 7) // 8
 						tryrealloc(cursor, flagBytes)
 						serbitarr(cursor, flags)
 						if not length then
@@ -2365,13 +2370,13 @@ do
 				return arr :: any
 			end
 		elseif serdes.type == "boolean" then
-			local --[[mark]]arr: SerDes<{ boolean }> = {
+			local arr: SerDes<{ boolean }> = {
 				type = "table",
 				ser = function(cursor: Cursor, xs: {boolean})
 					if VALIDATION_ENABLED then beginValidationScope(cursor, "boolarray") assertSerializeType(cursor, xs, "table") end
 
 					local n = length or table.maxn(xs) -- if lengthisnum then length else #xs
-					tryrealloc(cursor,  1 + n // 8)
+					tryrealloc(cursor, (n + 7) // 8)
 					serbitarr(cursor, xs, n)
 
 					if not length then
@@ -2391,7 +2396,7 @@ do
 			cached[key] = arr
 			return arr :: any
 		else
-			local --[[mark]]arr: SerDes<{ T }> = {
+			local arr: SerDes<{ T }> = {
 				type = "table",
 				ser = function(cursor: Cursor, xs: {any})
 					if VALIDATION_ENABLED then beginValidationScope(cursor, "array") assertSerializeType(cursor, xs, "table") end
@@ -2487,7 +2492,7 @@ do
 
 		local reversedserdes = reverseArray(serdesargs)
 
-		local --[[mark]]tuple: SerDes<any> = {
+		local tuple: SerDes<any> = {
 			type = nil,
 			ser = function(cursor: Cursor, ...: any)
 				if VALIDATION_ENABLED then beginValidationScope(cursor, "tuple") end
@@ -2853,40 +2858,26 @@ do
 end
 
 do
-	type function wrapIntoUnion(f: type)
-		local result = {}
-
-		for i, v in f:returns().head or {} do 
-
-			if safeUnwrapSerdes(v) then
-				print(`Argument [{i}] cannot be a SerDes in Squish.literal().`)
-				return types.never
-			end
-
-			result[i] = v
-		end
-
-		if #result == 0 then
-			print("Expected to be provided a tuple of literals, but got nothing.")
-			return types.never
-		end
-
-		return types.unionof(unpack(result))
-	end
-
 	-- Returns SerDes for only values that are provided to this function. 
-	function Squish.literal<T...>(...: T...): SerDes<wrapIntoUnion<() -> (T...)>>
-		local literals = { ... }
-		local lookup = {}
+	function Squish.literal<T>(array: {T}): SerDes<T>
+		local map = {}
+		local literals = {}
 
-		for i, literal in literals do
-			lookup[literal] = i - 1
+		for i, literal in array do
+			map[literal] = i - 1
+			literals[i - 1] = literal
 		end
 
-		return {
-			ser = function(cursor: Cursor, literal)
+		local serdes: SerDes<any> = {
+			type = nil,
+			multypeinfo = {
+				literals = literals,
+				literalsMap = map,
+			},
+
+			ser = function(cursor: Cursor, literal: any)
 				if VALIDATION_ENABLED then beginValidationScope(cursor, "literal") end 
-				local v = lookup[literal]
+				local v = map[literal]
 
 				if not v then
 					reportValidationError(cursor, `{literal} is not a valid option for this literals SerDes.`)
@@ -2899,129 +2890,194 @@ do
 			end,
 
 			des = function(cursor)
-				return literals[popu1(cursor) + 1]
-			end,
-		}
-	end
-
-end
-
-do
-	type function unwrapTypesIntoUnionTable(defType: type, defType2: type)
-		if defType2.tag == "nil" then defType2 = defType end 
-		return types.newtable(nil, {index = unwrapTypesIntoUnion(defType), readresult = unwrapTypesIntoUnion(defType2)})
-	end
-	
-	-- Similar to Squish.map(), defining different serdes for keys and values, with optional parameter for how long the table should be.
-	-- If the type of a key or value when serializing is not defined in the table's schema, it'll be ignored.
-	-- <strong>Example</strong>: <em>Squish.table({Vector3 = Squish.vector()}, {string = Squish.string()})</em>
-	function Squish.table<K, V>(keyschema: K, valueschema: V, length: Length?): SerDes<unwrapTypesIntoUnionTable<K, V>>
-		assertSchemaType(keyschema, "table", 1)
-
-		if valueschema == nil then 
-			valueschema = keyschema 
-		else 
-			assertSchemaType(valueschema, "table", 2)
-		end
-
-		assertIsLength(length, 3)
-
-		local keytypemap = {}
-		local keymaptype = {}
-
-		local valuetypemap = {}
-		local valuemaptype = {}
-
-		for key, serdes in keyschema do
-			assertSchemaType(key, "string", "keyschema")
-			assertIsSerdes(serdes, `keyschema.{key}`)
-
-			local i = #keytypemap + 1
-			keytypemap[i] = key
-			keymaptype[key] = i
-		end
-
-		for key, serdes in valueschema do
-			assertSchemaType(key, "string", "valueschema")
-			assertIsSerdes(serdes, `valueschema.{key}`)
-
-			local i = #valuetypemap + 1
-			valuetypemap[i] = key
-			valuemaptype[key] = i
-		end
-
---		local lengthisnum = type(length) == "number"
-
-		local serdes = {
-			type = "table",
-			ser = function(cursor: Cursor, tab: AnyTable)
-				if VALIDATION_ENABLED then beginValidationScope(cursor, "table") end 
-
-				local size = 0
-				for k, v in tab :: any do
-					local vtype = typeof(v)
-					local vserdes = valueschema[vtype] 
-					if not vserdes then
-						continue
-					end
-
-					local ktype = typeof(k)
-					local kserdes = keyschema[ktype]
-					if not kserdes then
-						continue
-					end
-
-					if VALIDATION_ENABLED then overrideValidationScopeName(cursor, `table key:{k} | val:{v}`) end
-
-					vserdes.ser(cursor, v)
-					kserdes.ser(cursor, k)
-
-					local vid = valuemaptype[vtype] or error(``)
-					local kid = keymaptype[ktype] or error(``)	
-
-					tryrealloc(cursor, 2)
-					pushu1(cursor, vid - 1)
-					pushu1(cursor, kid - 1)
-
-					size += 1
-				end
-
-				if not length then
-					pushvlqrealloc(cursor, size)
---				elseif not lengthisnum then
---					if VALIDATION_ENABLED then overrideValidationScopeName(cursor, "table vlq") end
---					length.ser(cursor, size)
-				elseif size ~= length then
-					reportValidationError(cursor, `Expected table length to be equal to {length}, but got {size}.`)
-				end
-
-				if VALIDATION_ENABLED then exitValidationScope(cursor) end
-			end,
-
-			des = function(cursor: Cursor)
-				local tab = {}
-				local size = length or popvlq(cursor) -- if not length then popvlq(cursor) elseif lengthisnum then length else length.des(cursor)
-
-				for _ = 1, size do
-					local kid = popu1(cursor) + 1
-					local kserdes = keyschema[keytypemap[kid]]
-
-					local vid = popu1(cursor) + 1
-					local vserdes = valueschema[valuetypemap[vid]]
-
-					local k = kserdes.des(cursor)
-					local v = vserdes.des(cursor)
-
-					if k ~= nil then
-						tab[k] = v
-					end
-				end
-
-				return tab
+				return literals[popu1(cursor)]
 			end,
 		}
 
 		return serdes
+	end
+
+	-- Adds the provided literals to the SerDes.
+	function Squish.addliterals(serdes: SerDes<any>, ...: any)
+		local info = serdes.multypeinfo
+		assert(info and info.literals and info.literalsMap, "SerDes does not support adding literals.")
+
+		local literals = info.literals
+		local literalsMap = info.literalsMap
+
+		local lastidx = table.maxn(literals)
+		if lastidx == 0 and literals[0] == nil then lastidx = -1 end
+		
+		for i = 1, select("#", ...) do 
+			local v = select(i, ...)
+
+			if literalsMap[v] then continue end 
+			lastidx += 1
+			 
+			literals[lastidx] = v 
+			literalsMap[v] = lastidx
+		end
+	end
+
+	local tableCache = {}
+	local writingArray = {}
+
+	-- Returns SerDes for arbitrary tables of any shape. supporting mixed tables, gaps, and circular references.
+	function Squish.table<T>(serdes: SerDes<T>): SerDes<{[T]: T}>
+		assertIsSerdes(serdes, 1)
+		if tableCache[serdes] then return tableCache[serdes] end
+
+		local tbl: SerDes<{[any]: any}> = {
+			type = "table",
+			ser = function(cursor: Cursor, x: {[any]: any})
+				if VALIDATION_ENABLED then beginValidationScope(cursor, "table") assertSerializeType(cursor, x, "table") end
+
+				local scanlist = cursor.scanlist
+				if not scanlist then
+					scanlist = {{ tbl = x, serdes = serdes }}
+					cursor.scanlist = scanlist
+					cursor.scancount = 1
+					cursor.valuelookup = {[x] = 1}
+				else
+					local scanpos = cursor.valuelookup[x]
+					
+					if not scanpos then
+						scanpos = cursor.scancount + 1
+						cursor.scancount = scanpos
+						scanlist[scanpos] = {tbl = x, serdes = serdes}
+						cursor.valuelookup[x] = scanpos
+					end
+					
+					pushvlqrealloc(cursor, scanpos)
+
+					if VALIDATION_ENABLED then exitValidationScope(cursor) end
+					return
+				end
+
+				local i = 1
+				while i <= cursor.scancount do
+					local current = scanlist[i]
+					local currentTable = current.tbl
+					local currentSerdes = current.serdes
+					
+					local arraylen = #currentTable
+					local dictlen = 0
+					
+					local startpos = getpos(cursor)
+
+					local doingArray = arraylen > 0
+					local lastidx = 0
+					
+					for k, v in currentTable do 
+						if doingArray then 
+							local diff = k - lastidx
+							if diff > 1 then 
+								-- a gap, reconcile.
+								for i = 2, diff do currentSerdes.ser(cursor, nil) end
+							end
+
+							currentSerdes.ser(cursor, v)
+							lastidx = k
+
+							if k == arraylen then doingArray = false end
+							continue
+						end
+
+						dictlen += 1
+
+						currentSerdes.ser(cursor, k)
+						currentSerdes.ser(cursor, v)
+					end
+
+					pushvlqrealloc(cursor, arraylen)
+					pushvlqrealloc(cursor, dictlen)
+					
+					local chunklen = getpos(cursor) - startpos
+					pushvlqrealloc(cursor, chunklen)
+
+					i += 1
+				end
+
+				pushvlqrealloc(cursor, cursor.scancount)
+
+				cursor.scanlist = nil
+				cursor.scancount = nil
+				cursor.valuelookup = nil
+
+				if VALIDATION_ENABLED then exitValidationScope(cursor) end
+			end,
+
+			des = function(cursor: Cursor): {[any]: any}
+				local scanlist = cursor.scanlist
+
+				if not scanlist then
+					scanlist = {}
+					cursor.scanlist = scanlist
+				else
+					local scanpos = popvlq(cursor)
+					local current = scanlist[scanpos]
+
+					if current then
+						if not current.serdes then
+							current.serdes = serdes
+						end
+						return current.tbl
+					end
+					
+					return {} -- corrupted table? 
+				end
+
+				local scancount = popvlq(cursor)
+
+				for idx = scancount, 1, -1 do
+					local chunklen = popvlq(cursor)
+					local end_pos = getpos(cursor)
+					
+					scanlist[idx] = {
+						tbl = {},
+						end_pos = end_pos
+					}
+					
+					setpos(cursor, end_pos - chunklen)
+				end
+
+				local end_of_tables = getpos(cursor)
+
+				for idx = 1, scancount do
+					local current = scanlist[idx]
+					local currentTable = current.tbl
+					local currentSerdes = current.serdes or serdes
+
+					setpos(cursor, current.end_pos)
+
+					local dictlen = popvlq(cursor)
+					local arraylen = popvlq(cursor)
+
+					for _ = 1, dictlen do
+						local v = currentSerdes.des(cursor)
+						local k = currentSerdes.des(cursor)
+						if k ~= nil then currentTable[k] = v end
+					end
+
+					for i = arraylen, 1, -1 do
+						writingArray[i] = currentSerdes.des(cursor)
+					end
+
+					table.move(writingArray, 1, arraylen, 1, currentTable)
+				end
+
+				setpos(cursor, end_of_tables)
+
+				cursor.scanlist = nil
+				table.clear(writingArray)
+
+				local rootTable = scanlist[1].tbl
+				return rootTable :: any
+			end,
+		}
+		
+		tableCache[tbl] = tbl
+		return tbl
 	end
 end
 
@@ -3273,7 +3329,7 @@ if Vector2 ~= nil then
 end
 
 if Axes ~= nil then
-	local --[[mark]]axesCache: SerDes<Axes> = {
+	local axesCache: SerDes<Axes> = {
 		type = "Axes",
 		ser = function(cursor: Cursor, axes: Axes)
 			if VALIDATION_ENABLED then beginValidationScope(cursor, "Axes") assertSerializeType(cursor, axes, "Axes") end
@@ -3309,7 +3365,7 @@ if Axes ~= nil then
 end
 
 if BrickColor ~= nil then
-	local --[[mark]]brickcolorCache: SerDes<BrickColor> = {
+	local brickcolorCache: SerDes<BrickColor> = {
 		type = "BrickColor",
 		ser = function(cursor: Cursor, brickcolor: BrickColor)
 			if VALIDATION_ENABLED then beginValidationScope(cursor, "BrickColor") assertSerializeType(cursor, brickcolor, "BrickColor") end
@@ -3486,7 +3542,7 @@ if Enum ~= nil then
 end
 
 if CatalogSearchParams ~= nil then
-	local --[[mark]]catalogSearchParamsCache: SerDes<CatalogSearchParams> = {
+	local catalogSearchParamsCache: SerDes<CatalogSearchParams> = {
 		type = "CatalogSearchParams",
 		ser = function(cursor: Cursor, params: CatalogSearchParams)
 			if VALIDATION_ENABLED then beginValidationScope(cursor, "CatalogSearchParams") assertSerializeType(cursor, params, "CatalogSearchParams") end
@@ -3709,7 +3765,7 @@ if CFrame ~= nil then
 end
 
 if Color3 ~= nil then
-	local --[[mark]]color3Cache: SerDes<Color3> = {
+	local color3Cache: SerDes<Color3> = {
 		type = "Color3",
 		ser = function(cursor: Cursor, x: Color3)
 			if VALIDATION_ENABLED then beginValidationScope(cursor, "Color3") assertSerializeType(cursor, x, "Color3") end
@@ -3730,7 +3786,7 @@ if Color3 ~= nil then
 		end,
 	}
 
-	local --[[mark]]color3f16Cache: SerDes<Color3> = {
+	local color3f16Cache: SerDes<Color3> = {
 		type = "Color3",
 		ser = function(cursor: Cursor, x: Color3)
 			if VALIDATION_ENABLED then beginValidationScope(cursor, "Color3") assertSerializeType(cursor, x, "Color3") end
@@ -3778,7 +3834,7 @@ if ColorSequenceKeypoint ~= nil then
 		return ColorSequenceKeypoint.new(time, color)
 	end
 
-	local --[[mark]]colorSequenceKeypointCache: SerDes<ColorSequenceKeypoint> = {
+	local colorSequenceKeypointCache: SerDes<ColorSequenceKeypoint> = {
 		type = "ColorSequenceKeypoint",
 		ser = function(cursor: Cursor, x: ColorSequenceKeypoint)
 			if VALIDATION_ENABLED then beginValidationScope(cursor, "ColorSequenceKeypoint") assertSerializeType(cursor, x, "ColorSequenceKeypoint") end
@@ -3799,7 +3855,7 @@ if ColorSequenceKeypoint ~= nil then
 end
 
 if ColorSequence ~= nil then
-	local --[[mark]]colorSequenceCache: SerDes<ColorSequence> = {
+	local colorSequenceCache: SerDes<ColorSequence> = {
 		type = "ColorSequence",
 		ser = function(cursor: Cursor, sequence: ColorSequence)
 			if VALIDATION_ENABLED then beginValidationScope(cursor, "ColorSequence") assertSerializeType(cursor, sequence, "ColorSequence") end
@@ -3831,7 +3887,7 @@ if ColorSequence ~= nil then
 end
 
 if DateTime ~= nil then
-	local --[[mark]]dateTimeCache: SerDes<DateTime> = {
+	local dateTimeCache: SerDes<DateTime> = {
 		type = "DateTime",
 		ser = function(cursor: Cursor, date: DateTime)
 			if VALIDATION_ENABLED then beginValidationScope(cursor, "DateTime") assertSerializeType(cursor, date, "DateTime") end
@@ -3854,7 +3910,7 @@ if DateTime ~= nil then
 end
 
 if Faces ~= nil then
-	local --[[mark]]facesCache: SerDes<Faces> = {
+	local facesCache: SerDes<Faces> = {
 		type = "Faces",
 		ser = function(cursor: Cursor, face: Faces)
 			if VALIDATION_ENABLED then beginValidationScope(cursor, "Faces") assertSerializeType(cursor, face, "Faces") end
@@ -3889,7 +3945,7 @@ if FloatCurveKey ~= nil then
 	local enumserdes = enumitem(Enum.KeyInterpolationMode)
 	local enumser, enumdes = enumserdes.ser, enumserdes.des 
 
-	local --[[mark]]floatCurveKeyCache: SerDes<FloatCurveKey> = {
+	local floatCurveKeyCache: SerDes<FloatCurveKey> = {
 		type = "FloatCurveKey",
 		ser = function(cursor: Cursor, key: FloatCurveKey)
 			if VALIDATION_ENABLED then beginValidationScope(cursor, "FloatCurveKey") assertSerializeType(cursor, key, "FloatCurveKey") end
@@ -3921,7 +3977,7 @@ if Font ~= nil then
 	local weightenumserdes = enumitem(Enum.FontWeight)
 	local weightenumser, weightenumdes = weightenumserdes.ser, weightenumserdes.des 
 
-	local --[[mark]]fontCache: SerDes<Font> = {
+	local fontCache: SerDes<Font> = {
 		type = "Font",
 		ser = function(cursor: Cursor, font: Font)
 			if VALIDATION_ENABLED then beginValidationScope(cursor, "Font") assertSerializeType(cursor, font, "Font") end
@@ -3974,7 +4030,7 @@ if NumberRange ~= nil then
 		local size, push, pop = getNumberSizePushPop(serdes)
 		if size then size *= 2 end
 
-		local --[[mark]]numrange: SerDes<NumberRange> = {
+		local numrange: SerDes<NumberRange> = {
 			type = "NumberRange",
 			ser = function(cursor: Cursor, range: NumberRange)
 				if VALIDATION_ENABLED then beginValidationScope(cursor, "NumberRange") assertSerializeType(cursor, range, "NumberRange") end
@@ -4022,7 +4078,7 @@ if NumberSequenceKeypoint ~= nil then
 		local size, push, pop = getNumberSizePushPop(serdes)
 		if size then size *= 2 end
 
-		local --[[mark]]sequencekeypoint: SerDes<NumberSequenceKeypoint> = {
+		local sequencekeypoint: SerDes<NumberSequenceKeypoint> = {
 			type = "NumberSequenceKeypoint",
 			ser = function(cursor: Cursor, keypoint: NumberSequenceKeypoint)
 				if VALIDATION_ENABLED then beginValidationScope(cursor, "NumberSequenceKeypoint") assertSerializeType(cursor, keypoint, "NumberSequenceKeypoint") end
@@ -4073,7 +4129,7 @@ if NumberSequence ~= nil then
 
 		local pushrealloc, pop = numbersequencekeypoint(serdes).ser, numbersequencekeypoint(serdes).des
 
-		local --[[mark]]numsequence: SerDes<NumberSequence> = {
+		local numsequence: SerDes<NumberSequence> = {
 			type = "NumberSequence",
 			ser = function(cursor: Cursor, sequence: NumberSequence)
 				if VALIDATION_ENABLED then beginValidationScope(cursor, "NumberSequence") assertSerializeType(cursor, sequence, "NumberSequence") end
@@ -4104,7 +4160,7 @@ if NumberSequence ~= nil then
 end
 
 if OverlapParams ~= nil then
-	local --[[mark]]overlapParamsCache: SerDes<OverlapParams> = {
+	local overlapParamsCache: SerDes<OverlapParams> = {
 		type = "OverlapParams",
 		ser = function(cursor: Cursor, params: OverlapParams)
 			if VALIDATION_ENABLED then beginValidationScope(cursor, "OverlapParams") assertSerializeType(cursor, params, "OverlapParams") end
@@ -4136,7 +4192,7 @@ if OverlapParams ~= nil then
 end
 
 if RaycastParams ~= nil then
-	local --[[mark]]raycastParamsCache: SerDes<RaycastParams> = {
+	local raycastParamsCache: SerDes<RaycastParams> = {
 		type = "RaycastParams",
 		ser = function(cursor: Cursor, params: RaycastParams)
 			if VALIDATION_ENABLED then beginValidationScope(cursor, "RaycastParams") assertSerializeType(cursor, params, "RaycastParams") end
@@ -4188,7 +4244,7 @@ if PathWaypoint ~= nil then
 
 		local enumser, enumdes = enumserdes.ser, enumserdes.des
 
-		local --[[mark]]path: SerDes<PathWaypoint> = {
+		local path: SerDes<PathWaypoint> = {
 			type = "PathWaypoint",
 			ser = function(cursor: Cursor, waypoint: PathWaypoint)
 				if VALIDATION_ENABLED then beginValidationScope(cursor, "PathWaypoint") assertSerializeType(cursor, waypoint, "PathWaypoint") end
@@ -4222,7 +4278,7 @@ if PathWaypoint ~= nil then
 end
 
 if PhysicalProperties ~= nil then
-	local --[[mark]]physicalPropertiesCache: SerDes<PhysicalProperties> = {
+	local physicalPropertiesCache: SerDes<PhysicalProperties> = {
 		type = "PhysicalProperties",
 		ser = function(cursor: Cursor, props: PhysicalProperties)
 			if VALIDATION_ENABLED then beginValidationScope(cursor, "PhysicalProperties") assertSerializeType(cursor, props, "PhysicalProperties") end
@@ -4268,7 +4324,7 @@ if Ray ~= nil then
 		local size, push, pop = getNumberSizePushPop(serdes)
 		if size then size *= 6 end
 
-		local --[[mark]]raycached: SerDes<Ray> = {
+		local raycached: SerDes<Ray> = {
 			type = "Ray",
 			ser = function(cursor: Cursor, ray: Ray)
 				if VALIDATION_ENABLED then beginValidationScope(cursor, "Ray") assertSerializeType(cursor, ray, "Ray") end
@@ -4324,7 +4380,7 @@ if RaycastParams ~= nil then
 		local insser, insdes = ins.ser, ins.des
 		local matser, matdes = material.ser, material.des
 
-		local --[[mark]]raycastresult: RaycastResultSerDes = {
+		local raycastresult: RaycastResultSerDes = {
 			type = "RaycastResult",
 			ser = function(cursor: Cursor, result: RaycastResult)
 				if VALIDATION_ENABLED then beginValidationScope(cursor, "RaycastResult") assertSerializeType(cursor, result, "RaycastResult") end
@@ -4387,7 +4443,7 @@ if Rect ~= nil then
 		local size, push, pop = getNumberSizePushPop(serdes)
 		if size then size *= 4 end
 
-		local --[[mark]]rectserdes: SerDes<Rect> = {
+		local rectserdes: SerDes<Rect> = {
 			type = "Rect",
 			ser = function(cursor: Cursor, rect: Rect)
 				if VALIDATION_ENABLED then beginValidationScope(cursor, "Rect") assertSerializeType(cursor, rect, "Rect") end
@@ -4435,7 +4491,7 @@ if Region3 ~= nil then
 		local size, push, pop = getNumberSizePushPop(serdes)
 		if size then size *= 6 end
 
-		local --[[mark]]reg: SerDes<Region3> = {
+		local reg: SerDes<Region3> = {
 			type = "Region3",
 			ser = function(cursor: Cursor, region: Region3)
 				if VALIDATION_ENABLED then beginValidationScope(cursor, "Region3") assertSerializeType(cursor, region, "Region3") end
@@ -4471,7 +4527,7 @@ if Region3 ~= nil then
 end
 
 if Region3int16 ~= nil then
-	local --[[mark]]region3int16Cache: SerDes<Region3int16> = {
+	local region3int16Cache: SerDes<Region3int16> = {
 		type = "Region3int16",
 		ser = function(cursor: Cursor, region: Region3int16)
 			if VALIDATION_ENABLED then beginValidationScope(cursor, "Region3int16") assertSerializeType(cursor, region, "Region3int16") end
@@ -4522,7 +4578,7 @@ if RotationCurveKey ~= nil then
 		local cfserdes = Squish.CFrame(serdes)
 		local pushrealloc, pop = cfserdes.ser, cfserdes.des
 
-		local --[[mark]]rot: SerDes<RotationCurveKey> = {
+		local rot: SerDes<RotationCurveKey> = {
 			type = "RotationCurveKey",
 			ser = function(cursor: Cursor, key: RotationCurveKey)
 				if VALIDATION_ENABLED then beginValidationScope(cursor, "RotationCurveKey") assertSerializeType(cursor, key, "RotationCurveKey") end
@@ -4550,7 +4606,7 @@ if RotationCurveKey ~= nil then
 end
 
 if TweenInfo ~= nil then
-	local --[[mark]]tweenInfoCache: SerDes<TweenInfo> = {
+	local tweenInfoCache: SerDes<TweenInfo> = {
 		type = "TweenInfo",
 		ser = function(cursor: Cursor, info: TweenInfo)
 			if VALIDATION_ENABLED then beginValidationScope(cursor, "TweenInfo") assertSerializeType(cursor, info, "TweenInfo") end
@@ -4603,7 +4659,7 @@ if UDim ~= nil then
 		local size, push, pop = getNumberSizePushPop(serdes)
 		if size then size *= 2 end
 
-		local --[[mark]]udim: SerDes<UDim> = {
+		local udim: SerDes<UDim> = {
 			type = "UDim",
 			ser = function(cursor: Cursor, u: UDim)
 				if VALIDATION_ENABLED then beginValidationScope(cursor, "UDim") assertSerializeType(cursor, u, "UDim") end
@@ -4650,7 +4706,7 @@ if UDim2 ~= nil then
 		local size, push, pop = getNumberSizePushPop(serdes)
 		if size then size *= 4 end
 
-		local --[[mark]]udim2: SerDes<UDim2> = {
+		local udim2: SerDes<UDim2> = {
 			type = "UDim2",
 			ser = function(cursor: Cursor, u: UDim2)
 				if VALIDATION_ENABLED then beginValidationScope(cursor, "UDim2") assertSerializeType(cursor, u, "UDim2") end
@@ -4681,7 +4737,7 @@ if UDim2 ~= nil then
 end
 
 if Vector2int16 ~= nil then
-	local --[[mark]]vector2int16Cache: SerDes<Vector2int16> = {
+	local vector2int16Cache: SerDes<Vector2int16> = {
 		type = "Vector2int16",
 		ser = function(cursor: Cursor, v: Vector2int16)
 			if VALIDATION_ENABLED then beginValidationScope(cursor, "Vector2int16") assertSerializeType(cursor, v, "Vector2int16") end
@@ -4706,7 +4762,7 @@ if Vector2int16 ~= nil then
 end
 
 if Vector3int16 ~= nil then
-	local --[[mark]]vector3int16Cache: SerDes<Vector3int16> = {
+	local vector3int16Cache: SerDes<Vector3int16> = {
 		type = "Vector3int16",
 		ser = function(cursor: Cursor, v: Vector3int16)
 			if VALIDATION_ENABLED then beginValidationScope(cursor, "Vector3int16") assertSerializeType(cursor, v, "Vector3int16") end
@@ -4747,70 +4803,70 @@ if Instance ~= nil then
 	]]
 	
 	type RobloxClasses = {
-		Accessory: Accessory, AccessoryDescription: AccessoryDescription, Accoutrement: Accoutrement, Actor: Actor, AdGui: AdGui, AdPortal: AdPortal, AdService: AdService, AdvancedDragger: AdvancedDragger, AirController: AirController, 
-		AlignOrientation: AlignOrientation, AlignPosition: AlignPosition, AnalyticsService: AnalyticsService, AngularVelocity: AngularVelocity, Animation: Animation, AnimationClip: AnimationClip, AnimationClipProvider: AnimationClipProvider, AnimationConstraint: AnimationConstraint, AnimationController: AnimationController, AnimationFromVideoCreatorService: AnimationFromVideoCreatorService, 
-		AnimationGraphDefinition: AnimationGraphDefinition, AnimationNode: AnimationNode, AnimationNodeDefinition: AnimationNodeDefinition, AnimationRigData: AnimationRigData, AnimationTrack: AnimationTrack, Animator: Animator, Annotation: Annotation, ArcHandles: ArcHandles, AssetDeliveryProxy: AssetDeliveryProxy, AssetPatchSettings: AssetPatchSettings, 
-		AssetService: AssetService, Atmosphere: Atmosphere, AtmosphereSensor: AtmosphereSensor, Attachment: Attachment, AudioAnalyzer: AudioAnalyzer, AudioChannelMixer: AudioChannelMixer, AudioChannelSplitter: AudioChannelSplitter, AudioChorus: AudioChorus, AudioCompressor: AudioCompressor, AudioDeviceInput: AudioDeviceInput, 
-		AudioDeviceOutput: AudioDeviceOutput, AudioDistortion: AudioDistortion, AudioEcho: AudioEcho, AudioEmitter: AudioEmitter, AudioEqualizer: AudioEqualizer, AudioFader: AudioFader, AudioFilter: AudioFilter, AudioFlanger: AudioFlanger, AudioGate: AudioGate, AudioLimiter: AudioLimiter, 
-		AudioListener: AudioListener, AudioPages: AudioPages, AudioPitchShifter: AudioPitchShifter, AudioPlayer: AudioPlayer, AudioRecorder: AudioRecorder, AudioReverb: AudioReverb, AudioSearchParams: AudioSearchParams, AudioSpeechToText: AudioSpeechToText, AudioTextToSpeech: AudioTextToSpeech, AudioTremolo: AudioTremolo, 
-		AuroraScriptService: AuroraScriptService, AvatarCreationService: AvatarCreationService, AvatarEditorService: AvatarEditorService, Backpack: Backpack, BackpackItem: BackpackItem, BadgeService: BadgeService, BallSocketConstraint: BallSocketConstraint, BanHistoryPages: BanHistoryPages, BaseCoreGuiConfiguration: BaseCoreGuiConfiguration, BasePart: BasePart, 
-		BasePlayerGui: BasePlayerGui, BaseRemoteEvent: BaseRemoteEvent, BaseScript: BaseScript, BaseWrap: BaseWrap, Beam: Beam, BevelMesh: BevelMesh, BillboardGui: BillboardGui, BinaryStringValue: BinaryStringValue, BindableEvent: BindableEvent, BindableFunction: BindableFunction, 
-		BlockMesh: BlockMesh, BloomEffect: BloomEffect, BlurEffect: BlurEffect, BodyAngularVelocity: BodyAngularVelocity, BodyColors: BodyColors, BodyForce: BodyForce, BodyGyro: BodyGyro, BodyMover: BodyMover, BodyPartDescription: BodyPartDescription, BodyPosition: BodyPosition, 
-		BodyThrust: BodyThrust, BodyVelocity: BodyVelocity, Bone: Bone, BoolValue: BoolValue, BoxHandleAdornment: BoxHandleAdornment, BrickColorValue: BrickColorValue, BrowserService: BrowserService, BubbleChatConfiguration: BubbleChatConfiguration, BubbleChatMessageProperties: BubbleChatMessageProperties, BuoyancySensor: BuoyancySensor, 
-		CFrameValue: CFrameValue, CacheableContentProvider: CacheableContentProvider, Camera: Camera, CanvasGroup: CanvasGroup, Capture: Capture, CaptureService: CaptureService, CapturesPages: CapturesPages, CapturesViewConfiguration: CapturesViewConfiguration, CatalogPages: CatalogPages, ChangeHistoryService: ChangeHistoryService, 
-		ChannelTabsConfiguration: ChannelTabsConfiguration, CharacterAppearance: CharacterAppearance, CharacterMesh: CharacterMesh, Chat: Chat, ChatInputBarConfiguration: ChatInputBarConfiguration, ChatWindowConfiguration: ChatWindowConfiguration, ChatWindowMessageProperties: ChatWindowMessageProperties, ChorusSoundEffect: ChorusSoundEffect, ClickDetector: ClickDetector, ClientReplicator: ClientReplicator, 
-		ClimbController: ClimbController, Clothing: Clothing, Clouds: Clouds, ClusterPacketCache: ClusterPacketCache, CollectionService: CollectionService, Color3Value: Color3Value, ColorCorrectionEffect: ColorCorrectionEffect, ColorGradingEffect: ColorGradingEffect, CommerceService: CommerceService, CompositeValueCurve: CompositeValueCurve, 
-		CompressorSoundEffect: CompressorSoundEffect, ConeHandleAdornment: ConeHandleAdornment, ConfigService: ConfigService, ConfigSnapshot: ConfigSnapshot, Configuration: Configuration, ConfigureServerService: ConfigureServerService, Constraint: Constraint, ContentProvider: ContentProvider, ContextActionService: ContextActionService, Controller: Controller, 
-		ControllerBase: ControllerBase, ControllerManager: ControllerManager, ControllerPartSensor: ControllerPartSensor, ControllerSensor: ControllerSensor, ControllerService: ControllerService, CookiesService: CookiesService, CoreGuiConfiguration: CoreGuiConfiguration, CoreScriptDebuggingManagerHelper: CoreScriptDebuggingManagerHelper, CornerWedgePart: CornerWedgePart, CreatorStoreService: CreatorStoreService, 
-		CurveAnimation: CurveAnimation, CustomEvent: CustomEvent, CustomEventReceiver: CustomEventReceiver, CylinderHandleAdornment: CylinderHandleAdornment, CylinderMesh: CylinderMesh, CylindricalConstraint: CylindricalConstraint, DataModel: DataModel, DataModelMesh: DataModelMesh, DataModelSession: DataModelSession, DataStore: DataStore, 
-		DataStoreGetOptions: DataStoreGetOptions, DataStoreIncrementOptions: DataStoreIncrementOptions, DataStoreInfo: DataStoreInfo, DataStoreKey: DataStoreKey, DataStoreKeyInfo: DataStoreKeyInfo, DataStoreKeyPages: DataStoreKeyPages, DataStoreListingPages: DataStoreListingPages, DataStoreObjectVersionInfo: DataStoreObjectVersionInfo, DataStoreOptions: DataStoreOptions, DataStorePages: DataStorePages, 
-		DataStoreService: DataStoreService, DataStoreSetOptions: DataStoreSetOptions, DataStoreVersionPages: DataStoreVersionPages, Debris: Debris, Decal: Decal, DepthOfFieldEffect: DepthOfFieldEffect, Dialog: Dialog, DialogChoice: DialogChoice, DigitsRigDescription: DigitsRigDescription, DistortionSoundEffect: DistortionSoundEffect, 
-		DoubleConstrainedValue: DoubleConstrainedValue, DragDetector: DragDetector, Dragger: Dragger, DynamicRotate: DynamicRotate, EchoSoundEffect: EchoSoundEffect, EditableImage: EditableImage, EditableMesh: EditableMesh, EmotesPages: EmotesPages, EncodingService: EncodingService, EqualizerSoundEffect: EqualizerSoundEffect, 
-		EulerRotationCurve: EulerRotationCurve, ExperienceInviteOptions: ExperienceInviteOptions, ExperienceNotificationService: ExperienceNotificationService, Explosion: Explosion, FaceControls: FaceControls, FaceInstance: FaceInstance, Feature: Feature, FeatureRestrictionManager: FeatureRestrictionManager, File: File, FileMesh: FileMesh, 
-		Fire: Fire, Flag: Flag, FlagStand: FlagStand, FlagStandService: FlagStandService, FlangeSoundEffect: FlangeSoundEffect, FloatCurve: FloatCurve, FloorWire: FloorWire, FluidForceSensor: FluidForceSensor, Folder: Folder, ForceField: ForceField, 
-		FormFactorPart: FormFactorPart, Frame: Frame, FriendPages: FriendPages, FriendService: FriendService, FunctionalTest: FunctionalTest, GamePassService: GamePassService, GamepadService: GamepadService, GenerationService: GenerationService, GenericChallengeService: GenericChallengeService, Geometry: Geometry, 
-		GeometryService: GeometryService, GetTextBoundsParams: GetTextBoundsParams, GlobalDataStore: GlobalDataStore, Glue: Glue, GroundController: GroundController, GroupService: GroupService, GuiBase: GuiBase, GuiBase2d: GuiBase2d, GuiBase3d: GuiBase3d, GuiButton: GuiButton, 
-		GuiLabel: GuiLabel, GuiMain: GuiMain, GuiObject: GuiObject, GuiService: GuiService, GuidRegistryService: GuidRegistryService, HSRDataContentProvider: HSRDataContentProvider, HandleAdornment: HandleAdornment, Handles: Handles, HandlesBase: HandlesBase, HapticEffect: HapticEffect, 
-		HapticService: HapticService, Hat: Hat, HeapProfilerService: HeapProfilerService, HeightmapImporterService: HeightmapImporterService, HiddenSurfaceRemovalAsset: HiddenSurfaceRemovalAsset, Highlight: Highlight, HingeConstraint: HingeConstraint, Hint: Hint, Hole: Hole, Hopper: Hopper, 
-		HopperBin: HopperBin, HttpRbxApiService: HttpRbxApiService, HttpService: HttpService, Humanoid: Humanoid, HumanoidController: HumanoidController, HumanoidDescription: HumanoidDescription, HumanoidRigDescription: HumanoidRigDescription, IKControl: IKControl, ILegacyStudioBridge: ILegacyStudioBridge, ImageButton: ImageButton, 
-		ImageHandleAdornment: ImageHandleAdornment, ImageLabel: ImageLabel, IncrementalPatchBuilder: IncrementalPatchBuilder, InputAction: InputAction, InputBinding: InputBinding, InputContext: InputContext, InputObject: InputObject, InsertService: InsertService, Instance: Instance, InstanceAdornment: InstanceAdornment, 
-		InstanceExtensionsService: InstanceExtensionsService, IntConstrainedValue: IntConstrainedValue, IntValue: IntValue, IntersectOperation: IntersectOperation, InventoryPages: InventoryPages, JointInstance: JointInstance, JointsService: JointsService, KeyboardService: KeyboardService, Keyframe: Keyframe, KeyframeMarker: KeyframeMarker, 
-		KeyframeSequence: KeyframeSequence, KeyframeSequenceProvider: KeyframeSequenceProvider, LayerCollector: LayerCollector, Light: Light, Lighting: Lighting, LineForce: LineForce, LineHandleAdornment: LineHandleAdornment, LinearVelocity: LinearVelocity, LocalScript: LocalScript, LocalizationService: LocalizationService, 
-		LocalizationTable: LocalizationTable, LogService: LogService, LoginService: LoginService, LuaSourceContainer: LuaSourceContainer, LuaWebService: LuaWebService, MLService: MLService, MLSession: MLSession, MakeupDescription: MakeupDescription, ManualGlue: ManualGlue, ManualSurfaceJointInstance: ManualSurfaceJointInstance, 
-		ManualWeld: ManualWeld, MarkerCurve: MarkerCurve, MarketplaceService: MarketplaceService, MatchmakingService: MatchmakingService, MaterialService: MaterialService, MaterialVariant: MaterialVariant, MemStorageConnection: MemStorageConnection, MemStorageService: MemStorageService, MemoryStoreHashMap: MemoryStoreHashMap, MemoryStoreHashMapPages: MemoryStoreHashMapPages, 
-		MemoryStoreQueue: MemoryStoreQueue, MemoryStoreService: MemoryStoreService, MemoryStoreSortedMap: MemoryStoreSortedMap, MeshContentProvider: MeshContentProvider, MeshPart: MeshPart, Message: Message, MessagingService: MessagingService, MicroProfilerService: MicroProfilerService, Model: Model, ModerationService: ModerationService, 
-		ModuleScript: ModuleScript, Motor: Motor, Motor6D: Motor6D, MotorFeature: MotorFeature, Mouse: Mouse, MouseService: MouseService, NegateOperation: NegateOperation, NetworkMarker: NetworkMarker, NetworkPeer: NetworkPeer, NetworkReplicator: NetworkReplicator, 
-		NoCollisionConstraint: NoCollisionConstraint, NotificationService: NotificationService, NumberPose: NumberPose, NumberValue: NumberValue, Object: Object, ObjectValue: ObjectValue, OpenCloudApiV1: OpenCloudApiV1, OpenCloudService: OpenCloudService, OperationGraph: OperationGraph, OrderedDataStore: OrderedDataStore, 
-		OutfitPages: OutfitPages, PVAdornment: PVAdornment, PVInstance: PVInstance, PackageLink: PackageLink, PackageService: PackageService, Pages: Pages, Pants: Pants, Part: Part, PartAdornment: PartAdornment, PartOperation: PartOperation, 
-		PartOperationAsset: PartOperationAsset, ParticleEmitter: ParticleEmitter, PatchBundlerFileWatch: PatchBundlerFileWatch, PatchMapping: PatchMapping, Path: Path, Path2D: Path2D, PathfindingLink: PathfindingLink, PathfindingModifier: PathfindingModifier, PathfindingService: PathfindingService, PermissionsService: PermissionsService, 
-		PhysicsService: PhysicsService, PitchShiftSoundEffect: PitchShiftSoundEffect, PlacesService: PlacesService, Plane: Plane, PlaneConstraint: PlaneConstraint, Platform: Platform, PlayerData: PlayerData, PlayerDataRecord: PlayerDataRecord, PlayerDataRecordConfig: PlayerDataRecordConfig, PlayerDataService: PlayerDataService, 
-		PlayerGui: PlayerGui, PlayerListConfiguration: PlayerListConfiguration, PlayerMouse: PlayerMouse, PlayerScripts: PlayerScripts, PlayerViewService: PlayerViewService, Players: Players, PluginManagementService: PluginManagementService, PointLight: PointLight, PointsService: PointsService, PolicyService: PolicyService, 
-		Pose: Pose, PoseBase: PoseBase, PostEffect: PostEffect, PrismaticConstraint: PrismaticConstraint, ProcessInstancePhysicsService: ProcessInstancePhysicsService, ProximityPrompt: ProximityPrompt, ProximityPromptService: ProximityPromptService, PublishService: PublishService, PyramidHandleAdornment: PyramidHandleAdornment, RayValue: RayValue, 
-		RecommendationPages: RecommendationPages, RecommendationService: RecommendationService, ReflectionMetadata: ReflectionMetadata, ReflectionMetadataCallbacks: ReflectionMetadataCallbacks, ReflectionMetadataClass: ReflectionMetadataClass, ReflectionMetadataClasses: ReflectionMetadataClasses, ReflectionMetadataEnum: ReflectionMetadataEnum, ReflectionMetadataEnumItem: ReflectionMetadataEnumItem, ReflectionMetadataEnums: ReflectionMetadataEnums, ReflectionMetadataEvents: ReflectionMetadataEvents, 
-		ReflectionMetadataFunctions: ReflectionMetadataFunctions, ReflectionMetadataItem: ReflectionMetadataItem, ReflectionMetadataMember: ReflectionMetadataMember, ReflectionMetadataProperties: ReflectionMetadataProperties, ReflectionMetadataYieldFunctions: ReflectionMetadataYieldFunctions, ReflectionService: ReflectionService, RemoteCommandService: RemoteCommandService, RemoteDebuggerServer: RemoteDebuggerServer, RemoteEvent: RemoteEvent, RemoteFunction: RemoteFunction, 
-		RenderingTest: RenderingTest, ReplicatedFirst: ReplicatedFirst, ReplicatedStorage: ReplicatedStorage, ReverbSoundEffect: ReverbSoundEffect, RigidConstraint: RigidConstraint, RocketPropulsion: RocketPropulsion, RodConstraint: RodConstraint, RopeConstraint: RopeConstraint, Rotate: Rotate, RotateP: RotateP, 
-		RotateV: RotateV, RotationCurve: RotationCurve, RunService: RunService, RunningAverageItemDouble: RunningAverageItemDouble, RunningAverageItemInt: RunningAverageItemInt, RunningAverageTimeIntervalItem: RunningAverageTimeIntervalItem, ScreenGui: ScreenGui, ScreenshotCapture: ScreenshotCapture, ScreenshotHud: ScreenshotHud, Script: Script, 
-		ScriptBuilder: ScriptBuilder, ScriptContext: ScriptContext, ScriptProfilerService: ScriptProfilerService, ScriptService: ScriptService, ScrollingFrame: ScrollingFrame, Seat: Seat, Selection: Selection, SelectionBox: SelectionBox, SelectionHighlightManager: SelectionHighlightManager, SelectionLasso: SelectionLasso, 
-		SelectionPartLasso: SelectionPartLasso, SelectionPointLasso: SelectionPointLasso, SelectionSphere: SelectionSphere, SelfViewConfiguration: SelfViewConfiguration, SensorBase: SensorBase, ServerReplicator: ServerReplicator, ServerScriptService: ServerScriptService, ServerStorage: ServerStorage, ServiceProvider: ServiceProvider, ServiceVisibilityService: ServiceVisibilityService, 
-		SessionCheckService: SessionCheckService, SharedTableRegistry: SharedTableRegistry, Shirt: Shirt, ShirtGraphic: ShirtGraphic, SkateboardController: SkateboardController, SkateboardPlatform: SkateboardPlatform, Skin: Skin, Sky: Sky, SlidingBallConstraint: SlidingBallConstraint, SlimContentProvider: SlimContentProvider, 
-		Smoke: Smoke, SmoothVoxelsUpgraderService: SmoothVoxelsUpgraderService, Snap: Snap, SocialService: SocialService, SolidModelContentProvider: SolidModelContentProvider, Sound: Sound, SoundEffect: SoundEffect, SoundGroup: SoundGroup, SoundService: SoundService, Sparkles: Sparkles, 
-		SpawnLocation: SpawnLocation, SpawnerService: SpawnerService, SpecialMesh: SpecialMesh, SphereHandleAdornment: SphereHandleAdornment, SpotLight: SpotLight, SpringConstraint: SpringConstraint, StandardPages: StandardPages, StarterCharacterScripts: StarterCharacterScripts, StarterGear: StarterGear, StarterGui: StarterGui, 
-		StarterPack: StarterPack, StarterPlayer: StarterPlayer, StarterPlayerScripts: StarterPlayerScripts, StartupMessageService: StartupMessageService, Stats: Stats, StatsItem: StatsItem, Status: Status, StopWatchReporter: StopWatchReporter, StringValue: StringValue, StudioTestService: StudioTestService, 
-		StudioTheme: StudioTheme, StyleBase: StyleBase, StyleDerive: StyleDerive, StyleLink: StyleLink, StyleQuery: StyleQuery, StyleRule: StyleRule, StyleSheet: StyleSheet, StylingService: StylingService, SunRaysEffect: SunRaysEffect, SurfaceAppearance: SurfaceAppearance, 
-		SurfaceGui: SurfaceGui, SurfaceGuiBase: SurfaceGuiBase, SurfaceLight: SurfaceLight, SurfaceSelection: SurfaceSelection, SwimController: SwimController, SyncScriptBuilder: SyncScriptBuilder, Team: Team, Teams: Teams, TeleportAsyncResult: TeleportAsyncResult, TeleportOptions: TeleportOptions, 
-		TeleportService: TeleportService, Terrain: Terrain, TerrainDetail: TerrainDetail, TerrainIterateOperation: TerrainIterateOperation, TerrainModifyOperation: TerrainModifyOperation, TerrainReadOperation: TerrainReadOperation, TerrainRegion: TerrainRegion, TerrainWriteOperation: TerrainWriteOperation, TestService: TestService, TextBox: TextBox, 
-		TextBoxService: TextBoxService, TextButton: TextButton, TextChannel: TextChannel, TextChatCommand: TextChatCommand, TextChatConfigurations: TextChatConfigurations, TextChatMessage: TextChatMessage, TextChatMessageProperties: TextChatMessageProperties, TextChatService: TextChatService, TextFilterResult: TextFilterResult, TextFilterTranslatedResult: TextFilterTranslatedResult, 
-		TextGenerator: TextGenerator, TextLabel: TextLabel, TextService: TextService, TextSource: TextSource, Texture: Texture, TimerService: TimerService, Tool: Tool, Torque: Torque, TorsionSpringConstraint: TorsionSpringConstraint, TotalCountTimeIntervalItem: TotalCountTimeIntervalItem, 
-		TouchInputService: TouchInputService, TouchTransmitter: TouchTransmitter, TraceRouteService: TraceRouteService, Trail: Trail, Translator: Translator, TremoloSoundEffect: TremoloSoundEffect, TriangleMeshPart: TriangleMeshPart, TrussPart: TrussPart, Tween: Tween, TweenBase: TweenBase, 
-		TweenService: TweenService, UGCValidationService: UGCValidationService, UIAspectRatioConstraint: UIAspectRatioConstraint, UIBase: UIBase, UIComponent: UIComponent, UIConstraint: UIConstraint, UICorner: UICorner, UIDragDetector: UIDragDetector, UIDragDetectorService: UIDragDetectorService, UIFlexItem: UIFlexItem, 
-		UIGradient: UIGradient, UIGridLayout: UIGridLayout, UIGridStyleLayout: UIGridStyleLayout, UILayout: UILayout, UIListLayout: UIListLayout, UIPadding: UIPadding, UIPageLayout: UIPageLayout, UIScale: UIScale, UIShadow: UIShadow, UISizeConstraint: UISizeConstraint, 
-		UIStroke: UIStroke, UITableLayout: UITableLayout, UITextSizeConstraint: UITextSizeConstraint, UnionOperation: UnionOperation, UniqueIdLookupService: UniqueIdLookupService, UniversalConstraint: UniversalConstraint, UnreliableRemoteEvent: UnreliableRemoteEvent, UserInputService: UserInputService, UserService: UserService, VRService: VRService, 
-		VRStatusService: VRStatusService, ValueBase: ValueBase, ValueCurve: ValueCurve, Vector3Curve: Vector3Curve, Vector3Value: Vector3Value, VectorForce: VectorForce, VehicleController: VehicleController, VehicleSeat: VehicleSeat, VelocityMotor: VelocityMotor, VideoCapture: VideoCapture, 
-		VideoCaptureService: VideoCaptureService, VideoDisplay: VideoDisplay, VideoFrame: VideoFrame, VideoPlayer: VideoPlayer, VideoSampler: VideoSampler, VideoScreenCaptureService: VideoScreenCaptureService, VideoService: VideoService, ViewportFrame: ViewportFrame, VirtualInputManager: VirtualInputManager, VirtualUser: VirtualUser, 
-		VisibilityCheckDispatcher: VisibilityCheckDispatcher, Visit: Visit, VisualizationMode: VisualizationMode, VisualizationModeCategory: VisualizationModeCategory, VisualizationModeService: VisualizationModeService, VoiceChatInternal: VoiceChatInternal, VoiceChatService: VoiceChatService, WebStreamClient: WebStreamClient, WedgePart: WedgePart, Weld: Weld, 
-		WeldConstraint: WeldConstraint, Wire: Wire, WireframeHandleAdornment: WireframeHandleAdornment, Workspace: Workspace, WorkspaceAnnotation: WorkspaceAnnotation, WorldModel: WorldModel, WorldRoot: WorldRoot, WrapDeformer: WrapDeformer, WrapLayer: WrapLayer, WrapTarget: WrapTarget, 
-		WrapTextureTransfer: WrapTextureTransfer,          
-	}
+		Accessory: Accessory, AccessoryDescription: AccessoryDescription, Accoutrement: Accoutrement, Actor: Actor, AdGui: AdGui, AdPortal: AdPortal, AdService: AdService, AdvancedDragger: AdvancedDragger, AirController: AirController,
+		AlignOrientation: AlignOrientation, AlignPosition: AlignPosition, AnalyticsService: AnalyticsService, AngularVelocity: AngularVelocity, Animation: Animation, AnimationClip: AnimationClip, AnimationClipProvider: AnimationClipProvider, AnimationConstraint: AnimationConstraint, AnimationController: AnimationController, AnimationFromVideoCreatorService: AnimationFromVideoCreatorService,
+		AnimationGraphDefinition: AnimationGraphDefinition, AnimationNode: AnimationNode, AnimationNodeDefinition: AnimationNodeDefinition, AnimationRigData: AnimationRigData, AnimationTrack: AnimationTrack, Animator: Animator, Annotation: Annotation, ArcHandles: ArcHandles, AssetDeliveryProxy: AssetDeliveryProxy, AssetPatchSettings: AssetPatchSettings,
+		AssetService: AssetService, Atmosphere: Atmosphere, AtmosphereSensor: AtmosphereSensor, Attachment: Attachment, AudioAnalyzer: AudioAnalyzer, AudioChannelMixer: AudioChannelMixer, AudioChannelSplitter: AudioChannelSplitter, AudioChorus: AudioChorus, AudioCompressor: AudioCompressor, AudioDeviceInput: AudioDeviceInput,
+		AudioDeviceOutput: AudioDeviceOutput, AudioDistortion: AudioDistortion, AudioEcho: AudioEcho, AudioEmitter: AudioEmitter, AudioEqualizer: AudioEqualizer, AudioFader: AudioFader, AudioFilter: AudioFilter, AudioFlanger: AudioFlanger, AudioGate: AudioGate, AudioLimiter: AudioLimiter,
+		AudioListener: AudioListener, AudioPages: AudioPages, AudioPitchShifter: AudioPitchShifter, AudioPlayer: AudioPlayer, AudioRecorder: AudioRecorder, AudioReverb: AudioReverb, AudioSearchParams: AudioSearchParams, AudioSpeechToText: AudioSpeechToText, AudioTextToSpeech: AudioTextToSpeech, AudioTremolo: AudioTremolo,
+		AuroraScriptService: AuroraScriptService, AvatarCreationService: AvatarCreationService, AvatarEditorService: AvatarEditorService, Backpack: Backpack, BackpackItem: BackpackItem, BadgeService: BadgeService, BallSocketConstraint: BallSocketConstraint, BanHistoryPages: BanHistoryPages, BaseCoreGuiConfiguration: BaseCoreGuiConfiguration, BasePart: BasePart,
+		BasePlayerGui: BasePlayerGui, BaseRemoteEvent: BaseRemoteEvent, BaseScript: BaseScript, BaseWrap: BaseWrap, Beam: Beam, BevelMesh: BevelMesh, BillboardGui: BillboardGui, BinaryStringValue: BinaryStringValue, BindableEvent: BindableEvent, BindableFunction: BindableFunction,
+		BlockMesh: BlockMesh, BloomEffect: BloomEffect, BlurEffect: BlurEffect, BodyAngularVelocity: BodyAngularVelocity, BodyColors: BodyColors, BodyForce: BodyForce, BodyGyro: BodyGyro, BodyMover: BodyMover, BodyPartDescription: BodyPartDescription, BodyPosition: BodyPosition,
+		BodyThrust: BodyThrust, BodyVelocity: BodyVelocity, Bone: Bone, BoolValue: BoolValue, BoxHandleAdornment: BoxHandleAdornment, BrickColorValue: BrickColorValue, BrowserService: BrowserService, BubbleChatConfiguration: BubbleChatConfiguration, BubbleChatMessageProperties: BubbleChatMessageProperties, BuoyancySensor: BuoyancySensor,
+		CFrameValue: CFrameValue, CacheableContentProvider: CacheableContentProvider, Camera: Camera, CanvasGroup: CanvasGroup, Capture: Capture, CaptureService: CaptureService, CapturesPages: CapturesPages, CapturesViewConfiguration: CapturesViewConfiguration, CatalogPages: CatalogPages, ChangeHistoryService: ChangeHistoryService,
+		ChannelTabsConfiguration: ChannelTabsConfiguration, CharacterAppearance: CharacterAppearance, CharacterMesh: CharacterMesh, Chat: Chat, ChatInputBarConfiguration: ChatInputBarConfiguration, ChatWindowConfiguration: ChatWindowConfiguration, ChatWindowMessageProperties: ChatWindowMessageProperties, ChorusSoundEffect: ChorusSoundEffect, ClickDetector: ClickDetector, ClientReplicator: ClientReplicator,
+		ClimbController: ClimbController, Clothing: Clothing, Clouds: Clouds, ClusterPacketCache: ClusterPacketCache, CollectionService: CollectionService, Color3Value: Color3Value, ColorCorrectionEffect: ColorCorrectionEffect, ColorGradingEffect: ColorGradingEffect, CommerceService: CommerceService, CompositeValueCurve: CompositeValueCurve,
+		CompressorSoundEffect: CompressorSoundEffect, ConeHandleAdornment: ConeHandleAdornment, ConfigService: ConfigService, ConfigSnapshot: ConfigSnapshot, Configuration: Configuration, ConfigureServerService: ConfigureServerService, Constraint: Constraint, ContentProvider: ContentProvider, ContextActionService: ContextActionService, Controller: Controller,
+		ControllerBase: ControllerBase, ControllerManager: ControllerManager, ControllerPartSensor: ControllerPartSensor, ControllerSensor: ControllerSensor, ControllerService: ControllerService, CookiesService: CookiesService, CoreGuiConfiguration: CoreGuiConfiguration, CoreScriptDebuggingManagerHelper: CoreScriptDebuggingManagerHelper, CornerWedgePart: CornerWedgePart, CreatorStoreService: CreatorStoreService,
+		CurveAnimation: CurveAnimation, CustomEvent: CustomEvent, CustomEventReceiver: CustomEventReceiver, CylinderHandleAdornment: CylinderHandleAdornment, CylinderMesh: CylinderMesh, CylindricalConstraint: CylindricalConstraint, DataModel: DataModel, DataModelMesh: DataModelMesh, DataModelSession: DataModelSession, DataStore: DataStore,
+		DataStoreGetOptions: DataStoreGetOptions, DataStoreIncrementOptions: DataStoreIncrementOptions, DataStoreInfo: DataStoreInfo, DataStoreKey: DataStoreKey, DataStoreKeyInfo: DataStoreKeyInfo, DataStoreKeyPages: DataStoreKeyPages, DataStoreListingPages: DataStoreListingPages, DataStoreObjectVersionInfo: DataStoreObjectVersionInfo, DataStoreOptions: DataStoreOptions, DataStorePages: DataStorePages,
+		DataStoreService: DataStoreService, DataStoreSetOptions: DataStoreSetOptions, DataStoreVersionPages: DataStoreVersionPages, Debris: Debris, Decal: Decal, DepthOfFieldEffect: DepthOfFieldEffect, Dialog: Dialog, DialogChoice: DialogChoice, DigitsRigDescription: DigitsRigDescription, DistortionSoundEffect: DistortionSoundEffect,
+		DoubleConstrainedValue: DoubleConstrainedValue, DragDetector: DragDetector, Dragger: Dragger, DynamicRotate: DynamicRotate, EchoSoundEffect: EchoSoundEffect, EditableImage: EditableImage, EditableMesh: EditableMesh, EncodingService: EncodingService, EqualizerSoundEffect: EqualizerSoundEffect, EulerRotationCurve: EulerRotationCurve,
+		ExperienceInviteOptions: ExperienceInviteOptions, ExperienceNotificationService: ExperienceNotificationService, Explosion: Explosion, FaceControls: FaceControls, FaceInstance: FaceInstance, Feature: Feature, FeatureRestrictionManager: FeatureRestrictionManager, File: File, FileMesh: FileMesh, Fire: Fire,
+		Flag: Flag, FlagStand: FlagStand, FlagStandService: FlagStandService, FlangeSoundEffect: FlangeSoundEffect, FloatCurve: FloatCurve, FloorWire: FloorWire, FluidForceSensor: FluidForceSensor, Folder: Folder, ForceField: ForceField, FormFactorPart: FormFactorPart,
+		Frame: Frame, FriendPages: FriendPages, FriendService: FriendService, FunctionalTest: FunctionalTest, GamePassService: GamePassService, GamepadService: GamepadService, GeneratedFolder: GeneratedFolder, GenerationService: GenerationService, GenericChallengeService: GenericChallengeService, Geometry: Geometry,
+		GeometryService: GeometryService, GetTextBoundsParams: GetTextBoundsParams, GlobalDataStore: GlobalDataStore, Glue: Glue, GroundController: GroundController, GroupService: GroupService, GuiBase: GuiBase, GuiBase2d: GuiBase2d, GuiBase3d: GuiBase3d, GuiButton: GuiButton,
+		GuiLabel: GuiLabel, GuiMain: GuiMain, GuiObject: GuiObject, GuiService: GuiService, GuidRegistryService: GuidRegistryService, HSRDataContentProvider: HSRDataContentProvider, HandleAdornment: HandleAdornment, Handles: Handles, HandlesBase: HandlesBase, HapticEffect: HapticEffect,
+		HapticService: HapticService, Hat: Hat, HeapProfilerService: HeapProfilerService, HeightmapImporterService: HeightmapImporterService, HiddenSurfaceRemovalAsset: HiddenSurfaceRemovalAsset, Highlight: Highlight, HingeConstraint: HingeConstraint, Hint: Hint, Hole: Hole, Hopper: Hopper,
+	HopperBin: HopperBin, HttpRbxApiService: HttpRbxApiService, HttpService: HttpService, Humanoid: Humanoid, HumanoidController: HumanoidController, HumanoidDescription: HumanoidDescription, HumanoidRigDescription: HumanoidRigDescription, IKControl: IKControl, ILegacyStudioBridge: ILegacyStudioBridge, ImageButton: ImageButton,
+	ImageHandleAdornment: ImageHandleAdornment, ImageLabel: ImageLabel, IncrementalPatchBuilder: IncrementalPatchBuilder, InputAction: InputAction, InputBinding: InputBinding, InputContext: InputContext, InputObject: InputObject, InsertService: InsertService, Instance: Instance, InstanceAdornment: InstanceAdornment,
+	InstanceExtensionsService: InstanceExtensionsService, IntConstrainedValue: IntConstrainedValue, IntValue: IntValue, IntersectOperation: IntersectOperation, InventoryPages: InventoryPages, JointInstance: JointInstance, JointsService: JointsService, KeyboardService: KeyboardService, Keyframe: Keyframe, KeyframeMarker: KeyframeMarker,
+	KeyframeSequence: KeyframeSequence, KeyframeSequenceProvider: KeyframeSequenceProvider, LayerCollector: LayerCollector, Light: Light, Lighting: Lighting, LineForce: LineForce, LineHandleAdornment: LineHandleAdornment, LinearVelocity: LinearVelocity, LocalScript: LocalScript, LocalizationService: LocalizationService,
+	LocalizationTable: LocalizationTable, LogService: LogService, LoginService: LoginService, LuaSourceContainer: LuaSourceContainer, LuaWebService: LuaWebService, MLService: MLService, MLSession: MLSession, MakeupDescription: MakeupDescription, ManualGlue: ManualGlue, ManualSurfaceJointInstance: ManualSurfaceJointInstance,
+	ManualWeld: ManualWeld, MarkerCurve: MarkerCurve, MarketplaceService: MarketplaceService, MatchmakingService: MatchmakingService, MaterialService: MaterialService, MaterialVariant: MaterialVariant, MemStorageConnection: MemStorageConnection, MemStorageService: MemStorageService, MemoryStoreHashMap: MemoryStoreHashMap, MemoryStoreHashMapPages: MemoryStoreHashMapPages,
+	MemoryStoreQueue: MemoryStoreQueue, MemoryStoreService: MemoryStoreService, MemoryStoreSortedMap: MemoryStoreSortedMap, MeshContentProvider: MeshContentProvider, MeshPart: MeshPart, Message: Message, MessagingService: MessagingService, MicroProfilerService: MicroProfilerService, Model: Model, ModerationService: ModerationService,
+	ModuleScript: ModuleScript, Motor: Motor, Motor6D: Motor6D, MotorFeature: MotorFeature, Mouse: Mouse, MouseService: MouseService, NegateOperation: NegateOperation, NetworkMarker: NetworkMarker, NetworkPeer: NetworkPeer, NetworkReplicator: NetworkReplicator,
+	NoCollisionConstraint: NoCollisionConstraint, NotificationService: NotificationService, NumberPose: NumberPose, NumberValue: NumberValue, Object: Object, ObjectValue: ObjectValue, OpenCloudApiV1: OpenCloudApiV1, OpenCloudService: OpenCloudService, OperationGraph: OperationGraph, OrderedDataStore: OrderedDataStore,
+	OutfitPages: OutfitPages, PVAdornment: PVAdornment, PVInstance: PVInstance, PackageLink: PackageLink, PackageService: PackageService, Packages: Packages, Pages: Pages, Pants: Pants, Part: Part, PartAdornment: PartAdornment,
+	PartOperation: PartOperation, PartOperationAsset: PartOperationAsset, ParticleEmitter: ParticleEmitter, PatchBundlerFileWatch: PatchBundlerFileWatch, PatchMapping: PatchMapping, Path: Path, Path2D: Path2D, PathfindingLink: PathfindingLink, PathfindingModifier: PathfindingModifier, PathfindingService: PathfindingService,
+	PermissionsService: PermissionsService, PhysicsService: PhysicsService, PitchShiftSoundEffect: PitchShiftSoundEffect, PlacesService: PlacesService, Plane: Plane, PlaneConstraint: PlaneConstraint, Platform: Platform, PlayerData: PlayerData, PlayerDataRecord: PlayerDataRecord, PlayerDataRecordConfig: PlayerDataRecordConfig,
+	PlayerDataService: PlayerDataService, PlayerGui: PlayerGui, PlayerListConfiguration: PlayerListConfiguration, PlayerMouse: PlayerMouse, PlayerScripts: PlayerScripts, PlayerViewService: PlayerViewService, Players: Players, PluginManagementService: PluginManagementService, PointLight: PointLight, PointsService: PointsService,
+	PolicyService: PolicyService, PopLatencyService: PopLatencyService, Pose: Pose, PoseBase: PoseBase, PostEffect: PostEffect, Preloaded: Preloaded, PrismaticConstraint: PrismaticConstraint, ProceduralModel: ProceduralModel, ProcessInstancePhysicsService: ProcessInstancePhysicsService, ProximityPrompt: ProximityPrompt,
+	ProximityPromptService: ProximityPromptService, PublishService: PublishService, PyramidHandleAdornment: PyramidHandleAdornment, RayValue: RayValue, RecommendationPages: RecommendationPages, RecommendationService: RecommendationService, ReflectionMetadata: ReflectionMetadata, ReflectionMetadataCallbacks: ReflectionMetadataCallbacks, ReflectionMetadataClass: ReflectionMetadataClass, ReflectionMetadataClasses: ReflectionMetadataClasses,
+	ReflectionMetadataEnum: ReflectionMetadataEnum, ReflectionMetadataEnumItem: ReflectionMetadataEnumItem, ReflectionMetadataEnums: ReflectionMetadataEnums, ReflectionMetadataEvents: ReflectionMetadataEvents, ReflectionMetadataFunctions: ReflectionMetadataFunctions, ReflectionMetadataItem: ReflectionMetadataItem, ReflectionMetadataMember: ReflectionMetadataMember, ReflectionMetadataProperties: ReflectionMetadataProperties, ReflectionMetadataYieldFunctions: ReflectionMetadataYieldFunctions, ReflectionService: ReflectionService,
+	RemoteCommandService: RemoteCommandService, RemoteDebuggerServer: RemoteDebuggerServer, RemoteEvent: RemoteEvent, RemoteFunction: RemoteFunction, RenderingTest: RenderingTest, ReplicatedFirst: ReplicatedFirst, ReplicatedStorage: ReplicatedStorage, ReverbSoundEffect: ReverbSoundEffect, RigidConstraint: RigidConstraint, RocketPropulsion: RocketPropulsion,
+	RodConstraint: RodConstraint, RopeConstraint: RopeConstraint, Rotate: Rotate, RotateP: RotateP, RotateV: RotateV, RotationCurve: RotationCurve, RunService: RunService, RunningAverageItemDouble: RunningAverageItemDouble, RunningAverageItemInt: RunningAverageItemInt, RunningAverageTimeIntervalItem: RunningAverageTimeIntervalItem,
+	SceneAnalysisService: SceneAnalysisService, ScreenGui: ScreenGui, ScreenshotCapture: ScreenshotCapture, ScreenshotHud: ScreenshotHud, Script: Script, ScriptBuilder: ScriptBuilder, ScriptContext: ScriptContext, ScriptProfilerService: ScriptProfilerService, ScriptService: ScriptService, ScrollingFrame: ScrollingFrame,
+	Seat: Seat, Selection: Selection, SelectionBox: SelectionBox, SelectionHighlightManager: SelectionHighlightManager, SelectionLasso: SelectionLasso, SelectionPartLasso: SelectionPartLasso, SelectionPointLasso: SelectionPointLasso, SelectionSphere: SelectionSphere, SelfViewConfiguration: SelfViewConfiguration, SensorBase: SensorBase,
+	ServerReplicator: ServerReplicator, ServerScriptService: ServerScriptService, ServerStorage: ServerStorage, ServiceProvider: ServiceProvider, ServiceVisibilityService: ServiceVisibilityService, SessionCheckService: SessionCheckService, SharedTableRegistry: SharedTableRegistry, Shirt: Shirt, ShirtGraphic: ShirtGraphic, SkateboardController: SkateboardController,
+	SkateboardPlatform: SkateboardPlatform, Skin: Skin, Sky: Sky, SlidingBallConstraint: SlidingBallConstraint, SlimContentProvider: SlimContentProvider, Smoke: Smoke, SmoothVoxelsUpgraderService: SmoothVoxelsUpgraderService, Snap: Snap, SocialService: SocialService, SolidModelContentProvider: SolidModelContentProvider,
+	Sound: Sound, SoundEffect: SoundEffect, SoundGroup: SoundGroup, SoundService: SoundService, Sparkles: Sparkles, SpawnLocation: SpawnLocation, SpawnerService: SpawnerService, SpecialMesh: SpecialMesh, SphereHandleAdornment: SphereHandleAdornment, SpotLight: SpotLight,
+	SpringConstraint: SpringConstraint, StandardPages: StandardPages, StarterCharacterScripts: StarterCharacterScripts, StarterGear: StarterGear, StarterGui: StarterGui, StarterPack: StarterPack, StarterPlayer: StarterPlayer, StarterPlayerScripts: StarterPlayerScripts, StartupMessageService: StartupMessageService, Stats: Stats,
+	StatsItem: StatsItem, Status: Status, StopWatchReporter: StopWatchReporter, StringValue: StringValue, StudioTestService: StudioTestService, StudioTheme: StudioTheme, StyleBase: StyleBase, StyleDerive: StyleDerive, StyleLink: StyleLink, StyleQuery: StyleQuery,
+	StyleRule: StyleRule, StyleSheet: StyleSheet, StylingService: StylingService, SunRaysEffect: SunRaysEffect, SurfaceAppearance: SurfaceAppearance, SurfaceGui: SurfaceGui, SurfaceGuiBase: SurfaceGuiBase, SurfaceLight: SurfaceLight, SurfaceSelection: SurfaceSelection, SwimController: SwimController,
+	SyncScriptBuilder: SyncScriptBuilder, Team: Team, Teams: Teams, TeleportAsyncResult: TeleportAsyncResult, TeleportOptions: TeleportOptions, TeleportService: TeleportService, Terrain: Terrain, TerrainDetail: TerrainDetail, TerrainIterateOperation: TerrainIterateOperation, TerrainModifyOperation: TerrainModifyOperation,
+	TerrainReadOperation: TerrainReadOperation, TerrainRegion: TerrainRegion, TerrainWriteOperation: TerrainWriteOperation, TestCase: TestCase, TestService: TestService, TextBox: TextBox, TextBoxService: TextBoxService, TextButton: TextButton, TextChannel: TextChannel, TextChannelWindow: TextChannelWindow,
+	TextChatCommand: TextChatCommand, TextChatConfigurations: TextChatConfigurations, TextChatMessage: TextChatMessage, TextChatMessageProperties: TextChatMessageProperties, TextChatService: TextChatService, TextFilterResult: TextFilterResult, TextFilterTranslatedResult: TextFilterTranslatedResult, TextGenerator: TextGenerator, TextLabel: TextLabel, TextService: TextService,
+	TextSource: TextSource, Texture: Texture, TimerService: TimerService, Tool: Tool, Torque: Torque, TorsionSpringConstraint: TorsionSpringConstraint, TotalCountTimeIntervalItem: TotalCountTimeIntervalItem, TouchInputService: TouchInputService, TouchTransmitter: TouchTransmitter, TraceRouteService: TraceRouteService,
+	Trail: Trail, Translator: Translator, TremoloSoundEffect: TremoloSoundEffect, TriangleMeshPart: TriangleMeshPart, TrussPart: TrussPart, Tween: Tween, TweenBase: TweenBase, TweenService: TweenService, UGCValidationService: UGCValidationService, UIAspectRatioConstraint: UIAspectRatioConstraint,
+	UIBase: UIBase, UIComponent: UIComponent, UIConstraint: UIConstraint, UICorner: UICorner, UIDragDetector: UIDragDetector, UIDragDetectorService: UIDragDetectorService, UIFlexItem: UIFlexItem, UIGradient: UIGradient, UIGridLayout: UIGridLayout, UIGridStyleLayout: UIGridStyleLayout,
+	UILayout: UILayout, UIListLayout: UIListLayout, UIPadding: UIPadding, UIPageLayout: UIPageLayout, UIScale: UIScale, UIShadow: UIShadow, UISizeConstraint: UISizeConstraint, UIStroke: UIStroke, UITableLayout: UITableLayout, UITextSizeConstraint: UITextSizeConstraint,
+	UnionOperation: UnionOperation, UniqueIdLookupService: UniqueIdLookupService, UniversalConstraint: UniversalConstraint, UnreliableRemoteEvent: UnreliableRemoteEvent, UserInputService: UserInputService, UserService: UserService, VRService: VRService, VRStatusService: VRStatusService, ValueBase: ValueBase, ValueCurve: ValueCurve,
+	Vector3Curve: Vector3Curve, Vector3Value: Vector3Value, VectorForce: VectorForce, VehicleController: VehicleController, VehicleSeat: VehicleSeat, VelocityMotor: VelocityMotor, VideoCapture: VideoCapture, VideoCaptureService: VideoCaptureService, VideoDisplay: VideoDisplay, VideoFrame: VideoFrame,
+	VideoPlayer: VideoPlayer, VideoSampler: VideoSampler, VideoScreenCaptureService: VideoScreenCaptureService, VideoService: VideoService, ViewportFrame: ViewportFrame, VirtualInput: VirtualInput, VirtualInputManager: VirtualInputManager, VirtualUser: VirtualUser, VisibilityCheckDispatcher: VisibilityCheckDispatcher, Visit: Visit,
+	VisualizationMode: VisualizationMode, VisualizationModeCategory: VisualizationModeCategory, VisualizationModeService: VisualizationModeService, VoiceChatInternal: VoiceChatInternal, VoiceChatService: VoiceChatService, WebStreamClient: WebStreamClient, WedgePart: WedgePart, Weld: Weld, WeldConstraint: WeldConstraint, Wire: Wire,
+	WireframeHandleAdornment: WireframeHandleAdornment, Workspace: Workspace, WorkspaceAnnotation: WorkspaceAnnotation, WorldModel: WorldModel, WorldRoot: WorldRoot, WrapDeformer: WrapDeformer, WrapLayer: WrapLayer, WrapTarget: WrapTarget, WrapTextureTransfer: WrapTextureTransfer, 
+}
 	
 	type function toInstance(RobloxClasses: type, classname: type)
 		if classname and not (classname.tag == "unknown" or classname.tag == "any" or classname.tag == "string") then
@@ -4892,287 +4948,279 @@ if Instance ~= nil then
 
 end
 
-do 
-	type function unwrapTupleIntoUnion(f: type)
-		local args = f:returns().head
-		for i, t in args do 
-			local success, t = safeUnwrapSerdes(t) 
-			if not success then
-				print(`Expected provided parameter [{i}] to be a SerDes, but got {t.tag}.`)
-				return types.never
-			end
+do
+	local literalid = 231
+	local numberid = 232
 
-			args[i] = t
-		end
+	local f16id = 8 + numberid
+	local f32id = 9 + numberid
+	local f64id = 10 + numberid
+	local hugeid = 11 + numberid
+	local nhugeid = 12 + numberid
+	local nanid = 13 + numberid
 
-		return types.unionof(unpack(args))
-	end
-
-	local typesCache = {}
-
-	-- Returns SerDes for types provided to the function.
-	-- <strong>Example</strong>: <em>Squish.types{number = Squish.f32(), boolean = Squish.boolean(), string = Squish.string()}</em>
-	function Squish.types<T...>(...: T...): MultiSerDes<unwrapTupleIntoUnion<() -> T...>>
-
-		local count = select("#", ...)
-		if count == 1 then return ... end
-
-		local sorted: {string} = {}
-		local toindex: {[string]: number} = {}
-		local toserdes: {[string]: SerDes<any>} = {}
-
-		local hassubtypes = false
-
-		for i = 1, count do 
-			local serdes = select(i, ...)
-			assertIsSerdes(serdes, i)
-
-			if serdes.multypeinfo then error(`Parameter {i} cannot be a multi-type SerDes.`) end
-			assertSchemaType(serdes.type, "string", `serdes of parameter {i}`)
-
-			if optMap[serdes] then
-				if not toserdes["nil"] then
-					toserdes["nil"] = Squish.Nil()
-					table.insert(sorted, "nil")
-				end
-
-				serdes = optMap[serdes]
-			end
-
-			local name = serdes.type
-			if toserdes[name] then
-				error(`SerdesType of parameter {i} ({name}) was already provided to Squish.types().`, 0)
-			end
-
-			table.insert(sorted, name)
-			toserdes[name] = serdes
-		end
-
-		table.sort(sorted)
-
-		local hash = table.concat(sorted, ", ")
-		if typesCache[hash] then
-			return typesCache[hash]
-		end
-
-		for i, name in sorted do 
-			hassubtypes = hassubtypes or not not string.find(name, ":", nil, true)
-			toindex[name] = i
-		end
-
-		local --[[mark]]types: MultiSerDes<any> = {
+	function Squish.anyFrom<L>(toindex: {[string]: number}, toserdes: {[number]: SerDes<any>}, literalsMap: {[any]: number}?, literals: {[number]: any}?, hassubtypes: boolean?, usenumberfastpath: boolean?): SerDes<any>
+		local anyFromSerdes: SerDes<any> = {
 			type = nil,
+
 			multypeinfo = {
-				sorted = sorted,
 				toindex = toindex,
 				toserdes = toserdes,
+				literals = literals,
+				literalsMap = literalsMap,
 
 				hassubtypes = hassubtypes,
-
-				_hash = hash,
 			},
 
 			ser = function(cursor: Cursor, x: any)
-				if VALIDATION_ENABLED then beginValidationScope(cursor, "types") end
+				if VALIDATION_ENABLED then beginValidationScope(cursor, "any") end 
 
-				local t = typeof(x)
-				local id
-
-				if hassubtypes then
-					local subtype = subtypeof(x, t)
-					local potentialotherid = toindex[subtype]
-
-					if potentialotherid then 
-						t = subtype
-						id = potentialotherid 
-					else 
-						id = toindex[t]
-					end
-				else id = toindex[t] end
-
-				if id then
-					local serdes = toserdes[t]
-					serdes.ser(cursor, x)
-
-					tryrealloc(cursor, 1)
-					pushu1(cursor, id - 1)
+				local litId = literalsMap and literalsMap[x]
+				if litId then
+					tryrealloc(cursor, 2)
+					pushu1(cursor, litId)
+					pushu1(cursor, literalid)
 				else
-					reportValidationError(cursor, `types serdes was provided an unsupported type {subtypeof(x, t)}, options: [{hash}]`)
+					local t = typeof(x)
+					if usenumberfastpath and t == "number" then
+						-- special path
+
+						local isfinite = math.isfinite(x)
+						if (not isfinite) then
+							if math.isnan(x) then
+								tryrealloc(cursor, 1)
+								pushu1(cursor, nanid)
+							else
+								tryrealloc(cursor, 1)
+								pushu1(cursor, if x == math.huge then hugeid else nhugeid)
+							end
+						elseif (x % 1 ~= 0 or x >= 2^64) then
+							local m, e = math.frexp(x)
+							
+							if e >= -13 and e <= 16 and (m * 2^11) % 1 == 0 then
+								tryrealloc(cursor, 3)
+								pushf2(cursor, x)
+								pushu1(cursor, f16id)
+							elseif e >= -125 and e <= 128 and (m * 2^24) % 1 == 0 then
+								tryrealloc(cursor, 5)
+								pushf4(cursor, x)
+								pushu1(cursor, f32id)
+							else
+								tryrealloc(cursor, 9)
+								pushf8(cursor, x)
+								pushu1(cursor, f64id)
+							end
+
+						else 
+							pushu1(cursor, common_serInt(cursor, x) + numberid)
+						end
+					else 
+						local tid
+						if hassubtypes then
+							local subtype = subtypeof(x, t)
+							local potentialMatch = toindex[subtype]
+
+							if potentialMatch and toserdes[potentialMatch] then 
+								t = subtype
+								tid = potentialMatch 
+							else 
+								tid = toindex[t]
+							end
+						else 
+							tid = toindex[t] 
+						end
+
+						if toserdes[tid] then 
+							toserdes[tid].ser(cursor, x)
+							tryrealloc(cursor, 1)
+							pushu1(cursor, tid)
+						else
+							local idx = toindex["nil"]
+
+							if idx then
+								toserdes[idx].ser(cursor, nil)
+								tryrealloc(cursor, 1)
+								pushu1(cursor, idx)
+							else
+								reportValidationError(cursor, `Type {t} is not supported.`)
+							end
+						end
+					end
 				end
 
 				if VALIDATION_ENABLED then exitValidationScope(cursor) end
 			end,
 
-			des = function(cursor)
-				local id = popu1(cursor) + 1
-				local serdes = toserdes[sorted[id]]
-				return serdes.des(cursor)
+			des = function(cursor: Cursor): any
+				local id = popu1(cursor)
+
+				if usenumberfastpath and id >= numberid then
+					if id == f16id then return popf2(cursor)
+					elseif id == f32id then return popf4(cursor)
+					elseif id == f64id then return popf8(cursor)
+					elseif id == hugeid then return math.huge
+					elseif id == nhugeid then return -math.huge 
+					elseif id == nanid then return math.nan
+					else return common_desInt(cursor, id - numberid, true)
+					end
+				elseif id == literalid then
+					return literals[popu1(cursor)]
+				else
+					local serdes = toserdes[id]
+					if serdes then return serdes.des(cursor) 
+					else return end
+				end
 			end,
 		}
 
-		typesCache[hash] = types
-
-		return types
+		return anyFromSerdes
 	end
-end
 
-do
-	local anytypeToId: {[string]: number} = {}
-	local idtoAnyType: {string} = {}
-	local idtoSerdes: {SerDes<any>} = {}
-	local lastAnyTypeId = 0
+	-- Returns SerDes for types provided to the function, with support for literals.
+	-- <strong>Example</strong>: <em>Squish.variant({number = Squish.f32(), boolean = Squish.boolean()}, {"hello"})</em>
+	function Squish.variant<T, L>(types: {SerDes<T>}, literals: {L}?): SerDes<T | L>
+		local toindex: {[string]: number} = {}
+		local toserdes: {[number]: SerDes<any>} = {}
+		local literalsMap: {[L]: number} = {}
+		local idtoLiteral = {}
 
-	local function addanySerdes(serdesfunc: ((...any) -> SerDes<any>)?, ...: any?)
-		local serdes = serdesfunc and serdesfunc(...)
-		if not serdes then
-			lastAnyTypeId += 1
-			return
-		end
-		
-		local t = serdes.type
-		if type(t) ~= "string" then
-			error(`Expected provided serdes to have a string type, but got {t} ({typeof(t)}).`, 0)
-		end
+		local hassubtypes = false
+		local count = 0
 
-		if anytypeToId[t] then
-			error(`Type {t} was already added.`, 0)
-		end
+		assertSchemaType(types, "table", 1)
 
-		local nextid = lastAnyTypeId
-		lastAnyTypeId = nextid + 1
+		for i, serdes in types do 
+			assertIsSerdes(serdes, `field {i} in serdes array`)
+			if serdes.multypeinfo then error(`field {i} cannot be a multi-type SerDes in serdes array`, 0) end
+			assertSchemaType(serdes.type, "string", `serdestype of field {i} in serdes array`)
 
-		anytypeToId[t] = nextid
-		idtoSerdes[nextid] = serdes
-		idtoAnyType[nextid] = t
-	end
-	
-	-- !!! DO NOT CHANGE THE ORDER BELOW. ADD NEW DATATYPES AT THE END.
-	-- Changing order will shift the type byte assigned to each datatype, thus breaking compatibility.
-
-	addanySerdes(Squish.Nil)
-	addanySerdes(Squish.boolean)
-	addanySerdes(Squish.string)
-	addanySerdes(Squish.buffer)
-	addanySerdes(nil) -- TODO table.
-
-	addanySerdes(Squish.vector)
-	addanySerdes(Squish.Vector2)
-	addanySerdes(Squish.CFrame)
-	addanySerdes(Squish.Ray)
-	addanySerdes(Squish.Region3)
-
-	addanySerdes(Squish.Instance)
-	addanySerdes(Squish.EnumItem)
-	addanySerdes(Squish.PhysicalProperties)
-	addanySerdes(Squish.PathWaypoint)
-	addanySerdes(Squish.RaycastParams)
-	addanySerdes(Squish.OverlapParams)
-	addanySerdes(Squish.RaycastResult)
-	addanySerdes(Squish.Faces)
-	addanySerdes(Squish.Axes)
-
-	addanySerdes(Squish.Vector3int16)
-	addanySerdes(Squish.Vector2int16)
-	addanySerdes(Squish.Region3int16)
-
-	addanySerdes(Squish.NumberRange)
-	addanySerdes(Squish.NumberSequenceKeypoint)
-	addanySerdes(Squish.NumberSequence)
-
-	addanySerdes(Squish.BrickColor)
-	addanySerdes(Squish.Color3)
-	addanySerdes(Squish.ColorSequenceKeypoint)
-	addanySerdes(Squish.ColorSequence)
-
-	addanySerdes(Squish.UDim)
-	addanySerdes(Squish.UDim2)
-	addanySerdes(Squish.Rect)
-	addanySerdes(Squish.Font)
-
-	addanySerdes(Squish.TweenInfo)
-	addanySerdes(Squish.DateTime)
-	addanySerdes(Squish.CatalogSearchParams)
-
-	addanySerdes(Squish.FloatCurveKey)
-	addanySerdes(Squish.RotationCurveKey)
-	
-	
-	-- !!! DO NOT CHANGE THE ORDER ABOVE, ADD NEW DATATYPES AT THE END.
-
-	local numberid = 200
-
-	local floatid = 8 + numberid
-	local nanid = 14 + numberid
-	local hugeid = 15 + numberid
-
-	local --[[mark]]anyCache: MultiSerDes<any> = {
-		type = "any",
-		multypeinfo = {
-				sorted = idtoAnyType,
-				toindex = anytypeToId,
-				toserdes = idtoSerdes,
-
-				hassubtypes = false,
-		},
-
-		ser = function(cursor: Cursor, x: any)
-			if VALIDATION_ENABLED then beginValidationScope(cursor, "any") end 
-
-			local t = typeof(x)
-			if t == "number" then
-				-- special path
-
-				local isfinite = math.isfinite(x)
-				if (not isfinite) then
-					if math.isnan(x) then
-						tryrealloc(cursor, 1)
-						pushu1(cursor, nanid)
-					else
-						tryrealloc(cursor, 1)
-						pushu1(cursor, hugeid + if x ~= math.huge then 16 else 0)
-					end
-				elseif (x % 1 ~= 0 or x >= 2^64) then
-					tryrealloc(cursor, 9)
-					pushf8(cursor, x)
-					pushu1(cursor, floatid)
-
-				else 
-					pushu1(cursor, common_serInt(cursor, x) + numberid)
+			if optMap[serdes] then
+				if not toindex["nil"] then
+					toindex["nil"] = count
+					toserdes[count] = Squish.Nil()
+					count += 1
 				end
-			else 
-				local id = anytypeToId[t]
-				if not id then reportValidationError(cursor, `Type {t} is not supported.`) end
-
-				idtoSerdes[id].ser(cursor, x)
-				pushu1(cursor, id)
+				serdes = optMap[serdes]
 			end
 
-			if VALIDATION_ENABLED then exitValidationScope(cursor) end
-		end,
-
-		des = function(cursor: Cursor): any
-			local id = popu1(cursor)
-
-			if id >= numberid then
-				if id == floatid then
-					return popf8(cursor)
-				elseif id == nanid then
-					return math.nan
-				else 
-					return common_desInt(cursor, id - numberid, true)
-				end
-			else 
-				local serdes = idtoSerdes[id]
-				return serdes.des(cursor)
+			local name = serdes.type
+			if toindex[name] then
+				error(`field {i} ({name}) is repeated to Squish.variant() in serdes array.`, 0)
 			end
-		end,
-	}
 
-	-- Returns a SerDes that can take in almost any value.
-	function Squish.any(): MultiSerDes<any>
-		return anyCache
+			toindex[name] = count
+			toserdes[count] = serdes
+			count += 1
+
+			hassubtypes = hassubtypes or not not string.find(name, ":", nil, true)
+		end
+
+		if literals ~= nil then
+			assertSchemaType(literals, "table", 2)
+
+			local literalscount = 0
+			for i, literal in literals do
+				literalsMap[literal] = literalscount
+				idtoLiteral[literalscount] = literal
+				literalscount += 1
+			end
+			
+		else idtoLiteral, literalsMap = nil, nil end
+
+		return Squish.anyFrom(toindex, toserdes, literalsMap, idtoLiteral, hassubtypes, false)
 	end
 
+	Squish.types = Squish.variant
 end 
+
+do 
+		local anytypeToId: {[string]: number} = {}
+		local idtoAnyType: {string} = {}
+		local idtoSerdes: {SerDes<any>} = {}
+		local lastAnyTypeId = 0
+
+		local anyCache = Squish.anyFrom(anytypeToId, idtoSerdes, {}, {}, false, true)
+
+		-- Returns a SerDes that can take in almost any value.
+		function Squish.any(): SerDes<any>
+			return anyCache
+		end
+
+		local function addanySerdes(serdesfunc: ((...any) -> SerDes<any>)?, ...: any?)
+			local serdes = serdesfunc and serdesfunc(...)
+			if not serdes then
+				lastAnyTypeId += 1
+				return
+			end
+			
+			local t = serdes.type
+			if type(t) ~= "string" then
+				error(`Expected provided serdes to have a string type, but got {t} ({typeof(t)}).`, 0)
+			end
+
+			if anytypeToId[t] then
+				error(`Type {t} was already added.`, 0)
+			end
+
+			local nextid = lastAnyTypeId
+			lastAnyTypeId = nextid + 1
+
+			anytypeToId[t] = nextid
+			idtoSerdes[nextid] = serdes
+			idtoAnyType[nextid] = t
+		end
+
+		-- !!! DO NOT CHANGE THE ORDER BELOW. ADD NEW DATATYPES AT THE END.
+		-- Changing order will shift the type byte assigned to each datatype, thus breaking compatibility.
+
+		addanySerdes(Squish.Nil)
+		addanySerdes(Squish.boolean)
+		addanySerdes(Squish.string)
+		addanySerdes(Squish.buffer)
+		addanySerdes(Squish.table, Squish.any())
+		
+		addanySerdes(Squish.vector)
+		addanySerdes(Squish.Vector2)
+		addanySerdes(Squish.CFrame)
+		addanySerdes(Squish.Ray)
+		addanySerdes(Squish.Region3)
+
+		addanySerdes(Squish.Instance)
+		addanySerdes(Squish.EnumItem)
+		addanySerdes(Squish.PhysicalProperties)
+		addanySerdes(Squish.PathWaypoint)
+		addanySerdes(Squish.RaycastParams)
+		addanySerdes(Squish.OverlapParams)
+		addanySerdes(Squish.RaycastResult)
+		addanySerdes(Squish.Faces)
+		addanySerdes(Squish.Axes)
+
+		addanySerdes(Squish.Vector3int16)
+		addanySerdes(Squish.Vector2int16)
+		addanySerdes(Squish.Region3int16)
+
+		addanySerdes(Squish.NumberRange)
+		addanySerdes(Squish.NumberSequenceKeypoint)
+		addanySerdes(Squish.NumberSequence)
+
+		addanySerdes(Squish.BrickColor)
+		addanySerdes(Squish.Color3)
+		addanySerdes(Squish.ColorSequenceKeypoint)
+		addanySerdes(Squish.ColorSequence)
+
+		addanySerdes(Squish.UDim)
+		addanySerdes(Squish.UDim2)
+		addanySerdes(Squish.Rect)
+		addanySerdes(Squish.Font)
+
+		addanySerdes(Squish.TweenInfo)
+		addanySerdes(Squish.DateTime)
+		addanySerdes(Squish.CatalogSearchParams)
+
+		addanySerdes(Squish.FloatCurveKey)
+		addanySerdes(Squish.RotationCurveKey)
+
+		-- !!! DO NOT CHANGE THE ORDER ABOVE, ADD NEW DATATYPES AT THE END.
+	end
 
 return Squish
