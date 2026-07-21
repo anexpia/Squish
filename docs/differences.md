@@ -10,6 +10,7 @@ This is largely similar to the Squash (it is a fork, after all). Only the import
 - Most serdes that required a number serdes now optionally accept a serdes. and their default is `Squish.f32()`.
 - Serialization now optionally checks the type of the provided parameter. This is toggled by the <b>`VALIDATIONENABLED`</b> present at the top of the script. This setting <b>should be kept false</b> if you aren't debugging as it heavily impacts performance.
 - Type for many serdes such as `Squish.record()` is evaluated using a type function to make the use of `Squish.T()` obsolete. so you generally don't need to use that anymore.
+- Serdes expose internal info such as their type, name, and structure data to make it easier to create custom serdes and recreate them.
 
 :::caution
 
@@ -18,19 +19,14 @@ Squish is **heavily** reliant on the new type solver, thus types for many functi
 :::
 
 - Performance is faster for most if not all the serdes than with the base squash module.
-- Exposes more functions that help with creating your own serdes.
-    - **[Squish:pushref](../api/Squish#pushref)**
-    - **[Squish:popref](../api/Squish#popref)**
-    - **[validation.scopesEnabled](../api/validation#scopesEnabled)**
-    - **[validation:assertSchemaType](../api/validation#assertSchemaType)**
-    - **[validation:assertIsSerdes](../api/validation#assertIsSerdes)**
-    - **[validation:assertSerdesType](../api/validation#assertSerdesType)**
-    - **[validation:assertSerializeType](../api/validation#assertSerializeType)**
-    - **[validation:beginValidationScope](../api/validation#beginValidationScope)**
-    - **[validation:exitValidationScope](../api/validation#exitValidationScope)**
-    - **[validation:overrideValidationScopeName](../api/validation#overrideValidationScopeName)**
+- Exposes more namespaces that help with creating your own serdes.
+    - **[Utility namespace](../api/util)**: Contains internal functions for manipulating cursor data, pushing and popping values, and allocating.\
+    setpos, getpos, setbuf, getbuf, and tryrealloc were moved to this namespace.
+
+    - **[Validation namespace](../api/validation)**: Contains functions for validating types of schemas and values.
 
 ## SerDes Changes.
+Many of the SerDes were rewritten to be more performant. Below are the public-facing changes:
 
 - [ **NEW** ] **[number](../api/Squish#number)**: Serdes accepting any number of any size.
 - [ **NEW** ] **[Nil](../api/Squish#Nil)**: Serdes for.. nil.
@@ -38,7 +34,10 @@ Squish is **heavily** reliant on the new type solver, thus types for many functi
 - [ **NEW** ] **[Color3f16](../api/Squish#Color3f16)**: Serdes for color3, but not restricted to \[0-255] range.
 - [ **NEW** ] **[Instance](../api/Squish#Instance)**: Serdes for Instances.
 - [ **NEW** ] **[variant](../api/Squish#variant)**: Serdes for multiple types and literals combined.
-- [ **NEW** ] **[any](../api/Squish#any)**: Serdes for any type, except tables.
+- [ **NEW** ] **[any](../api/Squish#any)**: Serdes for any type.
+- [ **NEW** ] **[anyFrom](../api/Squish#anyFrom)**: Internal serdes used by **any** and **variant**, exposed so you can use it if needed.
+- [ **NEW** ] **[addserdes](../api/Squish#addserdes) function**: Adds provided serdes' to a **variant** or **any** serdes's registry.
+- [ **NEW** ] **[addliterals](../api/Squish#addliterals) function**: Adds new literals to a **variant**, **any**, or **literal** serdes's registry.
 
 - [ **CHANGE** ] **[boolean](../api/Squish#boolean)**:\
     Only accepts one boolean parameter, original behavior has been moved to **[boolpack](../api/Squish#boolpack)**.
@@ -50,6 +49,9 @@ Squish is **heavily** reliant on the new type solver, thus types for many functi
 
 - [ **CHANGE** ] **[table](../api/Squish#table)**:\
     Replaces the old table implementation. Now accepts a single `serdes` parameter which applies to both keys and values of the table, and supports table deduplication and circular references.
+
+- [ **CHANGE** ] **All table SerDes (array, record, ...)**\
+    They now accept a second parameter when deserializing for an optional user-supplied table to write to instead of creating a new one.
 
 - [ **CHANGE** ] **[vector](../api/Squish#vector)**:\
     All vector functions have been combined into a single one as the old api was confusing (eg. `Squash.vector2` and `Squash.Vector2` were not the same.)\

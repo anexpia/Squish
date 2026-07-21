@@ -684,7 +684,7 @@ local float = Squish.f32()
 local vec2 = Squish.Vector2
 local arr = Squish.array
 local map = Squish.map
-local opt = Squish.delta
+local opt = Squish.opt
 local record = Squish.record
 
 local playerserdes = record {
@@ -845,7 +845,7 @@ do
 end
 
 do
-	local serdes, data, n = Squish.array(Squish.delta(Squish.u8())), { 1, 2, nil, nil, 5, 6, 7, 8, nil, 10, 11, 12, 13, nil, 15, 16, 17 } :: { number? }, 17
+	local serdes, data, n = Squish.array(Squish.opt(Squish.u8())), { 1, 2, nil, nil, 5, 6, 7, 8, nil, 10, 11, 12, 13, nil, 15, 16, 17 } :: { number? }, 17
 	local c = Squish.cursor()
 	serdes.ser(c, data)
 	Squish.print(c)
@@ -871,7 +871,7 @@ do
 end
 
 do
-	local serdes, data, n = Squish.array(Squish.delta(Squish.boolean())), { true, nil, false, nil, false, nil, false, nil, false, nil, false, nil, false, nil, false, true, false } :: { boolean? }, 17
+	local serdes, data, n = Squish.array(Squish.opt(Squish.boolean())), { true, nil, false, nil, false, nil, false, nil, false, nil, false, nil, false, nil, false, true, false } :: { boolean? }, 17
 	local c = Squish.cursor()
 	serdes.ser(c, data)
 	Squish.print(c)
@@ -884,9 +884,8 @@ do
 end
 
 do
-	local T = Squish.T
 	local B = Squish.boolean()
-	local O = Squish.delta
+	local O = Squish.opt
 	local U = Squish.u8()
 
 	local s = {
@@ -921,7 +920,7 @@ do
 		aa = O(B),
 	}
 
-	local n, serdes, data = 1e4, Squish.record(s), {
+	local serdes, data = Squish.record(s), {
 		a = true,
 		b = false,
 		c = true,

@@ -12,6 +12,9 @@ local VALIDATION_ENABLED = false
 -- !!!!!!
 
 local has4wideVectors = pcall(function() return vector.create(0,0,0).w end)
+local kcachemtbl = {__mode = "k"}
+local kvcachemtbl = {__mode = "kv"}
+
 
 export type SquishRaycastResult = {
 	Distance: number,
@@ -40,38 +43,42 @@ export type Cursor = {
 
 export type SerDes<T...> = {
 
-	type: string?,
+	read type: string?,
+	read name: string?,
+	
+	read structure: any,
 
-	multypeinfo: {
-		toindex: {[any]: number}?,
-		toserdes: {[any]: SerDes<any>}?,
+	read multypeinfo: {
+		read toindex: {[string]: number}?,
+		read toserdes: {[number]: SerDes<any>}?,
 
-		literals: {any}?,
-		literalsMap: {[any]: number}?,
+		read literals: {any}?,
+		read literalsMap: {[any]: number}?,
 
-		hassubtypes: boolean?,
+		read hassubtypes: boolean?,
+		read numberfastpath: boolean?,
 	}?, 
 
-	ser: typeof(
+	read ser: typeof(
 		-- Serializes the provided value(s) into the buffer, as defined by the schema.
 		function(cursor: Cursor, ...: T...): () end
 	),
 
-	des: typeof(
+	read des: typeof(
 		-- Deserializes and returns the value(s) from the buffer, as defined by the schema.
-		function(cursor: Cursor): T... end
+		function(cursor: Cursor, ...: any): T... end
 	),
 }
 
 type RaycastResultSerDes = {
-	type: "RaycastResult",
+	read type: "RaycastResult",
 
-	ser: typeof(
+	read ser: typeof(
 		-- Serializes the provided RaycastResult into the buffer, as defined by the schema.
 		function(cursor: Cursor, result: RaycastResult): () end
 	),
 
-	des: typeof(
+	read des: typeof(
 		-- Deserializes and returns the RaycastResult from the buffer, in table form.
 		function(cursor: Cursor): SquishRaycastResult return nil :: any end
 	),
@@ -1010,6 +1017,68 @@ local function printcursor(cursor: Cursor): ()
 	end
 end
 
+local function serbitarr(cursor: Cursor, bits: { boolean }, length: number?)
+	local bitCount = length or #bits
+	if bitCount == 0 then
+		return
+	end
+
+	local bitsOver = bitCount % 8
+
+	local buf, pos = getbuf(cursor), incrementpos(cursor, (bitCount + 7) // 8)
+
+	local bytesInBits = bitCount - bitsOver
+	for i = 0, bytesInBits - 1, 8 do
+		pushboolpacknocursor(buf, pos, bits[i + 1], bits[i + 2], bits[i + 3], bits[i + 4], bits[i + 5], bits[i + 6], bits[i + 7], bits[i + 8])
+		pos += 1
+	end
+
+	if bitsOver > 0 then
+		local byte = 0
+		for i = 0, 7 do 
+			if i >= bitsOver then break end 
+			if bits[bytesInBits + i + 1] then
+				byte += bit32.lshift(1, i)
+			end
+		end
+
+		buffer.writeu8(buf, pos, byte)
+	end
+end
+
+local function desbitarr(cursor: Cursor, bitCount: number): { boolean }
+	if bitCount == 0 then
+		return {}
+	end
+
+	local arr = table.create(bitCount, false)
+	local bytes = bitCount // 8
+	local buf, pos = getbuf(cursor), decrementpos(cursor, (bitCount + 7) // 8)
+
+	for i = 0, bytes - 1 do 
+		local j = i * 8
+
+		local x = buffer.readu8(buf, pos + i)
+		arr[j + 1], arr[j + 2], arr[j + 3], arr[j + 4], arr[j + 5], arr[j + 6], arr[j + 7], arr[j + 8] = 
+			bit32.btest(x, 2^0), bit32.btest(x, 2^1), bit32.btest(x, 2^2), bit32.btest(x, 2^3), 
+			bit32.btest(x, 2^4), bit32.btest(x, 2^5), bit32.btest(x, 2^6), bit32.btest(x, 2^7)
+	end
+
+	local bitsOver = bitCount % 8
+
+	if bitsOver > 0 then
+		local j = bytes * 8
+		local x = buffer.readu8(buf, pos + bytes)
+
+		for i = 0, 7 do 
+			if i >= bitsOver then break end 
+			if bit32.btest(x, 2^i) then arr[j + i + 1] = true end
+		end
+	end
+
+	return arr
+end
+
 local Squish = {}
 
 Squish.print = printcursor
@@ -1018,21 +1087,51 @@ Squish.cursor = newcursor
 Squish.frombuffer = frombuffer
 Squish.tobuffer = tobuffer
 
-Squish.tryrealloc = tryrealloc
+Squish.util = {
+	tryrealloc = tryrealloc,
+	setpos = setpos,
+	getpos = getpos,
+	setbuf = setbuf,
+	getbuf = getbuf,
 
-Squish.setpos = setpos
-Squish.getpos = getpos
-Squish.setbuf = setbuf
-Squish.getbuf = getbuf
+	serbitarr = serbitarr,
+	desbitarr = desbitarr,
 
-Squish.pushref = pushref
-Squish.popref = popref
+	pushu1 = pushu1, popu1 = popu1,
+	pushu2 = pushu2, popu2 = popu2,
+	pushu3 = pushu3, popu3 = popu3,
+	pushu4 = pushu4, popu4 = popu4,
+	pushu5 = pushu5, popu5 = popu5,
+	pushu6 = pushu6, popu6 = popu6,
+	pushu7 = pushu7, popu7 = popu7,
+	pushu8 = pushu8, popu8 = popu8,
+
+	pushi1 = pushi1, popi1 = popi1,
+	pushi2 = pushi2, popi2 = popi2,
+	pushi3 = pushi3, popi3 = popi3,
+	pushi4 = pushi4, popi4 = popi4,
+	pushi5 = pushi5, popi5 = popi5,
+	pushi6 = pushi6, popi6 = popi6,
+	pushi7 = pushi7, popi7 = popi7,
+	pushi8 = pushi8, popi8 = popi8,
+
+	pushf2 = pushf2, popf2 = popf2,
+	pushf4 = pushf4, popf4 = popf4,
+	pushf8 = pushf8, popf8 = popf8,
+
+	pushbool = pushbool, popbool = popbool,
+	pushboolpack = pushboolpack, popboolpack = popboolpack,
+	pushvlqrealloc = pushvlqrealloc, popvlq = popvlq,
+	pushstr = pushstr, popstr = popstr,
+	pushbuf = pushbuf, popbuf = popbuf,
+
+	pushref = pushref, popref = popref,
+}
 
 Squish.validation = {
 	assertSchemaType = assertSchemaType,
 	assertIsSerdes = assertIsSerdes,
 	assertSerdesType = assertSerdesType,
---	assertIsLength = assertIsLength,
 
 	assertSerializeType = assertSerializeType,
 
@@ -1051,6 +1150,7 @@ local booleanCache
 do
 	booleanCache = {
 		type = "boolean",
+		name = "boolean",
 		ser = function(cursor: Cursor, bool: boolean)
 			if VALIDATION_ENABLED then beginValidationScope(cursor, "boolean") assertSerializeType(cursor, bool, "boolean") end
 
@@ -1072,6 +1172,7 @@ local booleanpackCache
 do
 	booleanpackCache = {
 		type = "boolean",
+		name = "boolpack",
 		ser = function(cursor: Cursor, a: boolean?, b: boolean?, c: boolean?, d: boolean?, e: boolean?, f: boolean?, g: boolean?, h: boolean?)
 			if VALIDATION_ENABLED then beginValidationScope(cursor, "pack") end
 
@@ -1092,6 +1193,7 @@ end
 do
 	local u8 = {
 		type = "number",
+		name = "u8",
 		ser = function(cursor: Cursor, x: number)
 			if VALIDATION_ENABLED then beginValidationScope(cursor, "u8") assertSerializeType(cursor, x, "number") end
 
@@ -1110,6 +1212,7 @@ do
 
 	local u16 = {
 		type = "number",
+		name = "u16",
 		ser = function(cursor: Cursor, x: number)
 			if VALIDATION_ENABLED then beginValidationScope(cursor, "u16") assertSerializeType(cursor, x, "number") end
 
@@ -1128,6 +1231,7 @@ do
 
 	local u24 = {
 		type = "number",
+		name = "u24",
 		ser = function(cursor: Cursor, x: number)
 			if VALIDATION_ENABLED then beginValidationScope(cursor, "u24") assertSerializeType(cursor, x, "number") end
 
@@ -1146,6 +1250,7 @@ do
 
 	local u32 = {
 		type = "number",
+		name = "u32",
 		ser = function(cursor: Cursor, x: number)
 			if VALIDATION_ENABLED then beginValidationScope(cursor, "u32") assertSerializeType(cursor, x, "number") end
 
@@ -1164,6 +1269,7 @@ do
 
 	local u40 = {
 		type = "number",
+		name = "u40",
 		ser = function(cursor: Cursor, x: number)
 			if VALIDATION_ENABLED then beginValidationScope(cursor, "u40") assertSerializeType(cursor, x, "number") end
 
@@ -1182,6 +1288,7 @@ do
 
 	local u48 = {
 		type = "number",
+		name = "u48",
 		ser = function(cursor: Cursor, x: number)
 			if VALIDATION_ENABLED then beginValidationScope(cursor, "u48") assertSerializeType(cursor, x, "number") end
 
@@ -1200,6 +1307,7 @@ do
 
 	local u56 = {
 		type = "number",
+		name = "u56",
 		ser = function(cursor: Cursor, x: number)
 			if VALIDATION_ENABLED then beginValidationScope(cursor, "u56") assertSerializeType(cursor, x, "number") end
 
@@ -1218,6 +1326,7 @@ do
 
 	local u64 = {
 		type = "number",
+		name = "u64",
 		ser = function(cursor: Cursor, x: number)
 			if VALIDATION_ENABLED then beginValidationScope(cursor, "u64") assertSerializeType(cursor, x, "number") end
 
@@ -1238,6 +1347,7 @@ end
 do
 	local i8 = {
 		type = "number",
+		name = "i8",
 		ser = function(cursor: Cursor, x: number)
 			if VALIDATION_ENABLED then beginValidationScope(cursor, "i8") assertSerializeType(cursor, x, "number") end
 
@@ -1255,6 +1365,7 @@ do
 
 	local i16 = {
 		type = "number",
+		name = "i16",
 		ser = function(cursor: Cursor, x: number)
 			if VALIDATION_ENABLED then beginValidationScope(cursor, "i16") assertSerializeType(cursor, x, "number") end
 
@@ -1272,6 +1383,7 @@ do
 
 	local i24 = {
 		type = "number",
+		name = "i24",
 		ser = function(cursor: Cursor, x: number)
 			if VALIDATION_ENABLED then beginValidationScope(cursor, "i24") assertSerializeType(cursor, x, "number") end
 
@@ -1289,6 +1401,7 @@ do
 
 	local i32 = {
 		type = "number",
+		name = "i32",
 		ser = function(cursor: Cursor, x: number)
 			if VALIDATION_ENABLED then beginValidationScope(cursor, "i32") assertSerializeType(cursor, x, "number") end
 
@@ -1306,6 +1419,7 @@ do
 
 	local i40 = {
 		type = "number",
+		name = "i40",
 		ser = function(cursor: Cursor, x: number)
 			if VALIDATION_ENABLED then beginValidationScope(cursor, "i40") assertSerializeType(cursor, x, "number") end
 
@@ -1323,6 +1437,7 @@ do
 
 	local i48 = {
 		type = "number",
+		name = "i48",
 		ser = function(cursor: Cursor, x: number)
 			if VALIDATION_ENABLED then beginValidationScope(cursor, "i48") assertSerializeType(cursor, x, "number") end
 
@@ -1340,6 +1455,7 @@ do
 
 	local i56 = {
 		type = "number",
+		name = "i56",
 		ser = function(cursor: Cursor, x: number)
 			if VALIDATION_ENABLED then beginValidationScope(cursor, "i56") assertSerializeType(cursor, x, "number") end
 
@@ -1357,6 +1473,7 @@ do
 
 	local i64 = {
 		type = "number",
+		name = "i64",
 		ser = function(cursor: Cursor, x: number)
 			if VALIDATION_ENABLED then beginValidationScope(cursor, "i64") assertSerializeType(cursor, x, "number") end
 
@@ -1376,6 +1493,7 @@ end
 do
 	local f16 = {
 		type = "number",
+		name = "f16",
 		ser = function(cursor: Cursor, x: number)
 			if VALIDATION_ENABLED then beginValidationScope(cursor, "f16") assertSerializeType(cursor, x, "number") end
 
@@ -1393,6 +1511,7 @@ do
 
 	local f32 = {
 		type = "number",
+		name = "f32",
 		ser = function(cursor: Cursor, x: number)
 			if VALIDATION_ENABLED then beginValidationScope(cursor, "f32") assertSerializeType(cursor, x, "number") end
 
@@ -1410,6 +1529,7 @@ do
 
 	local f64 = {
 		type = "number",
+		name = "f64",
 		ser = function(cursor: Cursor, x: number)
 			if VALIDATION_ENABLED then beginValidationScope(cursor, "f64") assertSerializeType(cursor, x, "number") end
 
@@ -1491,13 +1611,13 @@ end
 local common_serInt, common_desInt
 
 do
-	local rangeCache = {}
+	local rangeCache = setmetatable({}, kcachemtbl)
 
 	-- Encodes an number in the interval [min, max] using uints with as few bytes as possible
 	-- If a serdes is provided, it is used instead of the minimal serdes needed being used. 
 	-- Enabling 'restricted' clamps the provided numbers when serializing to the range.
 	function Squish.range(min: number, max: number, serdes: SerDes<number>?, restricted: boolean?): SerDes<number>
-		local hash = `{min}_{max}`
+		local hash = `{min}_{max}{if restricted then "t" else "f"}`
 
 		assertSchemaType(min, "number", 1)
 		assertSchemaType(max, "number", 2)
@@ -1506,11 +1626,11 @@ do
 		if serdes then
 			assertIsSerdes(serdes, 3)
 			local subcache = rangeCache[serdes] 
-			if subcache == nil then subcache = {} rangeCache[serdes] = subcache end
+			if subcache == nil then subcache = setmetatable({}, kvcachemtbl) rangeCache[serdes] = subcache end
 			rangeCache = subcache
 		end
 
-		local cached = rangeCache[hash .. if restricted then "_true" else "_false"]
+		local cached = rangeCache[hash]
 
 		if cached then
 			return cached
@@ -1547,6 +1667,8 @@ do
 
 		local range: SerDes<number> = {
 			type = "number",
+			name = "range",
+			structure = {min, max, serdes, restricted},
 			ser = function(cursor: Cursor, x: number)
 				if VALIDATION_ENABLED then beginValidationScope(cursor, `range[{hash}]`) assertSerializeType(cursor, x, "number") end
 				if restricted then x = math.clamp(x, min, max) end
@@ -1574,7 +1696,7 @@ do
 end
 
 do 
-	local cache = {}
+	local cache = setmetatable({}, kvcachemtbl)
 
 	function common_serInt(cursor: Cursor, x: number): number
 		local isnegative = x < 0
@@ -1714,6 +1836,8 @@ do
 			}
 		end
 
+		serdes.name, serdes.structure = "number", floatAllowed
+
 		cache[floatAllowed] = serdes	
 		return serdes
 	end
@@ -1827,6 +1951,7 @@ do
 
 	local stringSerDes: SerDes<string> = {
 		type = "string",
+		name = "string",
 		ser = function(cursor: Cursor, x: string)
 			if VALIDATION_ENABLED then beginValidationScope(cursor, "string") assertSerializeType(cursor, x, "string") end
 
@@ -1840,7 +1965,8 @@ do
 		end,
 		des = popstr,
 	}
-	local stringCache = {}
+	
+	local stringCache = setmetatable({}, kvcachemtbl)
 	local str = {}
 	function str.convert(str: string, inAlphabet: string, outAlphabet: string): string
 		local sourceDigits = {}
@@ -1929,6 +2055,8 @@ do
 
 		local serdes: SerDes<string> = {
 			type = "string",
+			name = "string",
+			structure = length,
 			ser = function(cursor: Cursor, x: string)
 				if VALIDATION_ENABLED then beginValidationScope(cursor, `string[{length}]`) assertSerializeType(cursor, x, "string") end
 
@@ -1952,6 +2080,7 @@ end
 do 
 	local nilCache = {
 		type = "nil",
+		name = "Nil",
 		ser = function(cursor: Cursor)
 			tryrealloc(cursor, 1)
 			incrementpos(cursor, 1)
@@ -1968,9 +2097,9 @@ do
 	end
 end
 
-local optMap = {}
+local optMap = setmetatable({}, kvcachemtbl)
 do
-	local optCache = {}
+	local optCache = setmetatable({}, kvcachemtbl)
 
 	-- Returns a copy of the provided SerDes which optionally accepts 'nil' value.
 	function Squish.opt<T>(serdes: SerDes<T>): SerDes<T?>
@@ -1982,6 +2111,8 @@ do
 
 		local optSerDes: SerDes<T?> = {
 			type = serdes.type,
+			name = "opt",
+			structure = serdes,
 			ser = function(cursor: Cursor, x: any)
 				if VALIDATION_ENABLED then beginValidationScope(cursor, "opt") end
 
@@ -2010,15 +2141,19 @@ do
 		optMap[optSerDes] = serdes
 		return optSerDes
 	end
+
+	function Squish.unopt<T>(serdes: SerDes<T?>): SerDes<T>
+		return optMap[serdes] or serdes
+	end
 end
 
-local dedupMap = {}
+local dedupMap = setmetatable({}, kvcachemtbl)
 do
-	local dedupCache = {}
+	local dedupCache = setmetatable({}, kvcachemtbl)
 
 	-- Returns a copy of the provided SerDes which can deduplicate the value if provided more than once.
 	-- Cannot be used with optional, boolean, nil, and Instance SerDes.
-	function Squish.dedup<T>(serdes: SerDes<T>): SerDes<T?>
+	function Squish.dedup<T>(serdes: SerDes<T>): SerDes<T>
 		if dedupCache[serdes] then
 			return dedupCache[serdes]
 		end
@@ -2027,12 +2162,14 @@ do
 		
 		if optMap[serdes] then
 			error(`Cannot create dedup SerDes for optional SerDes, You have to reverse the order.`)
-		elseif serdes.type == "boolean" or serdes.type == "Nil" or (serdes.type and string.find(serdes.type, "Instance")) then
+		elseif serdes.type == "boolean" or serdes.type == "nil" or serdes.name == "Instance" then
 			error(`Cannot create dedup SerDes for type {serdes.type}.`)
 		end
 
 		local dedupSerDes: SerDes<T> = {
 			type = serdes.type,
+			name = "dedup",
+			structure = serdes,
 			ser = function(cursor: Cursor, x: any)
 				if VALIDATION_ENABLED then beginValidationScope(cursor, "dedup") end
 				
@@ -2113,6 +2250,7 @@ end
 do
 	local bufSerDes: SerDes<buffer> = {
 		type = "buffer",
+		name = "buffer",
 		ser = function(cursor: Cursor, x: buffer)
 			if VALIDATION_ENABLED then beginValidationScope(cursor, "buffer") assertSerializeType(cursor, x, "buffer") end
 
@@ -2123,7 +2261,8 @@ do
 		end,
 		des = popbuf,
 	}
-	local bufCache = {}
+
+	local bufCache = setmetatable({}, kvcachemtbl)
 
 	-- Returns SerDes for buffer values, with optional parameter for how long the buffer will always be.
 	function Squish.buffer(length: number?): SerDes<buffer>
@@ -2139,6 +2278,8 @@ do
 
 		local serdes: SerDes<buffer> = {
 			type = "buffer",
+			name = "buffer",
+			structure = length,
 			ser = function(cursor: Cursor, x: buffer)
 				if VALIDATION_ENABLED then beginValidationScope(cursor, `buffer[{length}]`) assertSerializeType(cursor, x, "buffer") end
 
@@ -2162,6 +2303,7 @@ end
 do
 	local vlqCache: SerDes<number> = {
 		type = "number",
+		name = "vlq",
 		ser = if VALIDATION_ENABLED then function(cursor: Cursor, x: number)
 			if VALIDATION_ENABLED then beginValidationScope(cursor, "vlq") assertSerializeType(cursor, x, "number") end
 
@@ -2178,70 +2320,9 @@ do
 	end
 end 
 
-local function serbitarr(cursor: Cursor, bits: { boolean }, length: number?)
-	local bitCount = length or #bits
-	if bitCount == 0 then
-		return
-	end
-
-	local bitsOver = bitCount % 8
-
-	local buf, pos = getbuf(cursor), incrementpos(cursor, (bitCount + 7) // 8)
-
-	local bytesInBits = bitCount - bitsOver
-	for i = 0, bytesInBits - 1, 8 do
-		pushboolpacknocursor(buf, pos, bits[i + 1], bits[i + 2], bits[i + 3], bits[i + 4], bits[i + 5], bits[i + 6], bits[i + 7], bits[i + 8])
-		pos += 1
-	end
-
-	if bitsOver > 0 then
-		local byte = 0
-		for i = 0, 7 do 
-			if i > bitsOver then break end 
-			if bits[bytesInBits + i + 1] then
-				byte += bit32.lshift(1, i)
-			end
-		end
-
-		buffer.writeu8(buf, pos, byte)
-	end
-end
-
-local function desbitarr(cursor: Cursor, bitCount: number): { boolean }
-	if bitCount == 0 then
-		return {}
-	end
-
-	local arr = table.create(bitCount, false)
-	local bytes = bitCount // 8
-	local buf, pos = getbuf(cursor), decrementpos(cursor, (bitCount + 7) // 8)
-
-	for i = 0, bytes - 1 do 
-		local j = i * 8
-
-		local x = buffer.readu8(buf, pos + i)
-		arr[j + 1], arr[j + 2], arr[j + 3], arr[j + 4], arr[j + 5], arr[j + 6], arr[j + 7], arr[j + 8] = 
-			bit32.btest(x, 2^0), bit32.btest(x, 2^1), bit32.btest(x, 2^2), bit32.btest(x, 2^3), 
-			bit32.btest(x, 2^4), bit32.btest(x, 2^5), bit32.btest(x, 2^6), bit32.btest(x, 2^7)
-	end
-
-	local bitsOver = bitCount % 8
-
-	if bitsOver > 0 then
-		local j = bytes * 8
-		local x = buffer.readu8(buf, pos + bytes)
-
-		for i = 0, 7 do 
-			if i > bitsOver then break end 
-			if bit32.btest(x, 2^i) then arr[j + i + 1] = true end
-		end
-	end
-
-	return arr
-end
 
 do
-	local arrayCache = {}
+	local arrayCache = setmetatable({}, kcachemtbl)
 	
 	-- Returns SerDes for arrays, with parameters for which SerDes to use and optional fixed length / serdes for the array.
 	function Squish.array<T>(serdes: SerDes<T>, length: Length?): SerDes<{ T }>
@@ -2256,21 +2337,23 @@ do
 				return cached[key]
 			end
 		else
-			cached = {}
+			cached = setmetatable({}, kvcachemtbl)
 			arrayCache[serdes] = cached
 		end
-
---		local lengthisnum = type(length) == 'number'
 
 		local underlyingSerDes = optMap[serdes]
 		if underlyingSerDes then
 			if underlyingSerDes.type == "boolean" then
 				local arr: SerDes<{ boolean? }> = {
 					type = "table",
+					name = "array",
+
+					structure = {serdes, length},
+
 					ser = function(cursor: Cursor, xs: {boolean?})
 						if VALIDATION_ENABLED then beginValidationScope(cursor, "optboolarray") assertSerializeType(cursor, xs, "table") end
 
-						local n = length or table.maxn(xs) -- if lengthisnum then length else table.maxn(xs)
+						local n = length or table.maxn(xs)
 						local bools = table.create(n)
 						local flags = table.create(n, false)
 						for i = 1, n do
@@ -2289,15 +2372,12 @@ do
 						
 						if not length then
 							pushvlqrealloc(cursor, n)
---						elseif not lengthisnum then
---							if VALIDATION_ENABLED then overrideValidationScopeName(cursor, "optboolarray vlq") end
---							length.ser(cursor, n)
 						end
 
 						if VALIDATION_ENABLED then exitValidationScope(cursor) end
 					end,
-					des = function(cursor): {boolean?}
-						local n = length or popvlq(cursor) -- if not length then popvlq(cursor) elseif lengthisnum then length else length.des(cursor)
+					des = function(cursor: Cursor, result: AnyTable?): {boolean?}
+						local n = length or popvlq(cursor)
 						local flags = desbitarr(cursor, n)
 
 						local actualBoolCount = 0
@@ -2306,7 +2386,7 @@ do
 						end
 						local bools = desbitarr(cursor, actualBoolCount)
 
-						local xs = table.create(n)
+						local xs = result or table.create(n)
 						local j = 1
 						for i, flag in flags do
 							if flag then
@@ -2322,12 +2402,16 @@ do
 			else
 				local arr: SerDes<{ T? }> = {
 					type = "table",
+					name = "array",
+
+					structure = {serdes, length},
+
 					ser = function(cursor: Cursor, xs: { any }): ()
 						if VALIDATION_ENABLED then beginValidationScope(cursor, "optarray") assertSerializeType(cursor, xs, "table") end
 
 						local push = underlyingSerDes.ser
 
-						local n = length or table.maxn(xs) -- if lengthisnum then length else table.maxn(xs)
+						local n = length or table.maxn(xs)
 						local flags = table.create(n, false)
 						for i = 1, n do
 							local x = xs[i]
@@ -2344,20 +2428,17 @@ do
 						serbitarr(cursor, flags)
 						if not length then
 							pushvlqrealloc(cursor, n)
---						elseif not lengthisnum then
---							if VALIDATION_ENABLED then overrideValidationScopeName(cursor, "optarray vlq") end
---							length.ser(cursor, n)
 						end
 
 						if VALIDATION_ENABLED then exitValidationScope(cursor) end
 					end,
-					des = function(cursor): {T?}
+					des = function(cursor: Cursor, result: AnyTable?): {T?}
 						local pop = underlyingSerDes.des
 
-						local n = length or popvlq(cursor) -- if not length then popvlq(cursor) elseif lengthisnum then length else length.des(cursor)
+						local n = length or popvlq(cursor)
 						local flags = desbitarr(cursor, n)
 
-						local xs = table.create(n)
+						local xs = result or table.create(n)
 						for i = n, 1, -1 do
 							if flags[i] then
 								xs[i] = pop(cursor)
@@ -2372,25 +2453,33 @@ do
 		elseif serdes.type == "boolean" then
 			local arr: SerDes<{ boolean }> = {
 				type = "table",
+				name = "array",
+
+				structure = {serdes, length},
+
 				ser = function(cursor: Cursor, xs: {boolean})
 					if VALIDATION_ENABLED then beginValidationScope(cursor, "boolarray") assertSerializeType(cursor, xs, "table") end
 
-					local n = length or table.maxn(xs) -- if lengthisnum then length else #xs
+					local n = length or table.maxn(xs)
 					tryrealloc(cursor, (n + 7) // 8)
 					serbitarr(cursor, xs, n)
 
 					if not length then
 						pushvlqrealloc(cursor, n)
---					elseif not lengthisnum then
---						if VALIDATION_ENABLED then overrideValidationScopeName(cursor, "boolarray vlq") end
---						length.ser(cursor, n)
 					end
 
 					if VALIDATION_ENABLED then exitValidationScope(cursor) end
 				end,
-				des = function(cursor): {boolean}
-					local n = length or popvlq(cursor) -- if not length then popvlq(cursor) elseif lengthisnum then length else length.des(cursor)
-					return desbitarr(cursor, n)
+				des = function(cursor: Cursor, result: AnyTable?): {boolean}
+					local n = length or popvlq(cursor)
+					
+					local xs = desbitarr(cursor, n)
+					if result then 
+						table.move(xs, 1, n, 1, result)
+						return result
+					end
+					
+					return xs
 				end,
 			}
 			cached[key] = arr
@@ -2398,12 +2487,16 @@ do
 		else
 			local arr: SerDes<{ T }> = {
 				type = "table",
+				name = "array",
+
+				structure = {serdes, length},
+
 				ser = function(cursor: Cursor, xs: {any})
 					if VALIDATION_ENABLED then beginValidationScope(cursor, "array") assertSerializeType(cursor, xs, "table") end
 
 					local push = serdes.ser
 
-					local n = length or table.maxn(xs) -- if lengthisnum then length else #xs
+					local n = length or table.maxn(xs)
 					for i = 1, n do
 						local x = xs[i]
 						if VALIDATION_ENABLED then overrideValidationScopeName(cursor, `array i:{i} | val:{x}`) end
@@ -2413,18 +2506,15 @@ do
 
 					if not length then
 						pushvlqrealloc(cursor, n)					
---					elseif not lengthisnum then
---						if VALIDATION_ENABLED then overrideValidationScopeName(cursor, "array vlq") end
---						length.ser(cursor, n)
 					end
 
 					if VALIDATION_ENABLED then exitValidationScope(cursor) end
 				end,
-				des = function(cursor): {any}
+				des = function(cursor: Cursor, result: AnyTable?): {any}
 					local pop = serdes.des
 
-					local n = length or popvlq(cursor) -- if not length then popvlq(cursor) elseif lengthisnum then length else length.des(cursor)
-					local xs = table.create(n)
+					local n = length or popvlq(cursor)
+					local xs = result or table.create(n)
 					for i = n, 1, -1 do
 						xs[i] = pop(cursor)
 					end
@@ -2494,6 +2584,10 @@ do
 
 		local tuple: SerDes<any> = {
 			type = nil,
+			name = "tuple",
+
+			structure = serdesargs,
+
 			ser = function(cursor: Cursor, ...: any)
 				if VALIDATION_ENABLED then beginValidationScope(cursor, "tuple") end
 
@@ -2665,6 +2759,10 @@ do
 
 		return {
 			type = "table",
+			name = "record",
+
+			structure = schema,
+
 			ser = function(cursor: Cursor, record: anyRecordTable)
 				if VALIDATION_ENABLED then beginValidationScope(cursor, "record") assertSerializeType(cursor, record, "table") end
 
@@ -2728,9 +2826,8 @@ do
 				if VALIDATION_ENABLED then exitValidationScope(cursor) end
 			end,
 
-			des = function(cursor): UnwrapRecord<T>
-				local new: anyRecordTable = table.clone(basicstructure)
-
+			des = function(cursor: Cursor, result: AnyTable?): UnwrapRecord<T>
+				local new: anyRecordTable = result or table.clone(basicstructure)
 				local bools, flags
 
 				if hasOpt then
@@ -2782,13 +2879,13 @@ do
 end
 
 do
-	local mapCache = {}
+	local mapCache = setmetatable({}, kvcachemtbl)
 	
 	-- Returns a SerDes for dictionaries, with optional parameter for how long the map should always be.
 	-- Serialization of keys and values is determined by keySerDes and valueSerDes.
 	-- if the type of a key or value is not supported, it may error or behave unpredictably.
 	function Squish.map<K, V>(keySerDes: SerDes<K>, valueSerDes: SerDes<V>, length: Length?): SerDes<{ [K]: V }>
---		local lengthisnum = type(length) == "number"
+
 
 		assertIsSerdes(keySerDes, 1)
 		assertIsSerdes(valueSerDes, 2)
@@ -2809,6 +2906,10 @@ do
 
 		local map = {
 			type = "table",
+			name = "map",
+
+			structure = {keySerDes, valueSerDes, length},
+
 			ser = function(cursor: Cursor, map: AnyTable)
 				if VALIDATION_ENABLED then beginValidationScope(cursor, "map") end
 
@@ -2823,9 +2924,6 @@ do
 
 				if not length then
 					pushvlqrealloc(cursor, size)
---				elseif not lengthisnum then
---					if VALIDATION_ENABLED then overrideValidationScopeName(cursor, "map vlq") end
---					length.ser(cursor, size)
 				elseif size ~= length then
 					reportValidationError(cursor, `Expected map length to be equal to {length}, but got {size}.`)
 				end
@@ -2833,10 +2931,10 @@ do
 				if VALIDATION_ENABLED then exitValidationScope(cursor) end
 			end,
 
-			des = function(cursor): {[K]: V}
-				local map = {}
+			des = function(cursor: Cursor, result: AnyTable?): {[K]: V}
+				local map = result or {}
 
-				local size = length or popvlq(cursor) -- if not length then popvlq(cursor) elseif lengthisnum then length else length.des(cursor)
+				local size = length or popvlq(cursor)
 
 				for _ = 1, size do
 					local key = keySerDes.des(cursor)
@@ -2858,18 +2956,39 @@ do
 end
 
 do
+	local nilidkey, nanidkey = table.freeze{}, table.freeze{}
+	
+	local commonmtbl = {
+		__index = function(self, key)
+			if key == nil then return rawget(self, nilidkey)
+			elseif key ~= key then return rawget(self, nanidkey) end 
+			
+			return nil
+		end,
+	}
+	
 	-- Returns SerDes for only values that are provided to this function. 
 	function Squish.literal<T>(array: {T}): SerDes<T>
 		local map = {}
 		local literals = {}
 
 		for i, literal in array do
-			map[literal] = i - 1
-			literals[i - 1] = literal
+			local id = i - 1
+
+			if literal ~= literal then map[nanidkey] = id
+			else map[literal] = id end
+
+			literals[id] = literal
+		end
+
+		if map[nanidkey] then
+			setmetatable(map, commonmtbl)
 		end
 
 		local serdes: SerDes<any> = {
 			type = nil,
+			name = "literal",
+			
 			multypeinfo = {
 				literals = literals,
 				literalsMap = map,
@@ -2899,6 +3018,8 @@ do
 
 	-- Adds the provided literals to the SerDes.
 	function Squish.addliterals(serdes: SerDes<any>, ...: any)
+		serdes = Squish.unopt(serdes)
+		
 		local info = serdes.multypeinfo
 		assert(info and info.literals and info.literalsMap, "SerDes does not support adding literals.")
 
@@ -2912,14 +3033,25 @@ do
 			local v = select(i, ...)
 
 			if literalsMap[v] then continue end 
+
 			lastidx += 1
-			 
 			literals[lastidx] = v 
-			literalsMap[v] = lastidx
+
+			if v ~= v then
+				literalsMap[nanidkey] = lastidx
+				setmetatable(literalsMap, commonmtbl)
+			elseif v == nil then 
+				literalsMap[nilidkey] = lastidx
+				setmetatable(literalsMap, commonmtbl)
+			else 
+				literalsMap[v] = lastidx
+			end
 		end
 	end
+end 
 
-	local tableCache = {}
+do
+	local tableCache = setmetatable({}, kvcachemtbl)
 	local writingArray = {}
 
 	-- Returns SerDes for arbitrary tables of any shape. supporting mixed tables, gaps, and circular references.
@@ -2929,6 +3061,10 @@ do
 
 		local tbl: SerDes<{[any]: any}> = {
 			type = "table",
+			name = "table",
+
+			structure = serdes,
+			
 			ser = function(cursor: Cursor, x: {[any]: any})
 				if VALIDATION_ENABLED then beginValidationScope(cursor, "table") assertSerializeType(cursor, x, "table") end
 
@@ -3007,7 +3143,7 @@ do
 				if VALIDATION_ENABLED then exitValidationScope(cursor) end
 			end,
 
-			des = function(cursor: Cursor): {[any]: any}
+			des = function(cursor: Cursor, result: AnyTable?): {[any]: any}
 				local scanlist = cursor.scanlist
 
 				if not scanlist then
@@ -3034,7 +3170,7 @@ do
 					local end_pos = getpos(cursor)
 					
 					scanlist[idx] = {
-						tbl = {},
+						tbl = if idx == 1 and result then result else {},
 						end_pos = end_pos
 					}
 					
@@ -3084,10 +3220,14 @@ end
 do
 	local vectortype = if Vector3 then "Vector3" else "vector"
 	local maxvectorsize = if has4wideVectors then 4 else 3
+
+	local f32 = Squish.f32()
 	
 	local vectorCache = {
-		[2] = {[Squish.f32()] = { -- optimized default
+		[2] = {[f32] = { -- optimized default
 			type = vectortype,
+			name = "vector",
+			structure = {2, f32},
 
 			ser = function(cursor: Cursor, x: Vector2)
 				if VALIDATION_ENABLED then beginValidationScope(cursor, "vector (2)") assertSerializeType(cursor, x, vectortype) end
@@ -3107,8 +3247,10 @@ do
 			end
 		}},
 		
-		[3] = {[Squish.f32()] = { -- optimized default
+		[3] = {[f32] = { -- optimized default
 			type = vectortype,
+			name = "vector",
+			structure = {3, f32},
 
 			ser = function(cursor: Cursor, x: vector)
 				if VALIDATION_ENABLED then beginValidationScope(cursor, "vector (3)") assertSerializeType(cursor, x, vectortype) end
@@ -3130,8 +3272,10 @@ do
 		}},
 		
 		[4] = if has4wideVectors then {
-			[Squish.f32()] = { -- optimized default
+			[f32] = { -- optimized default
 				type = vectortype,
+				name = "vector",
+				structure = {4, f32},
 
 				ser = function(cursor: Cursor, x: vector)
 					if VALIDATION_ENABLED then beginValidationScope(cursor, "vector (4)") assertSerializeType(cursor, x, vectortype) end
@@ -3167,7 +3311,7 @@ do
 			end
 		end
 		
-		if serdes == nil then serdes = Squish.f32()
+		if serdes == nil then serdes = f32
 		else 
 			assertIsSerdes(serdes, 2) 
 			assertSerdesType(serdes, "number")	
@@ -3251,6 +3395,8 @@ do
 			error(`length {size} is not supported for Squish.vector().`)
 		end
 
+		vec.name, vec.structure = "vector", {length, serdes}
+
 		cache[serdes] = vec
 		return vec
 	end
@@ -3262,9 +3408,13 @@ do
 end
 
 if Vector2 ~= nil then
+	local f32 = Squish.f32()
+
 	local vector2Cache = {
-		[Squish.f32()] = { -- optimized default
+		[f32] = { -- optimized default
 			type = "Vector2",
+			name = "Vector2",
+			structure = f32,
 
 			ser = function(cursor: Cursor, x: Vector2)
 				if VALIDATION_ENABLED then beginValidationScope(cursor, "Vector2") assertSerializeType(cursor, x, "Vector2") end
@@ -3289,7 +3439,7 @@ if Vector2 ~= nil then
 	-- <strong>Not the same as Squish.vector(2)</strong>, this is a different datatype unfortunately.
 	-- Defaults to f32.
 	function Squish.Vector2(serdes: SerDes<number>?): SerDes<Vector2>
-		if serdes == nil then serdes = Squish.f32()
+		if serdes == nil then serdes = f32
 		else 
 			assertIsSerdes(serdes, 1) 
 			assertSerdesType(serdes, "number")	
@@ -3304,6 +3454,8 @@ if Vector2 ~= nil then
 
 		local vec: SerDes<Vector2> = {
 			type = "Vector2",
+			name = "Vector2",
+			structure = serdes,
 
 			ser = function(cursor: Cursor, x: Vector2)
 				if VALIDATION_ENABLED then beginValidationScope(cursor, "Vector2") assertSerializeType(cursor, x, "Vector2") end
@@ -3331,6 +3483,7 @@ end
 if Axes ~= nil then
 	local axesCache: SerDes<Axes> = {
 		type = "Axes",
+		name = "Axes",
 		ser = function(cursor: Cursor, axes: Axes)
 			if VALIDATION_ENABLED then beginValidationScope(cursor, "Axes") assertSerializeType(cursor, axes, "Axes") end
 
@@ -3367,6 +3520,7 @@ end
 if BrickColor ~= nil then
 	local brickcolorCache: SerDes<BrickColor> = {
 		type = "BrickColor",
+		name = "BrickColor",
 		ser = function(cursor: Cursor, brickcolor: BrickColor)
 			if VALIDATION_ENABLED then beginValidationScope(cursor, "BrickColor") assertSerializeType(cursor, brickcolor, "BrickColor") end
 
@@ -3459,6 +3613,7 @@ if Enum ~= nil then
 	local enumItemCache = {
 		[""] = {
 			type = "EnumItem",
+			name = "EnumItem",
 			ser = function(cursor: Cursor, x: EnumItem)
 				if VALIDATION_ENABLED then beginValidationScope(cursor, "EnumItem") assertSerializeType(cursor, x, "EnumItem") end
 
@@ -3518,6 +3673,8 @@ if Enum ~= nil then
 
 		local item: SerDes<EnumItem> = {
 			type = t,
+			name = "EnumItem",
+			structure = enum,
 			ser = function(cursor: Cursor, item: EnumItem)
 				if VALIDATION_ENABLED then beginValidationScope(cursor, t) end
 				local id = itemsToIds[item]
@@ -3544,6 +3701,7 @@ end
 if CatalogSearchParams ~= nil then
 	local catalogSearchParamsCache: SerDes<CatalogSearchParams> = {
 		type = "CatalogSearchParams",
+		name = "CatalogSearchParams",
 		ser = function(cursor: Cursor, params: CatalogSearchParams)
 			if VALIDATION_ENABLED then beginValidationScope(cursor, "CatalogSearchParams") assertSerializeType(cursor, params, "CatalogSearchParams") end
 
@@ -3637,7 +3795,7 @@ if CFrame ~= nil then
 	local invrange = 1/range
 	local ToAxisAngle = CFrame.identity.ToAxisAngle
 	
-	local function SerDesotation(cursor: Cursor, cframe: CFrame, sizeoffset: number?)
+	local function SerRotation(cursor: Cursor, cframe: CFrame, sizeoffset: number?)
 		local axis, theta = ToAxisAngle(cframe)
 		local specialId = rotationToId[axis * theta]
 
@@ -3659,7 +3817,7 @@ if CFrame ~= nil then
 		end
 	end
 
-	local function deSerDesotation(cursor: Cursor, x: number?, y: number?, z: number?)
+	local function DesRotation(cursor: Cursor, x: number?, y: number?, z: number?)
 		local specialId = popu1(cursor)
 		if specialId ~= 0 then return idToRotation[specialId] + Vector3.new(x, y, z) end
 
@@ -3672,14 +3830,18 @@ if CFrame ~= nil then
 
 		return CFrame.new(x, y, z, qx, qy, qz, qw)
 	end
+
+	local f32 = Squish.f32()
 	
 	local cframeCache = {
-		[Squish.f32()] = { -- optimized default
+		[f32] = { -- optimized default
 			type = "CFrame",
+			name = "CFrame",
+			structure = f32,
 			ser = function(cursor: Cursor, cframe: CFrame)
 				if VALIDATION_ENABLED then beginValidationScope(cursor, "CFrame") assertSerializeType(cursor, cframe, "CFrame") end 
 
-				SerDesotation(cursor, cframe, 12)
+				SerRotation(cursor, cframe, 12)
 
 				local pos = cframe.Position
 				local buf, bufpos = getbuf(cursor), incrementpos(cursor, 12)
@@ -3694,22 +3856,24 @@ if CFrame ~= nil then
 				local buf, bufpos = getbuf(cursor), incrementpos(cursor, -12)
 				local x, y, z = buffer.readf32(buf, bufpos - 4), buffer.readf32(buf, bufpos - 8), buffer.readf32(buf, bufpos - 12)
 
-				return deSerDesotation(cursor, x, y, z)
+				return DesRotation(cursor, x, y, z)
 			end
 		},
 		
 		[false] = {
 			type = "CFrame",
+			name = "CFrame",
+			structure = false,
 			ser = if VALIDATION_ENABLED then
 				function(cursor: Cursor, cframe: CFrame)
 					if VALIDATION_ENABLED then beginValidationScope(cursor, "Rotation") assertSerializeType(cursor, cframe, "CFrame") end 
 
-					SerDesotation(cursor, cframe, 0)
+					SerRotation(cursor, cframe, 0)
 
 					if VALIDATION_ENABLED then exitValidationScope(cursor) end
 				end
-				else SerDesotation,
-			des = deSerDesotation,
+				else SerRotation,
+			des = DesRotation,
 		},
 	}
 
@@ -3717,7 +3881,7 @@ if CFrame ~= nil then
 	-- If <strong>false</strong> is provided to the serdes parameter, positional component is not saved.
 	-- Defaults to f32.
 	function Squish.CFrame(positionSerdes: SerDes<number> | false | nil): SerDes<CFrame>
-		if positionSerdes == nil then positionSerdes = Squish.f32()
+		if positionSerdes == nil then positionSerdes = f32
 		elseif positionSerdes ~= false then
 			assertIsSerdes(positionSerdes, 1) 
 			assertSerdesType(positionSerdes, "number")
@@ -3732,12 +3896,14 @@ if CFrame ~= nil then
 		
 		local cframeserdes: SerDes<CFrame> = {
 			type = "CFrame",
+			name = "CFrame",
+			structure = positionSerdes,
 			ser = function(cursor: Cursor, cframe: CFrame)
 				if VALIDATION_ENABLED then beginValidationScope(cursor, "CFrame") assertSerializeType(cursor, cframe, "CFrame") end 
 
 				local push = push 
 				
-				SerDesotation(cursor, cframe, 12)
+				SerRotation(cursor, cframe, 12)
 
 				local pos = cframe.Position
 				push(cursor, pos.Z)
@@ -3749,7 +3915,7 @@ if CFrame ~= nil then
 			
 			des = function(cursor): CFrame
 				local pop = pop
-				return deSerDesotation(cursor, pop(cursor), pop(cursor), pop(cursor))
+				return DesRotation(cursor, pop(cursor), pop(cursor), pop(cursor))
 			end
 		} :: any
 
@@ -3767,6 +3933,7 @@ end
 if Color3 ~= nil then
 	local color3Cache: SerDes<Color3> = {
 		type = "Color3",
+		name = "Color3",
 		ser = function(cursor: Cursor, x: Color3)
 			if VALIDATION_ENABLED then beginValidationScope(cursor, "Color3") assertSerializeType(cursor, x, "Color3") end
 
@@ -3788,6 +3955,7 @@ if Color3 ~= nil then
 
 	local color3f16Cache: SerDes<Color3> = {
 		type = "Color3",
+		name = "Color3f16",
 		ser = function(cursor: Cursor, x: Color3)
 			if VALIDATION_ENABLED then beginValidationScope(cursor, "Color3") assertSerializeType(cursor, x, "Color3") end
 
@@ -3836,6 +4004,7 @@ if ColorSequenceKeypoint ~= nil then
 
 	local colorSequenceKeypointCache: SerDes<ColorSequenceKeypoint> = {
 		type = "ColorSequenceKeypoint",
+		name = "ColorSequenceKeypoint",
 		ser = function(cursor: Cursor, x: ColorSequenceKeypoint)
 			if VALIDATION_ENABLED then beginValidationScope(cursor, "ColorSequenceKeypoint") assertSerializeType(cursor, x, "ColorSequenceKeypoint") end
 
@@ -3857,6 +4026,7 @@ end
 if ColorSequence ~= nil then
 	local colorSequenceCache: SerDes<ColorSequence> = {
 		type = "ColorSequence",
+		name = "ColorSequence",
 		ser = function(cursor: Cursor, sequence: ColorSequence)
 			if VALIDATION_ENABLED then beginValidationScope(cursor, "ColorSequence") assertSerializeType(cursor, sequence, "ColorSequence") end
 
@@ -3889,6 +4059,7 @@ end
 if DateTime ~= nil then
 	local dateTimeCache: SerDes<DateTime> = {
 		type = "DateTime",
+		name = "DateTime",
 		ser = function(cursor: Cursor, date: DateTime)
 			if VALIDATION_ENABLED then beginValidationScope(cursor, "DateTime") assertSerializeType(cursor, date, "DateTime") end
 
@@ -3912,6 +4083,7 @@ end
 if Faces ~= nil then
 	local facesCache: SerDes<Faces> = {
 		type = "Faces",
+		name = "Faces",
 		ser = function(cursor: Cursor, face: Faces)
 			if VALIDATION_ENABLED then beginValidationScope(cursor, "Faces") assertSerializeType(cursor, face, "Faces") end
 
@@ -3947,6 +4119,7 @@ if FloatCurveKey ~= nil then
 
 	local floatCurveKeyCache: SerDes<FloatCurveKey> = {
 		type = "FloatCurveKey",
+		name = "FloatCurveKey",
 		ser = function(cursor: Cursor, key: FloatCurveKey)
 			if VALIDATION_ENABLED then beginValidationScope(cursor, "FloatCurveKey") assertSerializeType(cursor, key, "FloatCurveKey") end
 
@@ -3979,13 +4152,32 @@ if Font ~= nil then
 
 	local fontCache: SerDes<Font> = {
 		type = "Font",
+		name = "Font",
 		ser = function(cursor: Cursor, font: Font)
 			if VALIDATION_ENABLED then beginValidationScope(cursor, "Font") assertSerializeType(cursor, font, "Font") end
 
-			--TODO support rbxassetid fonts.
-			local family = string.match(font.Family, 'rbxasset://fonts/families/(.+).json') or error(`Invalid font family {font.Family}`, 0)
-			tryrealloc(cursor, #family + 1)
-			pushstr(cursor, family)
+			local assetId = string.match(font.Family, "^rbxassetid://(%d+)$")
+			if assetId then
+				tryrealloc(cursor, 5)
+				pushu4(cursor, tonumber(assetId) :: number)
+				pushu1(cursor, 0)
+			else
+				local builtinName = string.match(font.Family, "^rbxasset://fonts/families/(.+).json$")
+				local id, towrite 
+
+				if builtinName then
+					id = 1
+					towrite = builtinName
+				else
+					id = 2 
+					towrite = font.Family
+				end
+
+				tryrealloc(cursor, #towrite + 2)
+				pushstr(cursor, towrite)
+				pushu1(cursor, id)
+			end
+
 			pushbool(cursor, font.Bold)
 			weightenumser(cursor, font.Weight)
 			styleenumser(cursor, font.Style)
@@ -3997,8 +4189,18 @@ if Font ~= nil then
 			local style = styleenumdes(cursor) :: Enum.FontStyle
 			local weight = weightenumdes(cursor) :: Enum.FontWeight
 			local bold = popbool(cursor)
-			local family = popstr(cursor)
-			local font = Font.new(`rbxasset://fonts/families/{family}.json`, weight, style)
+			local fontType = popu1(cursor)
+			local familyUri
+
+			if fontType == 0 then
+				familyUri = `rbxassetid://{popu4(cursor)}`
+			elseif fontType == 1 then
+				familyUri = `rbxasset://fonts/families/{popstr(cursor)}.json`
+			else
+				familyUri = popstr(cursor)
+			end
+
+			local font = Font.new(familyUri, weight, style)
 			font.Bold = bold
 			return font
 		end,
@@ -4012,7 +4214,7 @@ if Font ~= nil then
 end
 
 if NumberRange ~= nil then
-	local numberRangeCache = {}
+	local numberRangeCache = setmetatable({}, kvcachemtbl)
 
 	-- Returns SerDes for 'NumberRange' datatype, with optional parameter for which SerDes to use.
 	-- Defaults to f32.
@@ -4032,6 +4234,8 @@ if NumberRange ~= nil then
 
 		local numrange: SerDes<NumberRange> = {
 			type = "NumberRange",
+			name = "NumberRange",
+			structure = serdes,
 			ser = function(cursor: Cursor, range: NumberRange)
 				if VALIDATION_ENABLED then beginValidationScope(cursor, "NumberRange") assertSerializeType(cursor, range, "NumberRange") end
 
@@ -4058,7 +4262,7 @@ end
 
 local numbersequencekeypoint
 if NumberSequenceKeypoint ~= nil then
-	local numberSequenceKeypointCache = {}
+	local numberSequenceKeypointCache = setmetatable({}, kvcachemtbl)
 	
 	local u16max = (2 ^ 16) - 1
 
@@ -4080,6 +4284,8 @@ if NumberSequenceKeypoint ~= nil then
 
 		local sequencekeypoint: SerDes<NumberSequenceKeypoint> = {
 			type = "NumberSequenceKeypoint",
+			name = "NumberSequenceKeypoint",
+			structure = serdes,
 			ser = function(cursor: Cursor, keypoint: NumberSequenceKeypoint)
 				if VALIDATION_ENABLED then beginValidationScope(cursor, "NumberSequenceKeypoint") assertSerializeType(cursor, keypoint, "NumberSequenceKeypoint") end
 
@@ -4112,7 +4318,7 @@ if NumberSequenceKeypoint ~= nil then
 end
 
 if NumberSequence ~= nil then
-	local numberSequenceCache = {}
+	local numberSequenceCache = setmetatable({}, kvcachemtbl)
 
 	-- Returns SerDes for 'NumberSequence' datatype, with optional parameter for which SerDes to use.
 	-- Defaults to f32.
@@ -4131,6 +4337,8 @@ if NumberSequence ~= nil then
 
 		local numsequence: SerDes<NumberSequence> = {
 			type = "NumberSequence",
+			name = "NumberSequence",
+			structure = serdes,
 			ser = function(cursor: Cursor, sequence: NumberSequence)
 				if VALIDATION_ENABLED then beginValidationScope(cursor, "NumberSequence") assertSerializeType(cursor, sequence, "NumberSequence") end
 
@@ -4162,6 +4370,7 @@ end
 if OverlapParams ~= nil then
 	local overlapParamsCache: SerDes<OverlapParams> = {
 		type = "OverlapParams",
+		name = "OverlapParams",
 		ser = function(cursor: Cursor, params: OverlapParams)
 			if VALIDATION_ENABLED then beginValidationScope(cursor, "OverlapParams") assertSerializeType(cursor, params, "OverlapParams") end
 
@@ -4194,6 +4403,7 @@ end
 if RaycastParams ~= nil then
 	local raycastParamsCache: SerDes<RaycastParams> = {
 		type = "RaycastParams",
+		name = "RaycastParams",
 		ser = function(cursor: Cursor, params: RaycastParams)
 			if VALIDATION_ENABLED then beginValidationScope(cursor, "RaycastParams") assertSerializeType(cursor, params, "RaycastParams") end
 
@@ -4222,7 +4432,7 @@ if RaycastParams ~= nil then
 end
 
 if PathWaypoint ~= nil then
-	local pathWaypointCache = {}
+	local pathWaypointCache = setmetatable({}, kvcachemtbl)
 
 	-- Returns SerDes for 'PathWaypoint' datatype, with optional parameter for which SerDes to use for the positional component.
 	-- Defaults to f32.
@@ -4246,6 +4456,8 @@ if PathWaypoint ~= nil then
 
 		local path: SerDes<PathWaypoint> = {
 			type = "PathWaypoint",
+			name = "PathWaypoint",
+			structure = serdes,
 			ser = function(cursor: Cursor, waypoint: PathWaypoint)
 				if VALIDATION_ENABLED then beginValidationScope(cursor, "PathWaypoint") assertSerializeType(cursor, waypoint, "PathWaypoint") end
 
@@ -4280,6 +4492,7 @@ end
 if PhysicalProperties ~= nil then
 	local physicalPropertiesCache: SerDes<PhysicalProperties> = {
 		type = "PhysicalProperties",
+		name = "PhysicalProperties",
 		ser = function(cursor: Cursor, props: PhysicalProperties)
 			if VALIDATION_ENABLED then beginValidationScope(cursor, "PhysicalProperties") assertSerializeType(cursor, props, "PhysicalProperties") end
 
@@ -4306,7 +4519,7 @@ if PhysicalProperties ~= nil then
 end
 
 if Ray ~= nil then
-	local rayCache = {}
+	local rayCache = setmetatable({}, kvcachemtbl)
 
 	-- Returns SerDes for 'Ray' datatype, with optional parameter for which SerDes to use.
 	-- Defaults to f32.
@@ -4326,6 +4539,8 @@ if Ray ~= nil then
 
 		local raycached: SerDes<Ray> = {
 			type = "Ray",
+			name = "Ray",
+			structure = serdes,
 			ser = function(cursor: Cursor, ray: Ray)
 				if VALIDATION_ENABLED then beginValidationScope(cursor, "Ray") assertSerializeType(cursor, ray, "Ray") end
 
@@ -4356,7 +4571,7 @@ if Ray ~= nil then
 end
 
 if RaycastParams ~= nil then
-	local raycastResultCache = {}
+	local raycastResultCache = setmetatable({}, kvcachemtbl)
 
 	-- Returns SerDes for 'RaycastResult' datatype, with optional parameter for which SerDes to use for the positional component.
 	-- Defaults to f32.
@@ -4382,6 +4597,8 @@ if RaycastParams ~= nil then
 
 		local raycastresult: RaycastResultSerDes = {
 			type = "RaycastResult",
+			name = "RaycastResult",
+			structure = serdes,
 			ser = function(cursor: Cursor, result: RaycastResult)
 				if VALIDATION_ENABLED then beginValidationScope(cursor, "RaycastResult") assertSerializeType(cursor, result, "RaycastResult") end
 
@@ -4425,7 +4642,7 @@ if RaycastParams ~= nil then
 end
 
 if Rect ~= nil then
-	local rectCache = {}
+	local rectCache = setmetatable({}, kvcachemtbl)
 
 	-- Returns SerDes for 'Rect' datatype, with optional parameter for which SerDes to use.
 	-- Defaults to f32.
@@ -4445,6 +4662,8 @@ if Rect ~= nil then
 
 		local rectserdes: SerDes<Rect> = {
 			type = "Rect",
+			name = "Rect",
+			structure = serdes,
 			ser = function(cursor: Cursor, rect: Rect)
 				if VALIDATION_ENABLED then beginValidationScope(cursor, "Rect") assertSerializeType(cursor, rect, "Rect") end
 
@@ -4473,7 +4692,7 @@ if Rect ~= nil then
 end
 
 if Region3 ~= nil then
-	local region3Cache = {}
+	local region3Cache = setmetatable({}, kvcachemtbl)
 
 	-- Returns SerDes for 'Region3' datatype, with optional parameter for which SerDes to use.
 	-- Defaults to f32.
@@ -4493,6 +4712,8 @@ if Region3 ~= nil then
 
 		local reg: SerDes<Region3> = {
 			type = "Region3",
+			name = "Region3",
+			structure = serdes,
 			ser = function(cursor: Cursor, region: Region3)
 				if VALIDATION_ENABLED then beginValidationScope(cursor, "Region3") assertSerializeType(cursor, region, "Region3") end
 
@@ -4529,6 +4750,7 @@ end
 if Region3int16 ~= nil then
 	local region3int16Cache: SerDes<Region3int16> = {
 		type = "Region3int16",
+		name = "Region3int16",
 		ser = function(cursor: Cursor, region: Region3int16)
 			if VALIDATION_ENABLED then beginValidationScope(cursor, "Region3int16") assertSerializeType(cursor, region, "Region3int16") end
 
@@ -4560,7 +4782,7 @@ if Region3int16 ~= nil then
 end
 
 if RotationCurveKey ~= nil then
-	local rotationCurveKeyCache = {}
+	local rotationCurveKeyCache = setmetatable({}, kvcachemtbl)
 
 	-- Returns SerDes for 'RotationCurveKey' datatype, with optional parameter for which SerDes to use.
 	-- Defaults to f32.
@@ -4580,6 +4802,8 @@ if RotationCurveKey ~= nil then
 
 		local rot: SerDes<RotationCurveKey> = {
 			type = "RotationCurveKey",
+			name = "RotationCurveKey",
+			structure = serdes,
 			ser = function(cursor: Cursor, key: RotationCurveKey)
 				if VALIDATION_ENABLED then beginValidationScope(cursor, "RotationCurveKey") assertSerializeType(cursor, key, "RotationCurveKey") end
 
@@ -4608,6 +4832,7 @@ end
 if TweenInfo ~= nil then
 	local tweenInfoCache: SerDes<TweenInfo> = {
 		type = "TweenInfo",
+		name = "TweenInfo",
 		ser = function(cursor: Cursor, info: TweenInfo)
 			if VALIDATION_ENABLED then beginValidationScope(cursor, "TweenInfo") assertSerializeType(cursor, info, "TweenInfo") end
 
@@ -4641,7 +4866,7 @@ if TweenInfo ~= nil then
 end
 
 if UDim ~= nil then
-	local udimCache = {}
+	local udimCache = setmetatable({}, kvcachemtbl)
 
 	-- Returns SerDes for 'UDim' datatype, with optional parameter for which SerDes to use.
 	-- Defaults to f32.
@@ -4661,6 +4886,8 @@ if UDim ~= nil then
 
 		local udim: SerDes<UDim> = {
 			type = "UDim",
+			name = "UDim",
+			structure = serdes,
 			ser = function(cursor: Cursor, u: UDim)
 				if VALIDATION_ENABLED then beginValidationScope(cursor, "UDim") assertSerializeType(cursor, u, "UDim") end
 
@@ -4678,7 +4905,7 @@ if UDim ~= nil then
 				local pop = pop 
 
 				return UDim.new(pop(cursor), pop(cursor))
-			end,``
+			end,
 		}
 
 		udimCache[serdes] = udim
@@ -4688,7 +4915,7 @@ if UDim ~= nil then
 end
 
 if UDim2 ~= nil then
-	local udim2Cache = {}
+	local udim2Cache = setmetatable({}, kvcachemtbl)
 
 	-- Returns SerDes for 'UDim2' datatype, with optional parameter for which SerDes to use.
 	-- Defaults to f32.
@@ -4708,6 +4935,8 @@ if UDim2 ~= nil then
 
 		local udim2: SerDes<UDim2> = {
 			type = "UDim2",
+			name = "UDim2",
+			structure = serdes,
 			ser = function(cursor: Cursor, u: UDim2)
 				if VALIDATION_ENABLED then beginValidationScope(cursor, "UDim2") assertSerializeType(cursor, u, "UDim2") end
 
@@ -4739,6 +4968,7 @@ end
 if Vector2int16 ~= nil then
 	local vector2int16Cache: SerDes<Vector2int16> = {
 		type = "Vector2int16",
+		name = "Vector2int16",
 		ser = function(cursor: Cursor, v: Vector2int16)
 			if VALIDATION_ENABLED then beginValidationScope(cursor, "Vector2int16") assertSerializeType(cursor, v, "Vector2int16") end
 
@@ -4764,6 +4994,7 @@ end
 if Vector3int16 ~= nil then
 	local vector3int16Cache: SerDes<Vector3int16> = {
 		type = "Vector3int16",
+		name = "Vector3int16",
 		ser = function(cursor: Cursor, v: Vector3int16)
 			if VALIDATION_ENABLED then beginValidationScope(cursor, "Vector3int16") assertSerializeType(cursor, v, "Vector3int16") end
 
@@ -4886,6 +5117,7 @@ if Instance ~= nil then
 	local instanceCache = {
 		["Instance"] = {
 			type = "Instance",
+			name = "Instance",
 			ser = function(cursor: Cursor, v: Instance)
 				if VALIDATION_ENABLED then 
 					beginValidationScope(cursor, "Instance")
@@ -4921,6 +5153,8 @@ if Instance ~= nil then
 
 		local ins: SerDes<Instance?> = {
 			type = "Instance",
+			name = "Instance",
+			structure = classname,
 			ser = function(cursor: Cursor, v: Instance?)
 				if VALIDATION_ENABLED then 
 					beginValidationScope(cursor, t)
@@ -4962,6 +5196,7 @@ do
 	function Squish.anyFrom<L>(toindex: {[string]: number}, toserdes: {[number]: SerDes<any>}, literalsMap: {[any]: number}?, literals: {[number]: any}?, hassubtypes: boolean?, usenumberfastpath: boolean?): SerDes<any>
 		local anyFromSerdes: SerDes<any> = {
 			type = nil,
+			name = "variant",
 
 			multypeinfo = {
 				toindex = toindex,
@@ -4970,6 +5205,7 @@ do
 				literalsMap = literalsMap,
 
 				hassubtypes = hassubtypes,
+				numberfastpath = usenumberfastpath,
 			},
 
 			ser = function(cursor: Cursor, x: any)
@@ -5130,97 +5366,138 @@ do
 		return Squish.anyFrom(toindex, toserdes, literalsMap, idtoLiteral, hassubtypes, false)
 	end
 
-	Squish.types = Squish.variant
+	-- Adds the provided 'childSerdes' to 'serdes'. 'serdes' should be a variant or any serdes with a type.
+	function Squish.addserdes(serdes: SerDes<any>, childSerdes: SerDes<any>)
+		serdes = Squish.unopt(serdes)
+
+		assertIsSerdes(serdes, 1)
+
+		local info = serdes.multypeinfo
+		assert(info and info.toserdes and info.toindex, `Parameter 1 does not support adding SerDes.`, 0)
+
+		assertIsSerdes(childSerdes, 2)
+		assert(not childSerdes.multypeinfo, `Parameter 2 cannot be a multi-type SerDes.`, 0)
+		assertSchemaType(childSerdes.type, "string", "serdestype of parameter 2")
+
+		local toindex = info.toindex
+		local toserdes = info.toserdes
+
+		local lastidx = #toserdes
+		if lastidx == 0 and not toserdes[0] then lastidx = -1 end
+
+		lastidx += 1
+
+		local underlying = optMap[childSerdes]
+		if underlying then
+			if not toindex["nil"] then
+				toindex["nil"] = lastidx
+				toserdes[lastidx] = Squish.Nil()
+
+				lastidx += 1
+			end
+
+			childSerdes = underlying
+		end
+
+		local name = childSerdes.type
+		if toindex[name] then return end
+
+		toindex[name] = lastidx
+		toserdes[lastidx] = childSerdes
+
+		-- can't enable hassubtypes since it relies on the upvalue rather than multypeinfo.
+	end
 end 
 
 do 
-		local anytypeToId: {[string]: number} = {}
-		local idtoAnyType: {string} = {}
-		local idtoSerdes: {SerDes<any>} = {}
-		local lastAnyTypeId = 0
+	local anytypeToId: {[string]: number} = {}
+	local idtoAnyType: {string} = {}
+	local idtoSerdes: {SerDes<any>} = {}
+	local lastAnyTypeId = 0
 
-		local anyCache = Squish.anyFrom(anytypeToId, idtoSerdes, {}, {}, false, true)
+	local anyCache = Squish.anyFrom(anytypeToId, idtoSerdes, {}, {}, false, true)
+	anyCache.name = "any"
 
-		-- Returns a SerDes that can take in almost any value.
-		function Squish.any(): SerDes<any>
-			return anyCache
-		end
-
-		local function addanySerdes(serdesfunc: ((...any) -> SerDes<any>)?, ...: any?)
-			local serdes = serdesfunc and serdesfunc(...)
-			if not serdes then
-				lastAnyTypeId += 1
-				return
-			end
-			
-			local t = serdes.type
-			if type(t) ~= "string" then
-				error(`Expected provided serdes to have a string type, but got {t} ({typeof(t)}).`, 0)
-			end
-
-			if anytypeToId[t] then
-				error(`Type {t} was already added.`, 0)
-			end
-
-			local nextid = lastAnyTypeId
-			lastAnyTypeId = nextid + 1
-
-			anytypeToId[t] = nextid
-			idtoSerdes[nextid] = serdes
-			idtoAnyType[nextid] = t
-		end
-
-		-- !!! DO NOT CHANGE THE ORDER BELOW. ADD NEW DATATYPES AT THE END.
-		-- Changing order will shift the type byte assigned to each datatype, thus breaking compatibility.
-
-		addanySerdes(Squish.Nil)
-		addanySerdes(Squish.boolean)
-		addanySerdes(Squish.string)
-		addanySerdes(Squish.buffer)
-		addanySerdes(Squish.table, Squish.any())
-		
-		addanySerdes(Squish.vector)
-		addanySerdes(Squish.Vector2)
-		addanySerdes(Squish.CFrame)
-		addanySerdes(Squish.Ray)
-		addanySerdes(Squish.Region3)
-
-		addanySerdes(Squish.Instance)
-		addanySerdes(Squish.EnumItem)
-		addanySerdes(Squish.PhysicalProperties)
-		addanySerdes(Squish.PathWaypoint)
-		addanySerdes(Squish.RaycastParams)
-		addanySerdes(Squish.OverlapParams)
-		addanySerdes(Squish.RaycastResult)
-		addanySerdes(Squish.Faces)
-		addanySerdes(Squish.Axes)
-
-		addanySerdes(Squish.Vector3int16)
-		addanySerdes(Squish.Vector2int16)
-		addanySerdes(Squish.Region3int16)
-
-		addanySerdes(Squish.NumberRange)
-		addanySerdes(Squish.NumberSequenceKeypoint)
-		addanySerdes(Squish.NumberSequence)
-
-		addanySerdes(Squish.BrickColor)
-		addanySerdes(Squish.Color3)
-		addanySerdes(Squish.ColorSequenceKeypoint)
-		addanySerdes(Squish.ColorSequence)
-
-		addanySerdes(Squish.UDim)
-		addanySerdes(Squish.UDim2)
-		addanySerdes(Squish.Rect)
-		addanySerdes(Squish.Font)
-
-		addanySerdes(Squish.TweenInfo)
-		addanySerdes(Squish.DateTime)
-		addanySerdes(Squish.CatalogSearchParams)
-
-		addanySerdes(Squish.FloatCurveKey)
-		addanySerdes(Squish.RotationCurveKey)
-
-		-- !!! DO NOT CHANGE THE ORDER ABOVE, ADD NEW DATATYPES AT THE END.
+	-- Returns a SerDes that can take in almost any value.
+	function Squish.any(): SerDes<any>
+		return anyCache
 	end
+
+	local function addanySerdes(serdesfunc: ((...any) -> SerDes<any>)?, ...: any?)
+		local serdes = serdesfunc and serdesfunc(...)
+		if not serdes then
+			lastAnyTypeId += 1
+			return
+		end
+
+		local t = serdes.type
+		if type(t) ~= "string" then
+			error(`Expected provided serdes to have a string type, but got {t} ({typeof(t)}).`, 0)
+		end
+
+		if anytypeToId[t] then
+			error(`Type {t} was already added.`, 0)
+		end
+
+		local nextid = lastAnyTypeId
+		lastAnyTypeId = nextid + 1
+
+		anytypeToId[t] = nextid
+		idtoSerdes[nextid] = serdes
+		idtoAnyType[nextid] = t
+	end
+
+	-- !!! DO NOT CHANGE THE ORDER BELOW. ADD NEW DATATYPES AT THE END.
+	-- Changing order will shift the type byte assigned to each datatype, thus breaking compatibility.
+
+	addanySerdes(Squish.Nil)
+	addanySerdes(Squish.boolean)
+	addanySerdes(Squish.string)
+	addanySerdes(Squish.buffer)
+	addanySerdes(Squish.table, Squish.any())
+
+	addanySerdes(Squish.vector)
+	addanySerdes(Squish.Vector2)
+	addanySerdes(Squish.CFrame)
+	addanySerdes(Squish.Ray)
+	addanySerdes(Squish.Region3)
+
+	addanySerdes(Squish.Instance)
+	addanySerdes(Squish.EnumItem)
+	addanySerdes(Squish.PhysicalProperties)
+	addanySerdes(Squish.PathWaypoint)
+	addanySerdes(Squish.RaycastParams)
+	addanySerdes(Squish.OverlapParams)
+	addanySerdes(Squish.RaycastResult)
+	addanySerdes(Squish.Faces)
+	addanySerdes(Squish.Axes)
+
+	addanySerdes(Squish.Vector3int16)
+	addanySerdes(Squish.Vector2int16)
+	addanySerdes(Squish.Region3int16)
+
+	addanySerdes(Squish.NumberRange)
+	addanySerdes(Squish.NumberSequenceKeypoint)
+	addanySerdes(Squish.NumberSequence)
+
+	addanySerdes(Squish.BrickColor)
+	addanySerdes(Squish.Color3)
+	addanySerdes(Squish.ColorSequenceKeypoint)
+	addanySerdes(Squish.ColorSequence)
+
+	addanySerdes(Squish.UDim)
+	addanySerdes(Squish.UDim2)
+	addanySerdes(Squish.Rect)
+	addanySerdes(Squish.Font)
+
+	addanySerdes(Squish.TweenInfo)
+	addanySerdes(Squish.DateTime)
+	addanySerdes(Squish.CatalogSearchParams)
+
+	addanySerdes(Squish.FloatCurveKey)
+	addanySerdes(Squish.RotationCurveKey)
+
+	-- !!! DO NOT CHANGE THE ORDER ABOVE, ADD NEW DATATYPES AT THE END.
+end
 
 return Squish

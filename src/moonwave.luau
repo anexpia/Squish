@@ -11,10 +11,16 @@
 --- .size: number
 --- Object responsible for serializing and deserializing values. Every API interacts with this.
 
---- @interface SerDes
---- @within Squish
---- .ser (Cursor, T...) -> ()
---- .des (Cursor) -> T...
+--[=[ 
+	@interface SerDes
+	@within Squish
+	.ser (Cursor, ...T...) -> ()
+	.des (Cursor) -> T...
+	.type string? -- Type of the serdes, like string, number, etc.
+	.name string? -- Name of the serdes in Squish.
+	.structure any? -- Structure required to reproduce the exact same serdes.
+	.multypeinfo {toindex: {[string]: number}?, toserdes: {[number]: SerDes<any>}?, literals: {any}?, literalsMap: {[any]: number}?, hassubtypes: boolean?, numberfastpath: boolean?}? -- Used by 'variant' and 'literal' serdes. 
+]=]
 
 --- @interface SquishRaycastResult
 --- @within Squish
@@ -84,6 +90,323 @@
 --- @param cursor Cursor
 --- @param name string
 --- Changes the name of the last validation scope.
+
+--------------------------------------------------------------------------------
+-- UTILITY NAMESPACE
+--------------------------------------------------------------------------------
+
+--[=[
+	@class util
+	Namespace containing functions for pushing & popping values directly from the cursor.
+]=]
+
+--- @function tryrealloc
+--- @within util
+--- @param cursor Cursor
+--- @param size number
+--- Reallocates the buffer if the cursor position + size exceed the buffer size.
+
+--- @function setpos
+--- @within util
+--- @param cursor Cursor
+--- @param pos number
+--- Sets the current position of the cursor.
+
+--- @function getpos
+--- @within util
+--- @param cursor Cursor
+--- @return number
+--- Gets the current position of the cursor.
+
+--- @function setbuf
+--- @within util
+--- @param cursor Cursor
+--- @param buf buffer
+--- Sets the current buffer of the cursor.
+
+--- @function getbuf
+--- @within util
+--- @param cursor Cursor
+--- @return buffer
+--- Gets the current buffer of the cursor.
+
+--- @function pushu1
+--- @within util
+--- @param cursor Cursor
+--- @param x number -- 8 bits unsigned number
+
+--- @function popu1
+--- @within util
+--- @param cursor Cursor
+--- @return number -- 8 bits unsigned number
+
+--- @function pushu2
+--- @within util
+--- @param cursor Cursor
+--- @param x number -- 16 bits unsigned number
+
+--- @function popu2
+--- @within util
+--- @param cursor Cursor
+--- @return number -- 16 bits unsigned number
+
+--- @function pushu3
+--- @within util
+--- @param cursor Cursor
+--- @param x number -- 24 bits unsigned number
+
+--- @function popu3
+--- @within util
+--- @param cursor Cursor
+--- @return number -- 24 bits unsigned number
+
+--- @function pushu4
+--- @within util
+--- @param cursor Cursor
+--- @param x number -- 32 bits unsigned number
+
+--- @function popu4
+--- @within util
+--- @param cursor Cursor
+--- @return number -- 32 bits unsigned number
+
+--- @function pushu5
+--- @within util
+--- @param cursor Cursor
+--- @param x number -- 40 bits unsigned number
+
+--- @function popu5
+--- @within util
+--- @param cursor Cursor
+--- @return number -- 40 bits unsigned number
+
+--- @function pushu6
+--- @within util
+--- @param cursor Cursor
+--- @param x number -- 48 bits unsigned number
+
+--- @function popu6
+--- @within util
+--- @param cursor Cursor
+--- @return number -- 48 bits unsigned number
+
+--- @function pushu7
+--- @within util
+--- @param cursor Cursor
+--- @param x number -- 56 bits unsigned number
+
+--- @function popu7
+--- @within util
+--- @param cursor Cursor
+--- @return number -- 56 bits unsigned number
+
+--- @function pushu8
+--- @within util
+--- @param cursor Cursor
+--- @param x number -- 64 bits unsigned number
+
+--- @function popu8
+--- @within util
+--- @param cursor Cursor
+--- @return number -- 64 bits unsigned number
+
+--- @function pushi1
+--- @within util
+--- @param cursor Cursor
+--- @param x number -- 8 bits signed number
+
+--- @function popi1
+--- @within util
+--- @param cursor Cursor
+--- @return number -- 8 bits signed number
+
+--- @function pushi2
+--- @within util
+--- @param cursor Cursor
+--- @param x number -- 16 bits signed number
+
+--- @function popi2
+--- @within util
+--- @param cursor Cursor
+--- @return number -- 16 bits signed number
+
+--- @function pushi3
+--- @within util
+--- @param cursor Cursor
+--- @param x number -- 24 bits signed number
+
+--- @function popi3
+--- @within util
+--- @param cursor Cursor
+--- @return number -- 24 bits signed number
+
+--- @function pushi4
+--- @within util
+--- @param cursor Cursor
+--- @param x number -- 32 bits signed number
+
+--- @function popi4
+--- @within util
+--- @param cursor Cursor
+--- @return number -- 32 bits signed number
+
+--- @function pushi5
+--- @within util
+--- @param cursor Cursor
+--- @param x number -- 40 bits signed number
+
+--- @function popi5
+--- @within util
+--- @param cursor Cursor
+--- @return number -- 40 bits signed number
+
+--- @function pushi6
+--- @within util
+--- @param cursor Cursor
+--- @param x number -- 48 bits signed number
+
+--- @function popi6
+--- @within util
+--- @param cursor Cursor
+--- @return number -- 48 bits signed number
+
+--- @function pushi7
+--- @within util
+--- @param cursor Cursor
+--- @param x number -- 56 bits signed number
+
+--- @function popi7
+--- @within util
+--- @param cursor Cursor
+--- @return number -- 56 bits signed number
+
+--- @function pushi8
+--- @within util
+--- @param cursor Cursor
+--- @param x number -- 64 bits signed number
+
+--- @function popi8
+--- @within util
+--- @param cursor Cursor
+--- @return number -- 64 bits signed number
+
+--- @function pushf2
+--- @within util
+--- @param cursor Cursor
+--- @param x number -- 16 bits float number
+
+--- @function popf2
+--- @within util
+--- @param cursor Cursor
+--- @return number -- 16 bits float number
+
+--- @function pushf4
+--- @within util
+--- @param cursor Cursor
+--- @param x number -- 32 bits float number
+
+--- @function popf4
+--- @within util
+--- @param cursor Cursor
+--- @return number -- 32 bits float number
+
+--- @function pushf8
+--- @within util
+--- @param cursor Cursor
+--- @param x number -- 64 bits float number
+
+--- @function popf8
+--- @within util
+--- @param cursor Cursor
+--- @return number -- 64 bits float number
+
+--- @function pushbool
+--- @within util
+--- @param cursor Cursor
+--- @param bool boolean
+
+--- @function popbool
+--- @within util
+--- @param cursor Cursor
+--- @return boolean
+
+--- @function pushboolpack
+--- @within util
+--- @param cursor Cursor
+--- @param ... boolean?
+--- Packs up to 8 booleans into a single byte and writes it into the buffer.
+
+--- @function popboolpack
+--- @within util
+--- @param cursor Cursor
+--- @return boolean, boolean, boolean, boolean, boolean, boolean, boolean, boolean
+--- Reads 8 packed booleans from the buffer.
+
+--- @function pushvlqrealloc
+--- @within util
+--- @param cursor Cursor
+--- @param x number
+--- Writes a variable length unsigned integer into the buffer and allocates the bytes needed for it.
+
+--- @function popvlq
+--- @within util
+--- @param cursor Cursor
+--- @return number
+--- Reads a variable length unsigned integer from the buffer.
+
+--- @function pushstr
+--- @within util
+--- @param cursor Cursor
+--- @param x string
+--- @param length number?
+--- Writes a string to the cursor.
+
+--- @function popstr
+--- @within util
+--- @param cursor Cursor
+--- @param length number?
+--- @return string
+--- Reads a string from the cursor.
+
+--- @function pushbuf
+--- @within util
+--- @param cursor Cursor
+--- @param x buffer
+--- @param length number?
+--- Writes a buffer to the cursor.
+
+--- @function popbuf
+--- @within util
+--- @param cursor Cursor
+--- @param length number?
+--- @return buffer
+--- Reads a buffer from the cursor.
+
+--- @function serbitarr
+--- @within util
+--- @param cursor Cursor
+--- @param bits {boolean}
+--- @param length number? -- Fixed length for the bit array
+--- Serializes an array of booleans as a bit array into the buffer.
+
+--- @function desbitarr
+--- @within util
+--- @param cursor Cursor
+--- @param bitCount number -- Length of the bit array
+--- @return {boolean}
+--- Deserializes a bit array of `bitCount` length from the buffer.
+
+--- @function pushref
+--- @within util
+--- @param cursor Cursor
+--- @param v any
+--- Adds a value to the 'references' table.
+
+--- @function popref
+--- @within util
+--- @param cursor Cursor
+--- @return any
+--- Removes a value from the 'references' table using the current vlq.
 
 --------------------------------------------------------------------------------
 -- STRING NAMESPACE
@@ -215,24 +538,17 @@
 --- @return buffer, { any }?
 --- Returns a copy of the buffer and the attached references if they exist.
 
---- @function pushref
---- @within Squish
---- @tag Cursor
---- @param cursor Cursor
---- @param v any
---- Adds a value to the 'references' table.
-
---- @function popref
---- @within Squish
---- @tag Cursor
---- @param cursor Cursor
---- Removes a value from the 'references' table using the current vlq.
-
 --- @function addliterals
 --- @within Squish
 --- @param Serdes SerDes
 --- @param ... any...
 --- Adds the provided literals to the serdes.
+
+--- @function addserdes
+--- @within Squish
+--- @param serdes SerDes
+--- @param childSerdes SerDes
+--- Adds the provided childSerdes to the variant or any serdes.
 
 --------------------------------------------------------------------------------
 -- 2. BASIC (@tag Basic)
