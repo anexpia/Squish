@@ -4,125 +4,125 @@
 <meta charset="UTF-8">
 <meta name="generator" content="Docusaurus v3.7.0">
 <title data-rh="true">util | Squish</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:url" content="https://anexpia.github.io/Squish/api/util"><meta data-rh="true" property="og:locale" content="en"><meta data-rh="true" name="docusaurus_locale" content="en"><meta data-rh="true" name="docusaurus_tag" content="default"><meta data-rh="true" name="docsearch:language" content="en"><meta data-rh="true" name="docsearch:docusaurus_tag" content="default"><meta data-rh="true" property="og:title" content="util | Squish"><meta data-rh="true" name="description" content="Namespace containing functions for pushing &amp; popping values directly from the cursor."><meta data-rh="true" property="og:description" content="Namespace containing functions for pushing &amp; popping values directly from the cursor."><link data-rh="true" rel="icon" href="/Squish/favicon.ico"><link data-rh="true" rel="canonical" href="https://anexpia.github.io/Squish/api/util"><link data-rh="true" rel="alternate" href="https://anexpia.github.io/Squish/api/util" hreflang="en"><link data-rh="true" rel="alternate" href="https://anexpia.github.io/Squish/api/util" hreflang="x-default"><link rel="stylesheet" href="/Squish/assets/css/styles.5cbed574.css">
-<script src="/Squish/assets/js/runtime~main.e597eb85.js" defer="defer"></script>
-<script src="/Squish/assets/js/main.eb6eb7e0.js" defer="defer"></script>
+<script src="/Squish/assets/js/runtime~main.664d29c9.js" defer="defer"></script>
+<script src="/Squish/assets/js/main.7417d74c.js" defer="defer"></script>
 </head>
 <body class="navigation-with-keyboard">
 <script>!function(){function t(t){document.documentElement.setAttribute("data-theme",t)}var e=function(){try{return new URLSearchParams(window.location.search).get("docusaurus-theme")}catch(t){}}()||function(){try{return window.localStorage.getItem("theme")}catch(t){}}();null!==e?t(e):window.matchMedia("(prefers-color-scheme: dark)").matches?t("dark"):(window.matchMedia("(prefers-color-scheme: light)").matches,t("light"))}(),function(){try{const c=new URLSearchParams(window.location.search).entries();for(var[t,e]of c)if(t.startsWith("docusaurus-data-")){var a=t.replace("docusaurus-data-","data-");document.documentElement.setAttribute(a,e)}}catch(t){}}()</script><div id="__docusaurus"><div role="region" aria-label="Skip to main content"><a class="skipToContent_fXgn" href="#__docusaurus_skipToContent_fallback">Skip to main content</a></div><nav aria-label="Main" class="navbar navbar--fixed-top"><div class="navbar__inner"><div class="navbar__items"><button aria-label="Toggle navigation bar" aria-expanded="false" class="navbar__toggle clean-btn" type="button"><svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><path stroke="currentColor" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2" d="M4 7h22M4 15h22M4 23h22"></path></svg></button><a class="navbar__brand" href="/Squish/"><div class="navbar__logo"><img src="/Squish/favicon.ico" alt="" class="themedComponent_mlkZ themedComponent--light_NVdE"><img src="/Squish/favicon.ico" alt="" class="themedComponent_mlkZ themedComponent--dark_xIcU"></div><b class="navbar__title text--truncate">Squish</b></a><a class="navbar__item navbar__link" href="/Squish/docs/intro">Docs</a><a aria-current="page" class="navbar__item navbar__link navbar__link--active" href="/Squish/api/">API</a></div><div class="navbar__items navbar__items--right"><a href="https://discord.com/channels/385151591524597761/1118427954377146378" target="_blank" rel="noopener noreferrer" class="navbar__item navbar__link">Discord<svg width="13.5" height="13.5" aria-hidden="true" viewBox="0 0 24 24" class="iconExternalLink_nPIU"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"></path></svg></a><a href="https://github.com/anexpia/Squish" target="_blank" rel="noopener noreferrer" class="navbar__item navbar__link">GitHub<svg width="13.5" height="13.5" aria-hidden="true" viewBox="0 0 24 24" class="iconExternalLink_nPIU"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"></path></svg></a><div class="toggle_vylO colorModeToggle_DEke"><button class="clean-btn toggleButton_gllP toggleButtonDisabled_aARS" type="button" disabled="" title="Switch between dark and light mode (currently light mode)" aria-label="Switch between dark and light mode (currently light mode)" aria-live="polite" aria-pressed="false"><svg viewBox="0 0 24 24" width="24" height="24" class="lightToggleIcon_pyhR"><path fill="currentColor" d="M12,9c1.65,0,3,1.35,3,3s-1.35,3-3,3s-3-1.35-3-3S10.35,9,12,9 M12,7c-2.76,0-5,2.24-5,5s2.24,5,5,5s5-2.24,5-5 S14.76,7,12,7L12,7z M2,13l2,0c0.55,0,1-0.45,1-1s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S1.45,13,2,13z M20,13l2,0c0.55,0,1-0.45,1-1 s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S19.45,13,20,13z M11,2v2c0,0.55,0.45,1,1,1s1-0.45,1-1V2c0-0.55-0.45-1-1-1S11,1.45,11,2z M11,20v2c0,0.55,0.45,1,1,1s1-0.45,1-1v-2c0-0.55-0.45-1-1-1C11.45,19,11,19.45,11,20z M5.99,4.58c-0.39-0.39-1.03-0.39-1.41,0 c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0s0.39-1.03,0-1.41L5.99,4.58z M18.36,16.95 c-0.39-0.39-1.03-0.39-1.41,0c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0c0.39-0.39,0.39-1.03,0-1.41 L18.36,16.95z M19.42,5.99c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06c-0.39,0.39-0.39,1.03,0,1.41 s1.03,0.39,1.41,0L19.42,5.99z M7.05,18.36c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06 c-0.39,0.39-0.39,1.03,0,1.41s1.03,0.39,1.41,0L7.05,18.36z"></path></svg><svg viewBox="0 0 24 24" width="24" height="24" class="darkToggleIcon_wfgR"><path fill="currentColor" d="M9.37,5.51C9.19,6.15,9.1,6.82,9.1,7.5c0,4.08,3.32,7.4,7.4,7.4c0.68,0,1.35-0.09,1.99-0.27C17.45,17.19,14.93,19,12,19 c-3.86,0-7-3.14-7-7C5,9.07,6.81,6.55,9.37,5.51z M12,3c-4.97,0-9,4.03-9,9s4.03,9,9,9s9-4.03,9-9c0-0.46-0.04-0.92-0.1-1.36 c-0.98,1.37-2.58,2.26-4.4,2.26c-2.98,0-5.4-2.42-5.4-5.4c0-1.81,0.89-3.42,2.26-4.4C12.92,3.04,12.46,3,12,3L12,3z"></path></svg></button></div><div class="navbarSearchContainer_Bca1"><div class="navbar__search"><span aria-label="expand searchbar" role="button" class="search-icon" tabindex="0"></span><input id="search_input_react" type="search" placeholder="Loading..." aria-label="Search" class="navbar__search-input search-bar" disabled=""></div></div></div></div><div role="presentation" class="navbar-sidebar__backdrop"></div></nav><div id="__docusaurus_skipToContent_fallback" class="main-wrapper mainWrapper_z2l0 docPageContainer_wNNk"><div class="docPage_Dpn1"><div class="docSidebarContainer_o_re"><div class="sidebar_njMd"><nav aria-label="Docs sidebar" class="menu thin-scrollbar menu_SIkG"><ul class="theme-doc-sidebar-menu menu__list"><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-1 menu__list-item"><a class="menu__link" href="/Squish/api/Squish">​Squish</a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-1 menu__list-item"><a class="menu__link" href="/Squish/api/string">string</a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-1 menu__list-item"><a class="menu__link" href="/Squish/api/validation">validation</a></li><li class="theme-doc-sidebar-item-link theme-doc-sidebar-item-link-level-1 menu__list-item"><a class="menu__link menu__link--active" aria-current="page" href="/Squish/api/util">util</a></li></ul></nav></div></div><main class="docMainContainer_HJE1"><div class="container padding-vert--lg"><div class="row"><div class="col docItemCol_MU3C"><div class="docItemContainer_Wv98"><article><div class="member_J0w1 markdown"><div class="tocCollapsible_ETCw theme-doc-toc-mobile tocMobile_oUs_"><button type="button" class="clean-btn tocCollapsibleButton_TO0P">On this page</button></div><header><h1 class="docTitle_mZRt" style="text-decoration:none"><span style="display:inline-block">util</span></h1><div class="luaClassTags_EipM"></div><div>
 <p>Namespace containing functions for pushing &#x26; popping values directly from the cursor.</p>
-</div></header><h2 class="anchor anchorWithStickyNavbar_LWe7" id="functions">Functions<a href="#functions" class="hash-link" aria-label="Direct link to Functions" title="Direct link to Functions">​</a></h2><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="tryrealloc"><code style="text-decoration:none">tryrealloc</code><a href="#tryrealloc" class="hash-link" aria-label="Direct link to tryrealloc" title="Direct link to tryrealloc">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/src/moonwave.luau#L108"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">tryrealloc</code><code>(</code><div class="inset_uKQm"><div><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>,</code></div><div><code>size<!-- -->: </code><code class="blue_P4bS">number</code></div></div><code>) → </code><code>(</code><code>)</code></div><div>
+</div></header><h2 class="anchor anchorWithStickyNavbar_LWe7" id="functions">Functions<a href="#functions" class="hash-link" aria-label="Direct link to Functions" title="Direct link to Functions">​</a></h2><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="tryrealloc"><code style="text-decoration:none">tryrealloc</code><a href="#tryrealloc" class="hash-link" aria-label="Direct link to tryrealloc" title="Direct link to tryrealloc">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/docs_luau/moonwave.luau#L108"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">tryrealloc</code><code>(</code><div class="inset_uKQm"><div><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>,</code></div><div><code>size<!-- -->: </code><code class="blue_P4bS">number</code></div></div><code>) → </code><code>(</code><code>)</code></div><div>
 <p>Reallocates the buffer if the cursor position + size exceed the buffer size.</p>
-</div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="setpos"><code style="text-decoration:none">setpos</code><a href="#setpos" class="hash-link" aria-label="Direct link to setpos" title="Direct link to setpos">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/src/moonwave.luau#L114"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">setpos</code><code>(</code><div class="inset_uKQm"><div><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>,</code></div><div><code>pos<!-- -->: </code><code class="blue_P4bS">number</code></div></div><code>) → </code><code>(</code><code>)</code></div><div>
+</div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="setpos"><code style="text-decoration:none">setpos</code><a href="#setpos" class="hash-link" aria-label="Direct link to setpos" title="Direct link to setpos">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/docs_luau/moonwave.luau#L114"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">setpos</code><code>(</code><div class="inset_uKQm"><div><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>,</code></div><div><code>pos<!-- -->: </code><code class="blue_P4bS">number</code></div></div><code>) → </code><code>(</code><code>)</code></div><div>
 <p>Sets the current position of the cursor.</p>
-</div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="getpos"><code style="text-decoration:none">getpos</code><a href="#getpos" class="hash-link" aria-label="Direct link to getpos" title="Direct link to getpos">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/src/moonwave.luau#L120"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">getpos</code><code>(</code><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>) → </code><code class="blue_P4bS">number</code></div><div>
+</div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="getpos"><code style="text-decoration:none">getpos</code><a href="#getpos" class="hash-link" aria-label="Direct link to getpos" title="Direct link to getpos">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/docs_luau/moonwave.luau#L120"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">getpos</code><code>(</code><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>) → </code><code class="blue_P4bS">number</code></div><div>
 <p>Gets the current position of the cursor.</p>
-</div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="setbuf"><code style="text-decoration:none">setbuf</code><a href="#setbuf" class="hash-link" aria-label="Direct link to setbuf" title="Direct link to setbuf">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/src/moonwave.luau#L126"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">setbuf</code><code>(</code><div class="inset_uKQm"><div><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>,</code></div><div><code>buf<!-- -->: </code><code class="blue_P4bS">buffer</code></div></div><code>) → </code><code>(</code><code>)</code></div><div>
+</div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="setbuf"><code style="text-decoration:none">setbuf</code><a href="#setbuf" class="hash-link" aria-label="Direct link to setbuf" title="Direct link to setbuf">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/docs_luau/moonwave.luau#L126"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">setbuf</code><code>(</code><div class="inset_uKQm"><div><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>,</code></div><div><code>buf<!-- -->: </code><code class="blue_P4bS">buffer</code></div></div><code>) → </code><code>(</code><code>)</code></div><div>
 <p>Sets the current buffer of the cursor.</p>
-</div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="getbuf"><code style="text-decoration:none">getbuf</code><a href="#getbuf" class="hash-link" aria-label="Direct link to getbuf" title="Direct link to getbuf">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/src/moonwave.luau#L132"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">getbuf</code><code>(</code><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>) → </code><code class="blue_P4bS">buffer</code></div><div>
+</div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="getbuf"><code style="text-decoration:none">getbuf</code><a href="#getbuf" class="hash-link" aria-label="Direct link to getbuf" title="Direct link to getbuf">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/docs_luau/moonwave.luau#L132"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">getbuf</code><code>(</code><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>) → </code><code class="blue_P4bS">buffer</code></div><div>
 <p>Gets the current buffer of the cursor.</p>
-</div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="pushu1"><code style="text-decoration:none">pushu1</code><a href="#pushu1" class="hash-link" aria-label="Direct link to pushu1" title="Direct link to pushu1">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/src/moonwave.luau#L137"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">pushu1</code><code>(</code><div class="inset_uKQm"><div><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>,</code></div><div><code>x<!-- -->: </code><code class="blue_P4bS">number</code><span class="inlineDescription_G7Er">-- <span>
+</div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="pushu1"><code style="text-decoration:none">pushu1</code><a href="#pushu1" class="hash-link" aria-label="Direct link to pushu1" title="Direct link to pushu1">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/docs_luau/moonwave.luau#L137"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">pushu1</code><code>(</code><div class="inset_uKQm"><div><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>,</code></div><div><code>x<!-- -->: </code><code class="blue_P4bS">number</code><span class="inlineDescription_G7Er">-- <span>
 <p>8 bits unsigned number</p>
-</span></span></div></div><code>) → </code><code>(</code><code>)</code></div><div></div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="popu1"><code style="text-decoration:none">popu1</code><a href="#popu1" class="hash-link" aria-label="Direct link to popu1" title="Direct link to popu1">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/src/moonwave.luau#L142"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">popu1</code><code>(</code><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>) → </code><code class="blue_P4bS">number</code><span class="inlineDescription_G7Er">-- <span>
+</span></span></div></div><code>) → </code><code>(</code><code>)</code></div><div></div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="popu1"><code style="text-decoration:none">popu1</code><a href="#popu1" class="hash-link" aria-label="Direct link to popu1" title="Direct link to popu1">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/docs_luau/moonwave.luau#L142"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">popu1</code><code>(</code><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>) → </code><code class="blue_P4bS">number</code><span class="inlineDescription_G7Er">-- <span>
 <p>8 bits unsigned number</p>
-</span></span></div><div></div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="pushu2"><code style="text-decoration:none">pushu2</code><a href="#pushu2" class="hash-link" aria-label="Direct link to pushu2" title="Direct link to pushu2">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/src/moonwave.luau#L147"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">pushu2</code><code>(</code><div class="inset_uKQm"><div><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>,</code></div><div><code>x<!-- -->: </code><code class="blue_P4bS">number</code><span class="inlineDescription_G7Er">-- <span>
+</span></span></div><div></div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="pushu2"><code style="text-decoration:none">pushu2</code><a href="#pushu2" class="hash-link" aria-label="Direct link to pushu2" title="Direct link to pushu2">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/docs_luau/moonwave.luau#L147"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">pushu2</code><code>(</code><div class="inset_uKQm"><div><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>,</code></div><div><code>x<!-- -->: </code><code class="blue_P4bS">number</code><span class="inlineDescription_G7Er">-- <span>
 <p>16 bits unsigned number</p>
-</span></span></div></div><code>) → </code><code>(</code><code>)</code></div><div></div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="popu2"><code style="text-decoration:none">popu2</code><a href="#popu2" class="hash-link" aria-label="Direct link to popu2" title="Direct link to popu2">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/src/moonwave.luau#L152"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">popu2</code><code>(</code><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>) → </code><code class="blue_P4bS">number</code><span class="inlineDescription_G7Er">-- <span>
+</span></span></div></div><code>) → </code><code>(</code><code>)</code></div><div></div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="popu2"><code style="text-decoration:none">popu2</code><a href="#popu2" class="hash-link" aria-label="Direct link to popu2" title="Direct link to popu2">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/docs_luau/moonwave.luau#L152"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">popu2</code><code>(</code><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>) → </code><code class="blue_P4bS">number</code><span class="inlineDescription_G7Er">-- <span>
 <p>16 bits unsigned number</p>
-</span></span></div><div></div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="pushu3"><code style="text-decoration:none">pushu3</code><a href="#pushu3" class="hash-link" aria-label="Direct link to pushu3" title="Direct link to pushu3">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/src/moonwave.luau#L157"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">pushu3</code><code>(</code><div class="inset_uKQm"><div><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>,</code></div><div><code>x<!-- -->: </code><code class="blue_P4bS">number</code><span class="inlineDescription_G7Er">-- <span>
+</span></span></div><div></div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="pushu3"><code style="text-decoration:none">pushu3</code><a href="#pushu3" class="hash-link" aria-label="Direct link to pushu3" title="Direct link to pushu3">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/docs_luau/moonwave.luau#L157"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">pushu3</code><code>(</code><div class="inset_uKQm"><div><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>,</code></div><div><code>x<!-- -->: </code><code class="blue_P4bS">number</code><span class="inlineDescription_G7Er">-- <span>
 <p>24 bits unsigned number</p>
-</span></span></div></div><code>) → </code><code>(</code><code>)</code></div><div></div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="popu3"><code style="text-decoration:none">popu3</code><a href="#popu3" class="hash-link" aria-label="Direct link to popu3" title="Direct link to popu3">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/src/moonwave.luau#L162"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">popu3</code><code>(</code><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>) → </code><code class="blue_P4bS">number</code><span class="inlineDescription_G7Er">-- <span>
+</span></span></div></div><code>) → </code><code>(</code><code>)</code></div><div></div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="popu3"><code style="text-decoration:none">popu3</code><a href="#popu3" class="hash-link" aria-label="Direct link to popu3" title="Direct link to popu3">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/docs_luau/moonwave.luau#L162"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">popu3</code><code>(</code><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>) → </code><code class="blue_P4bS">number</code><span class="inlineDescription_G7Er">-- <span>
 <p>24 bits unsigned number</p>
-</span></span></div><div></div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="pushu4"><code style="text-decoration:none">pushu4</code><a href="#pushu4" class="hash-link" aria-label="Direct link to pushu4" title="Direct link to pushu4">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/src/moonwave.luau#L167"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">pushu4</code><code>(</code><div class="inset_uKQm"><div><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>,</code></div><div><code>x<!-- -->: </code><code class="blue_P4bS">number</code><span class="inlineDescription_G7Er">-- <span>
+</span></span></div><div></div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="pushu4"><code style="text-decoration:none">pushu4</code><a href="#pushu4" class="hash-link" aria-label="Direct link to pushu4" title="Direct link to pushu4">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/docs_luau/moonwave.luau#L167"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">pushu4</code><code>(</code><div class="inset_uKQm"><div><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>,</code></div><div><code>x<!-- -->: </code><code class="blue_P4bS">number</code><span class="inlineDescription_G7Er">-- <span>
 <p>32 bits unsigned number</p>
-</span></span></div></div><code>) → </code><code>(</code><code>)</code></div><div></div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="popu4"><code style="text-decoration:none">popu4</code><a href="#popu4" class="hash-link" aria-label="Direct link to popu4" title="Direct link to popu4">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/src/moonwave.luau#L172"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">popu4</code><code>(</code><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>) → </code><code class="blue_P4bS">number</code><span class="inlineDescription_G7Er">-- <span>
+</span></span></div></div><code>) → </code><code>(</code><code>)</code></div><div></div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="popu4"><code style="text-decoration:none">popu4</code><a href="#popu4" class="hash-link" aria-label="Direct link to popu4" title="Direct link to popu4">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/docs_luau/moonwave.luau#L172"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">popu4</code><code>(</code><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>) → </code><code class="blue_P4bS">number</code><span class="inlineDescription_G7Er">-- <span>
 <p>32 bits unsigned number</p>
-</span></span></div><div></div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="pushu5"><code style="text-decoration:none">pushu5</code><a href="#pushu5" class="hash-link" aria-label="Direct link to pushu5" title="Direct link to pushu5">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/src/moonwave.luau#L177"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">pushu5</code><code>(</code><div class="inset_uKQm"><div><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>,</code></div><div><code>x<!-- -->: </code><code class="blue_P4bS">number</code><span class="inlineDescription_G7Er">-- <span>
+</span></span></div><div></div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="pushu5"><code style="text-decoration:none">pushu5</code><a href="#pushu5" class="hash-link" aria-label="Direct link to pushu5" title="Direct link to pushu5">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/docs_luau/moonwave.luau#L177"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">pushu5</code><code>(</code><div class="inset_uKQm"><div><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>,</code></div><div><code>x<!-- -->: </code><code class="blue_P4bS">number</code><span class="inlineDescription_G7Er">-- <span>
 <p>40 bits unsigned number</p>
-</span></span></div></div><code>) → </code><code>(</code><code>)</code></div><div></div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="popu5"><code style="text-decoration:none">popu5</code><a href="#popu5" class="hash-link" aria-label="Direct link to popu5" title="Direct link to popu5">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/src/moonwave.luau#L182"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">popu5</code><code>(</code><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>) → </code><code class="blue_P4bS">number</code><span class="inlineDescription_G7Er">-- <span>
+</span></span></div></div><code>) → </code><code>(</code><code>)</code></div><div></div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="popu5"><code style="text-decoration:none">popu5</code><a href="#popu5" class="hash-link" aria-label="Direct link to popu5" title="Direct link to popu5">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/docs_luau/moonwave.luau#L182"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">popu5</code><code>(</code><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>) → </code><code class="blue_P4bS">number</code><span class="inlineDescription_G7Er">-- <span>
 <p>40 bits unsigned number</p>
-</span></span></div><div></div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="pushu6"><code style="text-decoration:none">pushu6</code><a href="#pushu6" class="hash-link" aria-label="Direct link to pushu6" title="Direct link to pushu6">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/src/moonwave.luau#L187"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">pushu6</code><code>(</code><div class="inset_uKQm"><div><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>,</code></div><div><code>x<!-- -->: </code><code class="blue_P4bS">number</code><span class="inlineDescription_G7Er">-- <span>
+</span></span></div><div></div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="pushu6"><code style="text-decoration:none">pushu6</code><a href="#pushu6" class="hash-link" aria-label="Direct link to pushu6" title="Direct link to pushu6">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/docs_luau/moonwave.luau#L187"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">pushu6</code><code>(</code><div class="inset_uKQm"><div><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>,</code></div><div><code>x<!-- -->: </code><code class="blue_P4bS">number</code><span class="inlineDescription_G7Er">-- <span>
 <p>48 bits unsigned number</p>
-</span></span></div></div><code>) → </code><code>(</code><code>)</code></div><div></div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="popu6"><code style="text-decoration:none">popu6</code><a href="#popu6" class="hash-link" aria-label="Direct link to popu6" title="Direct link to popu6">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/src/moonwave.luau#L192"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">popu6</code><code>(</code><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>) → </code><code class="blue_P4bS">number</code><span class="inlineDescription_G7Er">-- <span>
+</span></span></div></div><code>) → </code><code>(</code><code>)</code></div><div></div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="popu6"><code style="text-decoration:none">popu6</code><a href="#popu6" class="hash-link" aria-label="Direct link to popu6" title="Direct link to popu6">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/docs_luau/moonwave.luau#L192"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">popu6</code><code>(</code><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>) → </code><code class="blue_P4bS">number</code><span class="inlineDescription_G7Er">-- <span>
 <p>48 bits unsigned number</p>
-</span></span></div><div></div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="pushu7"><code style="text-decoration:none">pushu7</code><a href="#pushu7" class="hash-link" aria-label="Direct link to pushu7" title="Direct link to pushu7">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/src/moonwave.luau#L197"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">pushu7</code><code>(</code><div class="inset_uKQm"><div><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>,</code></div><div><code>x<!-- -->: </code><code class="blue_P4bS">number</code><span class="inlineDescription_G7Er">-- <span>
+</span></span></div><div></div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="pushu7"><code style="text-decoration:none">pushu7</code><a href="#pushu7" class="hash-link" aria-label="Direct link to pushu7" title="Direct link to pushu7">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/docs_luau/moonwave.luau#L197"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">pushu7</code><code>(</code><div class="inset_uKQm"><div><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>,</code></div><div><code>x<!-- -->: </code><code class="blue_P4bS">number</code><span class="inlineDescription_G7Er">-- <span>
 <p>56 bits unsigned number</p>
-</span></span></div></div><code>) → </code><code>(</code><code>)</code></div><div></div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="popu7"><code style="text-decoration:none">popu7</code><a href="#popu7" class="hash-link" aria-label="Direct link to popu7" title="Direct link to popu7">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/src/moonwave.luau#L202"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">popu7</code><code>(</code><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>) → </code><code class="blue_P4bS">number</code><span class="inlineDescription_G7Er">-- <span>
+</span></span></div></div><code>) → </code><code>(</code><code>)</code></div><div></div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="popu7"><code style="text-decoration:none">popu7</code><a href="#popu7" class="hash-link" aria-label="Direct link to popu7" title="Direct link to popu7">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/docs_luau/moonwave.luau#L202"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">popu7</code><code>(</code><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>) → </code><code class="blue_P4bS">number</code><span class="inlineDescription_G7Er">-- <span>
 <p>56 bits unsigned number</p>
-</span></span></div><div></div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="pushu8"><code style="text-decoration:none">pushu8</code><a href="#pushu8" class="hash-link" aria-label="Direct link to pushu8" title="Direct link to pushu8">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/src/moonwave.luau#L207"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">pushu8</code><code>(</code><div class="inset_uKQm"><div><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>,</code></div><div><code>x<!-- -->: </code><code class="blue_P4bS">number</code><span class="inlineDescription_G7Er">-- <span>
+</span></span></div><div></div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="pushu8"><code style="text-decoration:none">pushu8</code><a href="#pushu8" class="hash-link" aria-label="Direct link to pushu8" title="Direct link to pushu8">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/docs_luau/moonwave.luau#L207"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">pushu8</code><code>(</code><div class="inset_uKQm"><div><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>,</code></div><div><code>x<!-- -->: </code><code class="blue_P4bS">number</code><span class="inlineDescription_G7Er">-- <span>
 <p>64 bits unsigned number</p>
-</span></span></div></div><code>) → </code><code>(</code><code>)</code></div><div></div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="popu8"><code style="text-decoration:none">popu8</code><a href="#popu8" class="hash-link" aria-label="Direct link to popu8" title="Direct link to popu8">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/src/moonwave.luau#L212"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">popu8</code><code>(</code><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>) → </code><code class="blue_P4bS">number</code><span class="inlineDescription_G7Er">-- <span>
+</span></span></div></div><code>) → </code><code>(</code><code>)</code></div><div></div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="popu8"><code style="text-decoration:none">popu8</code><a href="#popu8" class="hash-link" aria-label="Direct link to popu8" title="Direct link to popu8">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/docs_luau/moonwave.luau#L212"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">popu8</code><code>(</code><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>) → </code><code class="blue_P4bS">number</code><span class="inlineDescription_G7Er">-- <span>
 <p>64 bits unsigned number</p>
-</span></span></div><div></div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="pushi1"><code style="text-decoration:none">pushi1</code><a href="#pushi1" class="hash-link" aria-label="Direct link to pushi1" title="Direct link to pushi1">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/src/moonwave.luau#L217"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">pushi1</code><code>(</code><div class="inset_uKQm"><div><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>,</code></div><div><code>x<!-- -->: </code><code class="blue_P4bS">number</code><span class="inlineDescription_G7Er">-- <span>
+</span></span></div><div></div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="pushi1"><code style="text-decoration:none">pushi1</code><a href="#pushi1" class="hash-link" aria-label="Direct link to pushi1" title="Direct link to pushi1">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/docs_luau/moonwave.luau#L217"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">pushi1</code><code>(</code><div class="inset_uKQm"><div><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>,</code></div><div><code>x<!-- -->: </code><code class="blue_P4bS">number</code><span class="inlineDescription_G7Er">-- <span>
 <p>8 bits signed number</p>
-</span></span></div></div><code>) → </code><code>(</code><code>)</code></div><div></div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="popi1"><code style="text-decoration:none">popi1</code><a href="#popi1" class="hash-link" aria-label="Direct link to popi1" title="Direct link to popi1">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/src/moonwave.luau#L222"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">popi1</code><code>(</code><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>) → </code><code class="blue_P4bS">number</code><span class="inlineDescription_G7Er">-- <span>
+</span></span></div></div><code>) → </code><code>(</code><code>)</code></div><div></div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="popi1"><code style="text-decoration:none">popi1</code><a href="#popi1" class="hash-link" aria-label="Direct link to popi1" title="Direct link to popi1">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/docs_luau/moonwave.luau#L222"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">popi1</code><code>(</code><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>) → </code><code class="blue_P4bS">number</code><span class="inlineDescription_G7Er">-- <span>
 <p>8 bits signed number</p>
-</span></span></div><div></div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="pushi2"><code style="text-decoration:none">pushi2</code><a href="#pushi2" class="hash-link" aria-label="Direct link to pushi2" title="Direct link to pushi2">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/src/moonwave.luau#L227"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">pushi2</code><code>(</code><div class="inset_uKQm"><div><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>,</code></div><div><code>x<!-- -->: </code><code class="blue_P4bS">number</code><span class="inlineDescription_G7Er">-- <span>
+</span></span></div><div></div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="pushi2"><code style="text-decoration:none">pushi2</code><a href="#pushi2" class="hash-link" aria-label="Direct link to pushi2" title="Direct link to pushi2">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/docs_luau/moonwave.luau#L227"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">pushi2</code><code>(</code><div class="inset_uKQm"><div><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>,</code></div><div><code>x<!-- -->: </code><code class="blue_P4bS">number</code><span class="inlineDescription_G7Er">-- <span>
 <p>16 bits signed number</p>
-</span></span></div></div><code>) → </code><code>(</code><code>)</code></div><div></div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="popi2"><code style="text-decoration:none">popi2</code><a href="#popi2" class="hash-link" aria-label="Direct link to popi2" title="Direct link to popi2">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/src/moonwave.luau#L232"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">popi2</code><code>(</code><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>) → </code><code class="blue_P4bS">number</code><span class="inlineDescription_G7Er">-- <span>
+</span></span></div></div><code>) → </code><code>(</code><code>)</code></div><div></div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="popi2"><code style="text-decoration:none">popi2</code><a href="#popi2" class="hash-link" aria-label="Direct link to popi2" title="Direct link to popi2">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/docs_luau/moonwave.luau#L232"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">popi2</code><code>(</code><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>) → </code><code class="blue_P4bS">number</code><span class="inlineDescription_G7Er">-- <span>
 <p>16 bits signed number</p>
-</span></span></div><div></div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="pushi3"><code style="text-decoration:none">pushi3</code><a href="#pushi3" class="hash-link" aria-label="Direct link to pushi3" title="Direct link to pushi3">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/src/moonwave.luau#L237"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">pushi3</code><code>(</code><div class="inset_uKQm"><div><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>,</code></div><div><code>x<!-- -->: </code><code class="blue_P4bS">number</code><span class="inlineDescription_G7Er">-- <span>
+</span></span></div><div></div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="pushi3"><code style="text-decoration:none">pushi3</code><a href="#pushi3" class="hash-link" aria-label="Direct link to pushi3" title="Direct link to pushi3">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/docs_luau/moonwave.luau#L237"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">pushi3</code><code>(</code><div class="inset_uKQm"><div><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>,</code></div><div><code>x<!-- -->: </code><code class="blue_P4bS">number</code><span class="inlineDescription_G7Er">-- <span>
 <p>24 bits signed number</p>
-</span></span></div></div><code>) → </code><code>(</code><code>)</code></div><div></div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="popi3"><code style="text-decoration:none">popi3</code><a href="#popi3" class="hash-link" aria-label="Direct link to popi3" title="Direct link to popi3">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/src/moonwave.luau#L242"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">popi3</code><code>(</code><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>) → </code><code class="blue_P4bS">number</code><span class="inlineDescription_G7Er">-- <span>
+</span></span></div></div><code>) → </code><code>(</code><code>)</code></div><div></div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="popi3"><code style="text-decoration:none">popi3</code><a href="#popi3" class="hash-link" aria-label="Direct link to popi3" title="Direct link to popi3">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/docs_luau/moonwave.luau#L242"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">popi3</code><code>(</code><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>) → </code><code class="blue_P4bS">number</code><span class="inlineDescription_G7Er">-- <span>
 <p>24 bits signed number</p>
-</span></span></div><div></div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="pushi4"><code style="text-decoration:none">pushi4</code><a href="#pushi4" class="hash-link" aria-label="Direct link to pushi4" title="Direct link to pushi4">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/src/moonwave.luau#L247"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">pushi4</code><code>(</code><div class="inset_uKQm"><div><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>,</code></div><div><code>x<!-- -->: </code><code class="blue_P4bS">number</code><span class="inlineDescription_G7Er">-- <span>
+</span></span></div><div></div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="pushi4"><code style="text-decoration:none">pushi4</code><a href="#pushi4" class="hash-link" aria-label="Direct link to pushi4" title="Direct link to pushi4">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/docs_luau/moonwave.luau#L247"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">pushi4</code><code>(</code><div class="inset_uKQm"><div><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>,</code></div><div><code>x<!-- -->: </code><code class="blue_P4bS">number</code><span class="inlineDescription_G7Er">-- <span>
 <p>32 bits signed number</p>
-</span></span></div></div><code>) → </code><code>(</code><code>)</code></div><div></div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="popi4"><code style="text-decoration:none">popi4</code><a href="#popi4" class="hash-link" aria-label="Direct link to popi4" title="Direct link to popi4">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/src/moonwave.luau#L252"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">popi4</code><code>(</code><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>) → </code><code class="blue_P4bS">number</code><span class="inlineDescription_G7Er">-- <span>
+</span></span></div></div><code>) → </code><code>(</code><code>)</code></div><div></div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="popi4"><code style="text-decoration:none">popi4</code><a href="#popi4" class="hash-link" aria-label="Direct link to popi4" title="Direct link to popi4">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/docs_luau/moonwave.luau#L252"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">popi4</code><code>(</code><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>) → </code><code class="blue_P4bS">number</code><span class="inlineDescription_G7Er">-- <span>
 <p>32 bits signed number</p>
-</span></span></div><div></div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="pushi5"><code style="text-decoration:none">pushi5</code><a href="#pushi5" class="hash-link" aria-label="Direct link to pushi5" title="Direct link to pushi5">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/src/moonwave.luau#L257"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">pushi5</code><code>(</code><div class="inset_uKQm"><div><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>,</code></div><div><code>x<!-- -->: </code><code class="blue_P4bS">number</code><span class="inlineDescription_G7Er">-- <span>
+</span></span></div><div></div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="pushi5"><code style="text-decoration:none">pushi5</code><a href="#pushi5" class="hash-link" aria-label="Direct link to pushi5" title="Direct link to pushi5">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/docs_luau/moonwave.luau#L257"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">pushi5</code><code>(</code><div class="inset_uKQm"><div><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>,</code></div><div><code>x<!-- -->: </code><code class="blue_P4bS">number</code><span class="inlineDescription_G7Er">-- <span>
 <p>40 bits signed number</p>
-</span></span></div></div><code>) → </code><code>(</code><code>)</code></div><div></div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="popi5"><code style="text-decoration:none">popi5</code><a href="#popi5" class="hash-link" aria-label="Direct link to popi5" title="Direct link to popi5">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/src/moonwave.luau#L262"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">popi5</code><code>(</code><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>) → </code><code class="blue_P4bS">number</code><span class="inlineDescription_G7Er">-- <span>
+</span></span></div></div><code>) → </code><code>(</code><code>)</code></div><div></div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="popi5"><code style="text-decoration:none">popi5</code><a href="#popi5" class="hash-link" aria-label="Direct link to popi5" title="Direct link to popi5">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/docs_luau/moonwave.luau#L262"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">popi5</code><code>(</code><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>) → </code><code class="blue_P4bS">number</code><span class="inlineDescription_G7Er">-- <span>
 <p>40 bits signed number</p>
-</span></span></div><div></div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="pushi6"><code style="text-decoration:none">pushi6</code><a href="#pushi6" class="hash-link" aria-label="Direct link to pushi6" title="Direct link to pushi6">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/src/moonwave.luau#L267"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">pushi6</code><code>(</code><div class="inset_uKQm"><div><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>,</code></div><div><code>x<!-- -->: </code><code class="blue_P4bS">number</code><span class="inlineDescription_G7Er">-- <span>
+</span></span></div><div></div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="pushi6"><code style="text-decoration:none">pushi6</code><a href="#pushi6" class="hash-link" aria-label="Direct link to pushi6" title="Direct link to pushi6">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/docs_luau/moonwave.luau#L267"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">pushi6</code><code>(</code><div class="inset_uKQm"><div><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>,</code></div><div><code>x<!-- -->: </code><code class="blue_P4bS">number</code><span class="inlineDescription_G7Er">-- <span>
 <p>48 bits signed number</p>
-</span></span></div></div><code>) → </code><code>(</code><code>)</code></div><div></div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="popi6"><code style="text-decoration:none">popi6</code><a href="#popi6" class="hash-link" aria-label="Direct link to popi6" title="Direct link to popi6">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/src/moonwave.luau#L272"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">popi6</code><code>(</code><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>) → </code><code class="blue_P4bS">number</code><span class="inlineDescription_G7Er">-- <span>
+</span></span></div></div><code>) → </code><code>(</code><code>)</code></div><div></div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="popi6"><code style="text-decoration:none">popi6</code><a href="#popi6" class="hash-link" aria-label="Direct link to popi6" title="Direct link to popi6">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/docs_luau/moonwave.luau#L272"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">popi6</code><code>(</code><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>) → </code><code class="blue_P4bS">number</code><span class="inlineDescription_G7Er">-- <span>
 <p>48 bits signed number</p>
-</span></span></div><div></div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="pushi7"><code style="text-decoration:none">pushi7</code><a href="#pushi7" class="hash-link" aria-label="Direct link to pushi7" title="Direct link to pushi7">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/src/moonwave.luau#L277"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">pushi7</code><code>(</code><div class="inset_uKQm"><div><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>,</code></div><div><code>x<!-- -->: </code><code class="blue_P4bS">number</code><span class="inlineDescription_G7Er">-- <span>
+</span></span></div><div></div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="pushi7"><code style="text-decoration:none">pushi7</code><a href="#pushi7" class="hash-link" aria-label="Direct link to pushi7" title="Direct link to pushi7">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/docs_luau/moonwave.luau#L277"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">pushi7</code><code>(</code><div class="inset_uKQm"><div><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>,</code></div><div><code>x<!-- -->: </code><code class="blue_P4bS">number</code><span class="inlineDescription_G7Er">-- <span>
 <p>56 bits signed number</p>
-</span></span></div></div><code>) → </code><code>(</code><code>)</code></div><div></div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="popi7"><code style="text-decoration:none">popi7</code><a href="#popi7" class="hash-link" aria-label="Direct link to popi7" title="Direct link to popi7">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/src/moonwave.luau#L282"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">popi7</code><code>(</code><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>) → </code><code class="blue_P4bS">number</code><span class="inlineDescription_G7Er">-- <span>
+</span></span></div></div><code>) → </code><code>(</code><code>)</code></div><div></div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="popi7"><code style="text-decoration:none">popi7</code><a href="#popi7" class="hash-link" aria-label="Direct link to popi7" title="Direct link to popi7">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/docs_luau/moonwave.luau#L282"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">popi7</code><code>(</code><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>) → </code><code class="blue_P4bS">number</code><span class="inlineDescription_G7Er">-- <span>
 <p>56 bits signed number</p>
-</span></span></div><div></div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="pushi8"><code style="text-decoration:none">pushi8</code><a href="#pushi8" class="hash-link" aria-label="Direct link to pushi8" title="Direct link to pushi8">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/src/moonwave.luau#L287"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">pushi8</code><code>(</code><div class="inset_uKQm"><div><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>,</code></div><div><code>x<!-- -->: </code><code class="blue_P4bS">number</code><span class="inlineDescription_G7Er">-- <span>
+</span></span></div><div></div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="pushi8"><code style="text-decoration:none">pushi8</code><a href="#pushi8" class="hash-link" aria-label="Direct link to pushi8" title="Direct link to pushi8">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/docs_luau/moonwave.luau#L287"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">pushi8</code><code>(</code><div class="inset_uKQm"><div><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>,</code></div><div><code>x<!-- -->: </code><code class="blue_P4bS">number</code><span class="inlineDescription_G7Er">-- <span>
 <p>64 bits signed number</p>
-</span></span></div></div><code>) → </code><code>(</code><code>)</code></div><div></div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="popi8"><code style="text-decoration:none">popi8</code><a href="#popi8" class="hash-link" aria-label="Direct link to popi8" title="Direct link to popi8">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/src/moonwave.luau#L292"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">popi8</code><code>(</code><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>) → </code><code class="blue_P4bS">number</code><span class="inlineDescription_G7Er">-- <span>
+</span></span></div></div><code>) → </code><code>(</code><code>)</code></div><div></div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="popi8"><code style="text-decoration:none">popi8</code><a href="#popi8" class="hash-link" aria-label="Direct link to popi8" title="Direct link to popi8">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/docs_luau/moonwave.luau#L292"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">popi8</code><code>(</code><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>) → </code><code class="blue_P4bS">number</code><span class="inlineDescription_G7Er">-- <span>
 <p>64 bits signed number</p>
-</span></span></div><div></div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="pushf2"><code style="text-decoration:none">pushf2</code><a href="#pushf2" class="hash-link" aria-label="Direct link to pushf2" title="Direct link to pushf2">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/src/moonwave.luau#L297"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">pushf2</code><code>(</code><div class="inset_uKQm"><div><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>,</code></div><div><code>x<!-- -->: </code><code class="blue_P4bS">number</code><span class="inlineDescription_G7Er">-- <span>
+</span></span></div><div></div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="pushf2"><code style="text-decoration:none">pushf2</code><a href="#pushf2" class="hash-link" aria-label="Direct link to pushf2" title="Direct link to pushf2">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/docs_luau/moonwave.luau#L297"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">pushf2</code><code>(</code><div class="inset_uKQm"><div><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>,</code></div><div><code>x<!-- -->: </code><code class="blue_P4bS">number</code><span class="inlineDescription_G7Er">-- <span>
 <p>16 bits float number</p>
-</span></span></div></div><code>) → </code><code>(</code><code>)</code></div><div></div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="popf2"><code style="text-decoration:none">popf2</code><a href="#popf2" class="hash-link" aria-label="Direct link to popf2" title="Direct link to popf2">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/src/moonwave.luau#L302"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">popf2</code><code>(</code><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>) → </code><code class="blue_P4bS">number</code><span class="inlineDescription_G7Er">-- <span>
+</span></span></div></div><code>) → </code><code>(</code><code>)</code></div><div></div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="popf2"><code style="text-decoration:none">popf2</code><a href="#popf2" class="hash-link" aria-label="Direct link to popf2" title="Direct link to popf2">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/docs_luau/moonwave.luau#L302"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">popf2</code><code>(</code><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>) → </code><code class="blue_P4bS">number</code><span class="inlineDescription_G7Er">-- <span>
 <p>16 bits float number</p>
-</span></span></div><div></div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="pushf4"><code style="text-decoration:none">pushf4</code><a href="#pushf4" class="hash-link" aria-label="Direct link to pushf4" title="Direct link to pushf4">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/src/moonwave.luau#L307"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">pushf4</code><code>(</code><div class="inset_uKQm"><div><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>,</code></div><div><code>x<!-- -->: </code><code class="blue_P4bS">number</code><span class="inlineDescription_G7Er">-- <span>
+</span></span></div><div></div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="pushf4"><code style="text-decoration:none">pushf4</code><a href="#pushf4" class="hash-link" aria-label="Direct link to pushf4" title="Direct link to pushf4">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/docs_luau/moonwave.luau#L307"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">pushf4</code><code>(</code><div class="inset_uKQm"><div><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>,</code></div><div><code>x<!-- -->: </code><code class="blue_P4bS">number</code><span class="inlineDescription_G7Er">-- <span>
 <p>32 bits float number</p>
-</span></span></div></div><code>) → </code><code>(</code><code>)</code></div><div></div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="popf4"><code style="text-decoration:none">popf4</code><a href="#popf4" class="hash-link" aria-label="Direct link to popf4" title="Direct link to popf4">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/src/moonwave.luau#L312"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">popf4</code><code>(</code><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>) → </code><code class="blue_P4bS">number</code><span class="inlineDescription_G7Er">-- <span>
+</span></span></div></div><code>) → </code><code>(</code><code>)</code></div><div></div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="popf4"><code style="text-decoration:none">popf4</code><a href="#popf4" class="hash-link" aria-label="Direct link to popf4" title="Direct link to popf4">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/docs_luau/moonwave.luau#L312"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">popf4</code><code>(</code><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>) → </code><code class="blue_P4bS">number</code><span class="inlineDescription_G7Er">-- <span>
 <p>32 bits float number</p>
-</span></span></div><div></div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="pushf8"><code style="text-decoration:none">pushf8</code><a href="#pushf8" class="hash-link" aria-label="Direct link to pushf8" title="Direct link to pushf8">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/src/moonwave.luau#L317"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">pushf8</code><code>(</code><div class="inset_uKQm"><div><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>,</code></div><div><code>x<!-- -->: </code><code class="blue_P4bS">number</code><span class="inlineDescription_G7Er">-- <span>
+</span></span></div><div></div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="pushf8"><code style="text-decoration:none">pushf8</code><a href="#pushf8" class="hash-link" aria-label="Direct link to pushf8" title="Direct link to pushf8">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/docs_luau/moonwave.luau#L317"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">pushf8</code><code>(</code><div class="inset_uKQm"><div><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>,</code></div><div><code>x<!-- -->: </code><code class="blue_P4bS">number</code><span class="inlineDescription_G7Er">-- <span>
 <p>64 bits float number</p>
-</span></span></div></div><code>) → </code><code>(</code><code>)</code></div><div></div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="popf8"><code style="text-decoration:none">popf8</code><a href="#popf8" class="hash-link" aria-label="Direct link to popf8" title="Direct link to popf8">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/src/moonwave.luau#L322"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">popf8</code><code>(</code><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>) → </code><code class="blue_P4bS">number</code><span class="inlineDescription_G7Er">-- <span>
+</span></span></div></div><code>) → </code><code>(</code><code>)</code></div><div></div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="popf8"><code style="text-decoration:none">popf8</code><a href="#popf8" class="hash-link" aria-label="Direct link to popf8" title="Direct link to popf8">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/docs_luau/moonwave.luau#L322"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">popf8</code><code>(</code><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>) → </code><code class="blue_P4bS">number</code><span class="inlineDescription_G7Er">-- <span>
 <p>64 bits float number</p>
-</span></span></div><div></div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="pushbool"><code style="text-decoration:none">pushbool</code><a href="#pushbool" class="hash-link" aria-label="Direct link to pushbool" title="Direct link to pushbool">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/src/moonwave.luau#L327"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">pushbool</code><code>(</code><div class="inset_uKQm"><div><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>,</code></div><div><code>bool<!-- -->: </code><code class="blue_P4bS">boolean</code></div></div><code>) → </code><code>(</code><code>)</code></div><div></div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="popbool"><code style="text-decoration:none">popbool</code><a href="#popbool" class="hash-link" aria-label="Direct link to popbool" title="Direct link to popbool">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/src/moonwave.luau#L332"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">popbool</code><code>(</code><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>) → </code><code class="blue_P4bS">boolean</code></div><div></div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="pushboolpack"><code style="text-decoration:none">pushboolpack</code><a href="#pushboolpack" class="hash-link" aria-label="Direct link to pushboolpack" title="Direct link to pushboolpack">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/src/moonwave.luau#L338"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">pushboolpack</code><code>(</code><div class="inset_uKQm"><div><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>,</code></div><div><code>...<!-- -->: </code><code class="blue_P4bS">boolean?</code></div></div><code>) → </code><code>(</code><code>)</code></div><div>
+</span></span></div><div></div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="pushbool"><code style="text-decoration:none">pushbool</code><a href="#pushbool" class="hash-link" aria-label="Direct link to pushbool" title="Direct link to pushbool">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/docs_luau/moonwave.luau#L327"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">pushbool</code><code>(</code><div class="inset_uKQm"><div><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>,</code></div><div><code>bool<!-- -->: </code><code class="blue_P4bS">boolean</code></div></div><code>) → </code><code>(</code><code>)</code></div><div></div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="popbool"><code style="text-decoration:none">popbool</code><a href="#popbool" class="hash-link" aria-label="Direct link to popbool" title="Direct link to popbool">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/docs_luau/moonwave.luau#L332"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">popbool</code><code>(</code><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>) → </code><code class="blue_P4bS">boolean</code></div><div></div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="pushboolpack"><code style="text-decoration:none">pushboolpack</code><a href="#pushboolpack" class="hash-link" aria-label="Direct link to pushboolpack" title="Direct link to pushboolpack">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/docs_luau/moonwave.luau#L338"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">pushboolpack</code><code>(</code><div class="inset_uKQm"><div><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>,</code></div><div><code>...<!-- -->: </code><code class="blue_P4bS">boolean?</code></div></div><code>) → </code><code>(</code><code>)</code></div><div>
 <p>Packs up to 8 booleans into a single byte and writes it into the buffer.</p>
-</div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="popboolpack"><code style="text-decoration:none">popboolpack</code><a href="#popboolpack" class="hash-link" aria-label="Direct link to popboolpack" title="Direct link to popboolpack">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/src/moonwave.luau#L344"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">popboolpack</code><code>(</code><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>) → </code><code class="blue_P4bS">boolean,</code><code class="blue_P4bS">boolean,</code><code class="blue_P4bS">boolean,</code><code class="blue_P4bS">boolean,</code><code class="blue_P4bS">boolean,</code><code class="blue_P4bS">boolean,</code><code class="blue_P4bS">boolean,</code><code class="blue_P4bS">boolean</code></div><div>
+</div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="popboolpack"><code style="text-decoration:none">popboolpack</code><a href="#popboolpack" class="hash-link" aria-label="Direct link to popboolpack" title="Direct link to popboolpack">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/docs_luau/moonwave.luau#L344"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">popboolpack</code><code>(</code><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>) → </code><code class="blue_P4bS">boolean,</code><code class="blue_P4bS">boolean,</code><code class="blue_P4bS">boolean,</code><code class="blue_P4bS">boolean,</code><code class="blue_P4bS">boolean,</code><code class="blue_P4bS">boolean,</code><code class="blue_P4bS">boolean,</code><code class="blue_P4bS">boolean</code></div><div>
 <p>Reads 8 packed booleans from the buffer.</p>
-</div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="pushvlqrealloc"><code style="text-decoration:none">pushvlqrealloc</code><a href="#pushvlqrealloc" class="hash-link" aria-label="Direct link to pushvlqrealloc" title="Direct link to pushvlqrealloc">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/src/moonwave.luau#L350"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">pushvlqrealloc</code><code>(</code><div class="inset_uKQm"><div><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>,</code></div><div><code>x<!-- -->: </code><code class="blue_P4bS">number</code></div></div><code>) → </code><code>(</code><code>)</code></div><div>
+</div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="pushvlqrealloc"><code style="text-decoration:none">pushvlqrealloc</code><a href="#pushvlqrealloc" class="hash-link" aria-label="Direct link to pushvlqrealloc" title="Direct link to pushvlqrealloc">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/docs_luau/moonwave.luau#L350"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">pushvlqrealloc</code><code>(</code><div class="inset_uKQm"><div><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>,</code></div><div><code>x<!-- -->: </code><code class="blue_P4bS">number</code></div></div><code>) → </code><code>(</code><code>)</code></div><div>
 <p>Writes a variable length unsigned integer into the buffer and allocates the bytes needed for it.</p>
-</div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="popvlq"><code style="text-decoration:none">popvlq</code><a href="#popvlq" class="hash-link" aria-label="Direct link to popvlq" title="Direct link to popvlq">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/src/moonwave.luau#L356"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">popvlq</code><code>(</code><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>) → </code><code class="blue_P4bS">number</code></div><div>
+</div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="popvlq"><code style="text-decoration:none">popvlq</code><a href="#popvlq" class="hash-link" aria-label="Direct link to popvlq" title="Direct link to popvlq">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/docs_luau/moonwave.luau#L356"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">popvlq</code><code>(</code><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>) → </code><code class="blue_P4bS">number</code></div><div>
 <p>Reads a variable length unsigned integer from the buffer.</p>
-</div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="pushstr"><code style="text-decoration:none">pushstr</code><a href="#pushstr" class="hash-link" aria-label="Direct link to pushstr" title="Direct link to pushstr">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/src/moonwave.luau#L363"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">pushstr</code><code>(</code><div class="inset_uKQm"><div><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>,</code></div><div><code>x<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/string">string</a></code><code>,</code></div><div><code>length<!-- -->: </code><code class="blue_P4bS">number?</code></div></div><code>) → </code><code>(</code><code>)</code></div><div>
+</div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="pushstr"><code style="text-decoration:none">pushstr</code><a href="#pushstr" class="hash-link" aria-label="Direct link to pushstr" title="Direct link to pushstr">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/docs_luau/moonwave.luau#L363"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">pushstr</code><code>(</code><div class="inset_uKQm"><div><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>,</code></div><div><code>x<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/string">string</a></code><code>,</code></div><div><code>length<!-- -->: </code><code class="blue_P4bS">number?</code></div></div><code>) → </code><code>(</code><code>)</code></div><div>
 <p>Writes a string to the cursor.</p>
-</div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="popstr"><code style="text-decoration:none">popstr</code><a href="#popstr" class="hash-link" aria-label="Direct link to popstr" title="Direct link to popstr">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/src/moonwave.luau#L370"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">popstr</code><code>(</code><div class="inset_uKQm"><div><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>,</code></div><div><code>length<!-- -->: </code><code class="blue_P4bS">number?</code></div></div><code>) → </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/string">string</a></code></div><div>
+</div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="popstr"><code style="text-decoration:none">popstr</code><a href="#popstr" class="hash-link" aria-label="Direct link to popstr" title="Direct link to popstr">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/docs_luau/moonwave.luau#L370"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">popstr</code><code>(</code><div class="inset_uKQm"><div><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>,</code></div><div><code>length<!-- -->: </code><code class="blue_P4bS">number?</code></div></div><code>) → </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/string">string</a></code></div><div>
 <p>Reads a string from the cursor.</p>
-</div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="pushbuf"><code style="text-decoration:none">pushbuf</code><a href="#pushbuf" class="hash-link" aria-label="Direct link to pushbuf" title="Direct link to pushbuf">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/src/moonwave.luau#L377"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">pushbuf</code><code>(</code><div class="inset_uKQm"><div><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>,</code></div><div><code>x<!-- -->: </code><code class="blue_P4bS">buffer</code><code>,</code></div><div><code>length<!-- -->: </code><code class="blue_P4bS">number?</code></div></div><code>) → </code><code>(</code><code>)</code></div><div>
+</div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="pushbuf"><code style="text-decoration:none">pushbuf</code><a href="#pushbuf" class="hash-link" aria-label="Direct link to pushbuf" title="Direct link to pushbuf">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/docs_luau/moonwave.luau#L377"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">pushbuf</code><code>(</code><div class="inset_uKQm"><div><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>,</code></div><div><code>x<!-- -->: </code><code class="blue_P4bS">buffer</code><code>,</code></div><div><code>length<!-- -->: </code><code class="blue_P4bS">number?</code></div></div><code>) → </code><code>(</code><code>)</code></div><div>
 <p>Writes a buffer to the cursor.</p>
-</div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="popbuf"><code style="text-decoration:none">popbuf</code><a href="#popbuf" class="hash-link" aria-label="Direct link to popbuf" title="Direct link to popbuf">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/src/moonwave.luau#L384"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">popbuf</code><code>(</code><div class="inset_uKQm"><div><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>,</code></div><div><code>length<!-- -->: </code><code class="blue_P4bS">number?</code></div></div><code>) → </code><code class="blue_P4bS">buffer</code></div><div>
+</div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="popbuf"><code style="text-decoration:none">popbuf</code><a href="#popbuf" class="hash-link" aria-label="Direct link to popbuf" title="Direct link to popbuf">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/docs_luau/moonwave.luau#L384"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">popbuf</code><code>(</code><div class="inset_uKQm"><div><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>,</code></div><div><code>length<!-- -->: </code><code class="blue_P4bS">number?</code></div></div><code>) → </code><code class="blue_P4bS">buffer</code></div><div>
 <p>Reads a buffer from the cursor.</p>
-</div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="serbitarr"><code style="text-decoration:none">serbitarr</code><a href="#serbitarr" class="hash-link" aria-label="Direct link to serbitarr" title="Direct link to serbitarr">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/src/moonwave.luau#L391"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">serbitarr</code><code>(</code><div class="inset_uKQm"><div><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>,</code></div><div><code>bits<!-- -->: </code><code class="purple_ieR2">{</code><code class="blue_P4bS">boolean</code><code class="purple_ieR2">}</code><code>,</code></div><div><code>length<!-- -->: </code><code class="blue_P4bS">number?</code><span class="inlineDescription_G7Er">-- <span>
+</div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="serbitarr"><code style="text-decoration:none">serbitarr</code><a href="#serbitarr" class="hash-link" aria-label="Direct link to serbitarr" title="Direct link to serbitarr">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/docs_luau/moonwave.luau#L391"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">serbitarr</code><code>(</code><div class="inset_uKQm"><div><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>,</code></div><div><code>bits<!-- -->: </code><code class="purple_ieR2">{</code><code class="blue_P4bS">boolean</code><code class="purple_ieR2">}</code><code>,</code></div><div><code>length<!-- -->: </code><code class="blue_P4bS">number?</code><span class="inlineDescription_G7Er">-- <span>
 <p>Fixed length for the bit array</p>
 </span></span></div></div><code>) → </code><code>(</code><code>)</code></div><div>
 <p>Serializes an array of booleans as a bit array into the buffer.</p>
-</div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="desbitarr"><code style="text-decoration:none">desbitarr</code><a href="#desbitarr" class="hash-link" aria-label="Direct link to desbitarr" title="Direct link to desbitarr">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/src/moonwave.luau#L398"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">desbitarr</code><code>(</code><div class="inset_uKQm"><div><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>,</code></div><div><code>bitCount<!-- -->: </code><code class="blue_P4bS">number</code><span class="inlineDescription_G7Er">-- <span>
+</div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="desbitarr"><code style="text-decoration:none">desbitarr</code><a href="#desbitarr" class="hash-link" aria-label="Direct link to desbitarr" title="Direct link to desbitarr">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/docs_luau/moonwave.luau#L398"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">desbitarr</code><code>(</code><div class="inset_uKQm"><div><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>,</code></div><div><code>bitCount<!-- -->: </code><code class="blue_P4bS">number</code><span class="inlineDescription_G7Er">-- <span>
 <p>Length of the bit array</p>
 </span></span></div></div><code>) → </code><code class="purple_ieR2">{</code><code class="blue_P4bS">boolean</code><code class="purple_ieR2">}</code></div><div>
 <p>Deserializes a bit array of <code>bitCount</code> length from the buffer.</p>
-</div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="pushref"><code style="text-decoration:none">pushref</code><a href="#pushref" class="hash-link" aria-label="Direct link to pushref" title="Direct link to pushref">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/src/moonwave.luau#L404"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">pushref</code><code>(</code><div class="inset_uKQm"><div><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>,</code></div><div><code>v<!-- -->: </code><code class="blue_P4bS">any</code></div></div><code>) → </code><code>(</code><code>)</code></div><div>
+</div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="pushref"><code style="text-decoration:none">pushref</code><a href="#pushref" class="hash-link" aria-label="Direct link to pushref" title="Direct link to pushref">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/docs_luau/moonwave.luau#L404"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">pushref</code><code>(</code><div class="inset_uKQm"><div><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>,</code></div><div><code>v<!-- -->: </code><code class="blue_P4bS">any</code></div></div><code>) → </code><code>(</code><code>)</code></div><div>
 <p>Adds a value to the 'references' table.</p>
-</div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="popref"><code style="text-decoration:none">popref</code><a href="#popref" class="hash-link" aria-label="Direct link to popref" title="Direct link to popref">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/src/moonwave.luau#L410"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">popref</code><code>(</code><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>) → </code><code class="blue_P4bS">any</code></div><div>
+</div><div class="divider_rE5g"></div><h3 class="anchor anchorWithStickyNavbar_LWe7" id="popref"><code style="text-decoration:none">popref</code><a href="#popref" class="hash-link" aria-label="Direct link to popref" title="Direct link to popref">​</a></h3><div class="repositoryDetailsContainer_BPdw"><a class="sourceButton_sEho" href="https://github.com/anexpia/Squish/blob/main/docs_luau/moonwave.luau#L410"><div class="sourceButtonText_Vh0m">&lt;/&gt;</div></a></div><div class="memberString_GwaU"><code>util<!-- -->.</code><code class="green_DgR4">popref</code><code>(</code><code>cursor<!-- -->: </code><code class="blue_P4bS"><a style="text-decoration:underline;color:inherit" href="/Squish/api/Squish#Cursor">Cursor</a></code><code>) → </code><code class="blue_P4bS">any</code></div><div>
 <p>Removes a value from the 'references' table using the current vlq.</p>
 </div></div></article></div><details><summary>Show raw api</summary><pre style="max-width:100%;white-space:pre-wrap">{
     &quot;functions&quot;: [
@@ -145,7 +145,7 @@
             &quot;function_type&quot;: &quot;static&quot;,
             &quot;source&quot;: {
                 &quot;line&quot;: 108,
-                &quot;path&quot;: &quot;src/moonwave.luau&quot;
+                &quot;path&quot;: &quot;docs_luau/moonwave.luau&quot;
             }
         },
         {
@@ -167,7 +167,7 @@
             &quot;function_type&quot;: &quot;static&quot;,
             &quot;source&quot;: {
                 &quot;line&quot;: 114,
-                &quot;path&quot;: &quot;src/moonwave.luau&quot;
+                &quot;path&quot;: &quot;docs_luau/moonwave.luau&quot;
             }
         },
         {
@@ -189,7 +189,7 @@
             &quot;function_type&quot;: &quot;static&quot;,
             &quot;source&quot;: {
                 &quot;line&quot;: 120,
-                &quot;path&quot;: &quot;src/moonwave.luau&quot;
+                &quot;path&quot;: &quot;docs_luau/moonwave.luau&quot;
             }
         },
         {
@@ -211,7 +211,7 @@
             &quot;function_type&quot;: &quot;static&quot;,
             &quot;source&quot;: {
                 &quot;line&quot;: 126,
-                &quot;path&quot;: &quot;src/moonwave.luau&quot;
+                &quot;path&quot;: &quot;docs_luau/moonwave.luau&quot;
             }
         },
         {
@@ -233,7 +233,7 @@
             &quot;function_type&quot;: &quot;static&quot;,
             &quot;source&quot;: {
                 &quot;line&quot;: 132,
-                &quot;path&quot;: &quot;src/moonwave.luau&quot;
+                &quot;path&quot;: &quot;docs_luau/moonwave.luau&quot;
             }
         },
         {
@@ -255,7 +255,7 @@
             &quot;function_type&quot;: &quot;static&quot;,
             &quot;source&quot;: {
                 &quot;line&quot;: 137,
-                &quot;path&quot;: &quot;src/moonwave.luau&quot;
+                &quot;path&quot;: &quot;docs_luau/moonwave.luau&quot;
             }
         },
         {
@@ -277,7 +277,7 @@
             &quot;function_type&quot;: &quot;static&quot;,
             &quot;source&quot;: {
                 &quot;line&quot;: 142,
-                &quot;path&quot;: &quot;src/moonwave.luau&quot;
+                &quot;path&quot;: &quot;docs_luau/moonwave.luau&quot;
             }
         },
         {
@@ -299,7 +299,7 @@
             &quot;function_type&quot;: &quot;static&quot;,
             &quot;source&quot;: {
                 &quot;line&quot;: 147,
-                &quot;path&quot;: &quot;src/moonwave.luau&quot;
+                &quot;path&quot;: &quot;docs_luau/moonwave.luau&quot;
             }
         },
         {
@@ -321,7 +321,7 @@
             &quot;function_type&quot;: &quot;static&quot;,
             &quot;source&quot;: {
                 &quot;line&quot;: 152,
-                &quot;path&quot;: &quot;src/moonwave.luau&quot;
+                &quot;path&quot;: &quot;docs_luau/moonwave.luau&quot;
             }
         },
         {
@@ -343,7 +343,7 @@
             &quot;function_type&quot;: &quot;static&quot;,
             &quot;source&quot;: {
                 &quot;line&quot;: 157,
-                &quot;path&quot;: &quot;src/moonwave.luau&quot;
+                &quot;path&quot;: &quot;docs_luau/moonwave.luau&quot;
             }
         },
         {
@@ -365,7 +365,7 @@
             &quot;function_type&quot;: &quot;static&quot;,
             &quot;source&quot;: {
                 &quot;line&quot;: 162,
-                &quot;path&quot;: &quot;src/moonwave.luau&quot;
+                &quot;path&quot;: &quot;docs_luau/moonwave.luau&quot;
             }
         },
         {
@@ -387,7 +387,7 @@
             &quot;function_type&quot;: &quot;static&quot;,
             &quot;source&quot;: {
                 &quot;line&quot;: 167,
-                &quot;path&quot;: &quot;src/moonwave.luau&quot;
+                &quot;path&quot;: &quot;docs_luau/moonwave.luau&quot;
             }
         },
         {
@@ -409,7 +409,7 @@
             &quot;function_type&quot;: &quot;static&quot;,
             &quot;source&quot;: {
                 &quot;line&quot;: 172,
-                &quot;path&quot;: &quot;src/moonwave.luau&quot;
+                &quot;path&quot;: &quot;docs_luau/moonwave.luau&quot;
             }
         },
         {
@@ -431,7 +431,7 @@
             &quot;function_type&quot;: &quot;static&quot;,
             &quot;source&quot;: {
                 &quot;line&quot;: 177,
-                &quot;path&quot;: &quot;src/moonwave.luau&quot;
+                &quot;path&quot;: &quot;docs_luau/moonwave.luau&quot;
             }
         },
         {
@@ -453,7 +453,7 @@
             &quot;function_type&quot;: &quot;static&quot;,
             &quot;source&quot;: {
                 &quot;line&quot;: 182,
-                &quot;path&quot;: &quot;src/moonwave.luau&quot;
+                &quot;path&quot;: &quot;docs_luau/moonwave.luau&quot;
             }
         },
         {
@@ -475,7 +475,7 @@
             &quot;function_type&quot;: &quot;static&quot;,
             &quot;source&quot;: {
                 &quot;line&quot;: 187,
-                &quot;path&quot;: &quot;src/moonwave.luau&quot;
+                &quot;path&quot;: &quot;docs_luau/moonwave.luau&quot;
             }
         },
         {
@@ -497,7 +497,7 @@
             &quot;function_type&quot;: &quot;static&quot;,
             &quot;source&quot;: {
                 &quot;line&quot;: 192,
-                &quot;path&quot;: &quot;src/moonwave.luau&quot;
+                &quot;path&quot;: &quot;docs_luau/moonwave.luau&quot;
             }
         },
         {
@@ -519,7 +519,7 @@
             &quot;function_type&quot;: &quot;static&quot;,
             &quot;source&quot;: {
                 &quot;line&quot;: 197,
-                &quot;path&quot;: &quot;src/moonwave.luau&quot;
+                &quot;path&quot;: &quot;docs_luau/moonwave.luau&quot;
             }
         },
         {
@@ -541,7 +541,7 @@
             &quot;function_type&quot;: &quot;static&quot;,
             &quot;source&quot;: {
                 &quot;line&quot;: 202,
-                &quot;path&quot;: &quot;src/moonwave.luau&quot;
+                &quot;path&quot;: &quot;docs_luau/moonwave.luau&quot;
             }
         },
         {
@@ -563,7 +563,7 @@
             &quot;function_type&quot;: &quot;static&quot;,
             &quot;source&quot;: {
                 &quot;line&quot;: 207,
-                &quot;path&quot;: &quot;src/moonwave.luau&quot;
+                &quot;path&quot;: &quot;docs_luau/moonwave.luau&quot;
             }
         },
         {
@@ -585,7 +585,7 @@
             &quot;function_type&quot;: &quot;static&quot;,
             &quot;source&quot;: {
                 &quot;line&quot;: 212,
-                &quot;path&quot;: &quot;src/moonwave.luau&quot;
+                &quot;path&quot;: &quot;docs_luau/moonwave.luau&quot;
             }
         },
         {
@@ -607,7 +607,7 @@
             &quot;function_type&quot;: &quot;static&quot;,
             &quot;source&quot;: {
                 &quot;line&quot;: 217,
-                &quot;path&quot;: &quot;src/moonwave.luau&quot;
+                &quot;path&quot;: &quot;docs_luau/moonwave.luau&quot;
             }
         },
         {
@@ -629,7 +629,7 @@
             &quot;function_type&quot;: &quot;static&quot;,
             &quot;source&quot;: {
                 &quot;line&quot;: 222,
-                &quot;path&quot;: &quot;src/moonwave.luau&quot;
+                &quot;path&quot;: &quot;docs_luau/moonwave.luau&quot;
             }
         },
         {
@@ -651,7 +651,7 @@
             &quot;function_type&quot;: &quot;static&quot;,
             &quot;source&quot;: {
                 &quot;line&quot;: 227,
-                &quot;path&quot;: &quot;src/moonwave.luau&quot;
+                &quot;path&quot;: &quot;docs_luau/moonwave.luau&quot;
             }
         },
         {
@@ -673,7 +673,7 @@
             &quot;function_type&quot;: &quot;static&quot;,
             &quot;source&quot;: {
                 &quot;line&quot;: 232,
-                &quot;path&quot;: &quot;src/moonwave.luau&quot;
+                &quot;path&quot;: &quot;docs_luau/moonwave.luau&quot;
             }
         },
         {
@@ -695,7 +695,7 @@
             &quot;function_type&quot;: &quot;static&quot;,
             &quot;source&quot;: {
                 &quot;line&quot;: 237,
-                &quot;path&quot;: &quot;src/moonwave.luau&quot;
+                &quot;path&quot;: &quot;docs_luau/moonwave.luau&quot;
             }
         },
         {
@@ -717,7 +717,7 @@
             &quot;function_type&quot;: &quot;static&quot;,
             &quot;source&quot;: {
                 &quot;line&quot;: 242,
-                &quot;path&quot;: &quot;src/moonwave.luau&quot;
+                &quot;path&quot;: &quot;docs_luau/moonwave.luau&quot;
             }
         },
         {
@@ -739,7 +739,7 @@
             &quot;function_type&quot;: &quot;static&quot;,
             &quot;source&quot;: {
                 &quot;line&quot;: 247,
-                &quot;path&quot;: &quot;src/moonwave.luau&quot;
+                &quot;path&quot;: &quot;docs_luau/moonwave.luau&quot;
             }
         },
         {
@@ -761,7 +761,7 @@
             &quot;function_type&quot;: &quot;static&quot;,
             &quot;source&quot;: {
                 &quot;line&quot;: 252,
-                &quot;path&quot;: &quot;src/moonwave.luau&quot;
+                &quot;path&quot;: &quot;docs_luau/moonwave.luau&quot;
             }
         },
         {
@@ -783,7 +783,7 @@
             &quot;function_type&quot;: &quot;static&quot;,
             &quot;source&quot;: {
                 &quot;line&quot;: 257,
-                &quot;path&quot;: &quot;src/moonwave.luau&quot;
+                &quot;path&quot;: &quot;docs_luau/moonwave.luau&quot;
             }
         },
         {
@@ -805,7 +805,7 @@
             &quot;function_type&quot;: &quot;static&quot;,
             &quot;source&quot;: {
                 &quot;line&quot;: 262,
-                &quot;path&quot;: &quot;src/moonwave.luau&quot;
+                &quot;path&quot;: &quot;docs_luau/moonwave.luau&quot;
             }
         },
         {
@@ -827,7 +827,7 @@
             &quot;function_type&quot;: &quot;static&quot;,
             &quot;source&quot;: {
                 &quot;line&quot;: 267,
-                &quot;path&quot;: &quot;src/moonwave.luau&quot;
+                &quot;path&quot;: &quot;docs_luau/moonwave.luau&quot;
             }
         },
         {
@@ -849,7 +849,7 @@
             &quot;function_type&quot;: &quot;static&quot;,
             &quot;source&quot;: {
                 &quot;line&quot;: 272,
-                &quot;path&quot;: &quot;src/moonwave.luau&quot;
+                &quot;path&quot;: &quot;docs_luau/moonwave.luau&quot;
             }
         },
         {
@@ -871,7 +871,7 @@
             &quot;function_type&quot;: &quot;static&quot;,
             &quot;source&quot;: {
                 &quot;line&quot;: 277,
-                &quot;path&quot;: &quot;src/moonwave.luau&quot;
+                &quot;path&quot;: &quot;docs_luau/moonwave.luau&quot;
             }
         },
         {
@@ -893,7 +893,7 @@
             &quot;function_type&quot;: &quot;static&quot;,
             &quot;source&quot;: {
                 &quot;line&quot;: 282,
-                &quot;path&quot;: &quot;src/moonwave.luau&quot;
+                &quot;path&quot;: &quot;docs_luau/moonwave.luau&quot;
             }
         },
         {
@@ -915,7 +915,7 @@
             &quot;function_type&quot;: &quot;static&quot;,
             &quot;source&quot;: {
                 &quot;line&quot;: 287,
-                &quot;path&quot;: &quot;src/moonwave.luau&quot;
+                &quot;path&quot;: &quot;docs_luau/moonwave.luau&quot;
             }
         },
         {
@@ -937,7 +937,7 @@
             &quot;function_type&quot;: &quot;static&quot;,
             &quot;source&quot;: {
                 &quot;line&quot;: 292,
-                &quot;path&quot;: &quot;src/moonwave.luau&quot;
+                &quot;path&quot;: &quot;docs_luau/moonwave.luau&quot;
             }
         },
         {
@@ -959,7 +959,7 @@
             &quot;function_type&quot;: &quot;static&quot;,
             &quot;source&quot;: {
                 &quot;line&quot;: 297,
-                &quot;path&quot;: &quot;src/moonwave.luau&quot;
+                &quot;path&quot;: &quot;docs_luau/moonwave.luau&quot;
             }
         },
         {
@@ -981,7 +981,7 @@
             &quot;function_type&quot;: &quot;static&quot;,
             &quot;source&quot;: {
                 &quot;line&quot;: 302,
-                &quot;path&quot;: &quot;src/moonwave.luau&quot;
+                &quot;path&quot;: &quot;docs_luau/moonwave.luau&quot;
             }
         },
         {
@@ -1003,7 +1003,7 @@
             &quot;function_type&quot;: &quot;static&quot;,
             &quot;source&quot;: {
                 &quot;line&quot;: 307,
-                &quot;path&quot;: &quot;src/moonwave.luau&quot;
+                &quot;path&quot;: &quot;docs_luau/moonwave.luau&quot;
             }
         },
         {
@@ -1025,7 +1025,7 @@
             &quot;function_type&quot;: &quot;static&quot;,
             &quot;source&quot;: {
                 &quot;line&quot;: 312,
-                &quot;path&quot;: &quot;src/moonwave.luau&quot;
+                &quot;path&quot;: &quot;docs_luau/moonwave.luau&quot;
             }
         },
         {
@@ -1047,7 +1047,7 @@
             &quot;function_type&quot;: &quot;static&quot;,
             &quot;source&quot;: {
                 &quot;line&quot;: 317,
-                &quot;path&quot;: &quot;src/moonwave.luau&quot;
+                &quot;path&quot;: &quot;docs_luau/moonwave.luau&quot;
             }
         },
         {
@@ -1069,7 +1069,7 @@
             &quot;function_type&quot;: &quot;static&quot;,
             &quot;source&quot;: {
                 &quot;line&quot;: 322,
-                &quot;path&quot;: &quot;src/moonwave.luau&quot;
+                &quot;path&quot;: &quot;docs_luau/moonwave.luau&quot;
             }
         },
         {
@@ -1091,7 +1091,7 @@
             &quot;function_type&quot;: &quot;static&quot;,
             &quot;source&quot;: {
                 &quot;line&quot;: 327,
-                &quot;path&quot;: &quot;src/moonwave.luau&quot;
+                &quot;path&quot;: &quot;docs_luau/moonwave.luau&quot;
             }
         },
         {
@@ -1113,7 +1113,7 @@
             &quot;function_type&quot;: &quot;static&quot;,
             &quot;source&quot;: {
                 &quot;line&quot;: 332,
-                &quot;path&quot;: &quot;src/moonwave.luau&quot;
+                &quot;path&quot;: &quot;docs_luau/moonwave.luau&quot;
             }
         },
         {
@@ -1135,7 +1135,7 @@
             &quot;function_type&quot;: &quot;static&quot;,
             &quot;source&quot;: {
                 &quot;line&quot;: 338,
-                &quot;path&quot;: &quot;src/moonwave.luau&quot;
+                &quot;path&quot;: &quot;docs_luau/moonwave.luau&quot;
             }
         },
         {
@@ -1157,7 +1157,7 @@
             &quot;function_type&quot;: &quot;static&quot;,
             &quot;source&quot;: {
                 &quot;line&quot;: 344,
-                &quot;path&quot;: &quot;src/moonwave.luau&quot;
+                &quot;path&quot;: &quot;docs_luau/moonwave.luau&quot;
             }
         },
         {
@@ -1179,7 +1179,7 @@
             &quot;function_type&quot;: &quot;static&quot;,
             &quot;source&quot;: {
                 &quot;line&quot;: 350,
-                &quot;path&quot;: &quot;src/moonwave.luau&quot;
+                &quot;path&quot;: &quot;docs_luau/moonwave.luau&quot;
             }
         },
         {
@@ -1201,7 +1201,7 @@
             &quot;function_type&quot;: &quot;static&quot;,
             &quot;source&quot;: {
                 &quot;line&quot;: 356,
-                &quot;path&quot;: &quot;src/moonwave.luau&quot;
+                &quot;path&quot;: &quot;docs_luau/moonwave.luau&quot;
             }
         },
         {
@@ -1228,7 +1228,7 @@
             &quot;function_type&quot;: &quot;static&quot;,
             &quot;source&quot;: {
                 &quot;line&quot;: 363,
-                &quot;path&quot;: &quot;src/moonwave.luau&quot;
+                &quot;path&quot;: &quot;docs_luau/moonwave.luau&quot;
             }
         },
         {
@@ -1255,7 +1255,7 @@
             &quot;function_type&quot;: &quot;static&quot;,
             &quot;source&quot;: {
                 &quot;line&quot;: 370,
-                &quot;path&quot;: &quot;src/moonwave.luau&quot;
+                &quot;path&quot;: &quot;docs_luau/moonwave.luau&quot;
             }
         },
         {
@@ -1282,7 +1282,7 @@
             &quot;function_type&quot;: &quot;static&quot;,
             &quot;source&quot;: {
                 &quot;line&quot;: 377,
-                &quot;path&quot;: &quot;src/moonwave.luau&quot;
+                &quot;path&quot;: &quot;docs_luau/moonwave.luau&quot;
             }
         },
         {
@@ -1309,7 +1309,7 @@
             &quot;function_type&quot;: &quot;static&quot;,
             &quot;source&quot;: {
                 &quot;line&quot;: 384,
-                &quot;path&quot;: &quot;src/moonwave.luau&quot;
+                &quot;path&quot;: &quot;docs_luau/moonwave.luau&quot;
             }
         },
         {
@@ -1336,7 +1336,7 @@
             &quot;function_type&quot;: &quot;static&quot;,
             &quot;source&quot;: {
                 &quot;line&quot;: 391,
-                &quot;path&quot;: &quot;src/moonwave.luau&quot;
+                &quot;path&quot;: &quot;docs_luau/moonwave.luau&quot;
             }
         },
         {
@@ -1363,7 +1363,7 @@
             &quot;function_type&quot;: &quot;static&quot;,
             &quot;source&quot;: {
                 &quot;line&quot;: 398,
-                &quot;path&quot;: &quot;src/moonwave.luau&quot;
+                &quot;path&quot;: &quot;docs_luau/moonwave.luau&quot;
             }
         },
         {
@@ -1385,7 +1385,7 @@
             &quot;function_type&quot;: &quot;static&quot;,
             &quot;source&quot;: {
                 &quot;line&quot;: 404,
-                &quot;path&quot;: &quot;src/moonwave.luau&quot;
+                &quot;path&quot;: &quot;docs_luau/moonwave.luau&quot;
             }
         },
         {
@@ -1407,7 +1407,7 @@
             &quot;function_type&quot;: &quot;static&quot;,
             &quot;source&quot;: {
                 &quot;line&quot;: 410,
-                &quot;path&quot;: &quot;src/moonwave.luau&quot;
+                &quot;path&quot;: &quot;docs_luau/moonwave.luau&quot;
             }
         }
     ],
@@ -1417,7 +1417,7 @@
     &quot;desc&quot;: &quot;Namespace containing functions for pushing &amp; popping values directly from the cursor.&quot;,
     &quot;source&quot;: {
         &quot;line&quot;: 102,
-        &quot;path&quot;: &quot;src/moonwave.luau&quot;
+        &quot;path&quot;: &quot;docs_luau/moonwave.luau&quot;
     }
 }</pre></details></div><div class="col col--3"><div class="tableOfContents_bqdL thin-scrollbar"><ul class="table-of-contents table-of-contents__left-border"><li><a href="#functions" class="table-of-contents__link toc-highlight">Functions</a><ul><li><a href="#desbitarr" class="table-of-contents__link toc-highlight">.desbitarr</a></li><li><a href="#getbuf" class="table-of-contents__link toc-highlight">.getbuf</a></li><li><a href="#getpos" class="table-of-contents__link toc-highlight">.getpos</a></li><li><a href="#popbool" class="table-of-contents__link toc-highlight">.popbool</a></li><li><a href="#popboolpack" class="table-of-contents__link toc-highlight">.popboolpack</a></li><li><a href="#popbuf" class="table-of-contents__link toc-highlight">.popbuf</a></li><li><a href="#popf2" class="table-of-contents__link toc-highlight">.popf2</a></li><li><a href="#popf4" class="table-of-contents__link toc-highlight">.popf4</a></li><li><a href="#popf8" class="table-of-contents__link toc-highlight">.popf8</a></li><li><a href="#popi1" class="table-of-contents__link toc-highlight">.popi1</a></li><li><a href="#popi2" class="table-of-contents__link toc-highlight">.popi2</a></li><li><a href="#popi3" class="table-of-contents__link toc-highlight">.popi3</a></li><li><a href="#popi4" class="table-of-contents__link toc-highlight">.popi4</a></li><li><a href="#popi5" class="table-of-contents__link toc-highlight">.popi5</a></li><li><a href="#popi6" class="table-of-contents__link toc-highlight">.popi6</a></li><li><a href="#popi7" class="table-of-contents__link toc-highlight">.popi7</a></li><li><a href="#popi8" class="table-of-contents__link toc-highlight">.popi8</a></li><li><a href="#popref" class="table-of-contents__link toc-highlight">.popref</a></li><li><a href="#popstr" class="table-of-contents__link toc-highlight">.popstr</a></li><li><a href="#popu1" class="table-of-contents__link toc-highlight">.popu1</a></li><li><a href="#popu2" class="table-of-contents__link toc-highlight">.popu2</a></li><li><a href="#popu3" class="table-of-contents__link toc-highlight">.popu3</a></li><li><a href="#popu4" class="table-of-contents__link toc-highlight">.popu4</a></li><li><a href="#popu5" class="table-of-contents__link toc-highlight">.popu5</a></li><li><a href="#popu6" class="table-of-contents__link toc-highlight">.popu6</a></li><li><a href="#popu7" class="table-of-contents__link toc-highlight">.popu7</a></li><li><a href="#popu8" class="table-of-contents__link toc-highlight">.popu8</a></li><li><a href="#popvlq" class="table-of-contents__link toc-highlight">.popvlq</a></li><li><a href="#pushbool" class="table-of-contents__link toc-highlight">.pushbool</a></li><li><a href="#pushboolpack" class="table-of-contents__link toc-highlight">.pushboolpack</a></li><li><a href="#pushbuf" class="table-of-contents__link toc-highlight">.pushbuf</a></li><li><a href="#pushf2" class="table-of-contents__link toc-highlight">.pushf2</a></li><li><a href="#pushf4" class="table-of-contents__link toc-highlight">.pushf4</a></li><li><a href="#pushf8" class="table-of-contents__link toc-highlight">.pushf8</a></li><li><a href="#pushi1" class="table-of-contents__link toc-highlight">.pushi1</a></li><li><a href="#pushi2" class="table-of-contents__link toc-highlight">.pushi2</a></li><li><a href="#pushi3" class="table-of-contents__link toc-highlight">.pushi3</a></li><li><a href="#pushi4" class="table-of-contents__link toc-highlight">.pushi4</a></li><li><a href="#pushi5" class="table-of-contents__link toc-highlight">.pushi5</a></li><li><a href="#pushi6" class="table-of-contents__link toc-highlight">.pushi6</a></li><li><a href="#pushi7" class="table-of-contents__link toc-highlight">.pushi7</a></li><li><a href="#pushi8" class="table-of-contents__link toc-highlight">.pushi8</a></li><li><a href="#pushref" class="table-of-contents__link toc-highlight">.pushref</a></li><li><a href="#pushstr" class="table-of-contents__link toc-highlight">.pushstr</a></li><li><a href="#pushu1" class="table-of-contents__link toc-highlight">.pushu1</a></li><li><a href="#pushu2" class="table-of-contents__link toc-highlight">.pushu2</a></li><li><a href="#pushu3" class="table-of-contents__link toc-highlight">.pushu3</a></li><li><a href="#pushu4" class="table-of-contents__link toc-highlight">.pushu4</a></li><li><a href="#pushu5" class="table-of-contents__link toc-highlight">.pushu5</a></li><li><a href="#pushu6" class="table-of-contents__link toc-highlight">.pushu6</a></li><li><a href="#pushu7" class="table-of-contents__link toc-highlight">.pushu7</a></li><li><a href="#pushu8" class="table-of-contents__link toc-highlight">.pushu8</a></li><li><a href="#pushvlqrealloc" class="table-of-contents__link toc-highlight">.pushvlqrealloc</a></li><li><a href="#serbitarr" class="table-of-contents__link toc-highlight">.serbitarr</a></li><li><a href="#setbuf" class="table-of-contents__link toc-highlight">.setbuf</a></li><li><a href="#setpos" class="table-of-contents__link toc-highlight">.setpos</a></li><li><a href="#tryrealloc" class="table-of-contents__link toc-highlight">.tryrealloc</a></li></ul></li></ul></div></div></div></div></main></div></div><footer class="footer footer--dark"><div class="container container-fluid"><div class="footer__bottom text--center"><div class="footer__copyright">Copyright © 2025 SolarScuffle-Bot. Built with Moonwave and Docusaurus. Forked by anexpia.</div></div></div></footer></div>
 </body>
