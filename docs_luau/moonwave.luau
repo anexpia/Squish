@@ -816,7 +816,8 @@
 --- @param serdes SerDes<T>
 --- @param length (number | SerDes<number>)? -- Optional fixed length or serdes for serializing length.
 --- @return SerDes<{T}>
---- Serdes that serializes arrays with the given serdes.
+--- Serdes that serializes arrays with the given serdes.\
+--- Deserializing can take a second parameter for a pre-allocated table to write to.
 
 --- @function map
 --- @within Squish
@@ -825,14 +826,16 @@
 --- @param valueSerDes SerDes<V>
 --- @param length (number | SerDes<number>)? -- Optional fixed length or serdes for serializing length.
 --- @return SerDes<{[K]: V}>
---- Serdes that serializes tables keys using keySerDes and values using valueSerDes.
+--- Serdes that serializes tables keys using keySerDes and values using valueSerDes.\
+--- Deserializing can take a second parameter for a pre-allocated table to write to.
 
 --- @function record
 --- @within Squish
 --- @tag Table
 --- @param schema T
 --- @return SerDes<T>
---- Serdes that serializes tables given a schema mapping each string key to a serdes.
+--- Serdes that serializes tables given a schema mapping each string key to a serdes.\
+--- Deserializing can take a second parameter for a pre-allocated table to write to.
 
 --[=[
 	@function table
@@ -841,7 +844,8 @@
 	@param serdes SerDes<T>
 	@return SerDes<{[T]: T}>
 	Returns SerDes for arbitrary tables of any shape, supporting mixed tables, gaps, and circular references.\
-	Uses the provided single `serdes` parameter for serializing both keys and values.
+	Uses the provided single `serdes` parameter for serializing both keys and values.\
+	Deserializing can take a second parameter for a pre-allocated table to write to.
 	
 	**It is highly recommended that you do not use this for tables you know the type of already.**
 ]=]
