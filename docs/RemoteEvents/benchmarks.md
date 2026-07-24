@@ -17,9 +17,9 @@ Before we had access to the raw binary data, we ran benchmarks! Below is our fir
 | `(true)`, `(false)`, `('')` | 0.97 | Testing if value changes cost | No. Only serialize 2 or more booleans for optimal results |
 | `('\0')`, `('a')`, `('0')` | 1.03 | Testing if value changes cost | No. Past this point, it is better to serialize to strings |
 | `('aa')`, `('', '')` | 1.09 |
-| `(true, false)`, `(false, true)`, `(\{true})` | 1.10 | Testing if bit-packed. Testing if order changes cost | No. No |
+| `(true, false)`, `(false, true)`, `({true})` | 1.10 | Testing if bit-packed. Testing if order changes cost | No. No |
 | `('aaa')`, `(Vector2int16.new(-32768, 9274))` | 1.16 |
-| `(true, true, true)`, `('aaaa')`, `('a', 'a')`, `(\{true, true})`, `('', '', '')` | 1.22 | Empty string cost measured | Empty string cost averages 0.12 KB/s. Separating arguments is costly!
+| `(true, true, true)`, `('aaaa')`, `('a', 'a')`, `({true, true})`, `('', '', '')` | 1.22 | Empty string cost measured | Empty string cost averages 0.12 KB/s. Separating arguments is costly!
 | `('aaaaa')`, `(Vector3int16.new(-32768, 9274, 32767))` | 1.28 |
 | `(true, true, true, true)` | 1.34 |
 | `('aaaaaa')` | 1.35 |
@@ -79,9 +79,9 @@ Now to apply theory, the binary suggests that `(7)` uses 1 byte for the type and
 
 ![(false)](/benchmarks/77.webp)
 
-### (\{})
+### (&#123;&#125;)
 
-![({})](/benchmarks/0.webp)
+![(&#123;&#125;)](/benchmarks/0.webp)
 
 ### ('A')
 
@@ -99,9 +99,9 @@ Now to apply theory, the binary suggests that `(7)` uses 1 byte for the type and
 
 ![(string_char(0))](/benchmarks/111.webp)
 
-### (\{true})
+### (&#123;true&#125;)
 
-![({true})](/benchmarks/79.webp)
+![(&#123;true&#125;)](/benchmarks/79.webp)
 
 ### ('aa')
 
@@ -111,9 +111,9 @@ Now to apply theory, the binary suggests that `(7)` uses 1 byte for the type and
 
 ![(true, false)](/benchmarks/78.webp)
 
-### (\{''})
+### (&#123;''&#125;)
 
-![({''})](/benchmarks/86.webp)
+![(&#123;''&#125;)](/benchmarks/86.webp)
 
 ### ('', '')
 
@@ -151,21 +151,21 @@ Now to apply theory, the binary suggests that `(7)` uses 1 byte for the type and
 
 ![('', '', '')](/benchmarks/90.webp)
 
-### (\{'', ''})
+### (&#123;'', ''&#125;)
 
-![({'', ''})](/benchmarks/100.webp)
+![(&#123;'', ''&#125;)](/benchmarks/100.webp)
 
-### (\{true, false})
+### (&#123;true, false&#125;)
 
-![({true, false})](/benchmarks/81.webp)
+![(&#123;true, false&#125;)](/benchmarks/81.webp)
 
 ### ('a', 'a')
 
 ![('a', 'a')](/benchmarks/60.webp)
 
-### (\{Vector2int16.new(-1, 3)})
+### (&#123;Vector2int16.new(-1, 3)&#125;)
 
-![({Vector2int16_new(-1, 3)})](/benchmarks/103.webp)
+![(&#123;Vector2int16_new(-1, 3)&#125;)](/benchmarks/103.webp)
 
 ### (Vector3int16.new(1, 3, 5))
 
@@ -187,9 +187,9 @@ Now to apply theory, the binary suggests that `(7)` uses 1 byte for the type and
 
 ![('aaaaa')](/benchmarks/119.webp)
 
-### (\{'a', 'a'})
+### (&#123;'a', 'a'&#125;)
 
-![({'a', 'a'})](/benchmarks/61.webp)
+![(&#123;'a', 'a'&#125;)](/benchmarks/61.webp)
 
 ### ('', '', '', '')
 
@@ -203,13 +203,13 @@ Now to apply theory, the binary suggests that `(7)` uses 1 byte for the type and
 
 ![('aaaaaa')](/benchmarks/158.webp)
 
-### (\{true, false, true})
+### (&#123;true, false, true&#125;)
 
-![({true, false, true})](/benchmarks/71.webp)
+![(&#123;true, false, true&#125;)](/benchmarks/71.webp)
 
-### (\{'', '', ''})
+### (&#123;'', '', ''&#125;)
 
-![({'', '', ''})](/benchmarks/99.webp)
+![(&#123;'', '', ''&#125;)](/benchmarks/99.webp)
 
 ### (Vector2.zero)
 
@@ -223,9 +223,9 @@ Now to apply theory, the binary suggests that `(7)` uses 1 byte for the type and
 
 ![(18375)](/benchmarks/17.webp)
 
-### (\{Vector3int16.new(-1, 3, -5)})
+### (&#123;Vector3int16.new(-1, 3, -5)&#125;)
 
-![({Vector3int16_new(-1, 3, -5)})](/benchmarks/40.webp)
+![(&#123;Vector3int16_new(-1, 3, -5)&#125;)](/benchmarks/40.webp)
 
 ### (Vector2.new(-1, 2.5))
 
@@ -267,13 +267,13 @@ Now to apply theory, the binary suggests that `(7)` uses 1 byte for the type and
 
 ![('aaaaaaaa')](/benchmarks/113.webp)
 
-### (\{true, false, true, false})
+### (&#123;true, false, true, false&#125;)
 
-![({true, false, true, false})](/benchmarks/67.webp)
+![(&#123;true, false, true, false&#125;)](/benchmarks/67.webp)
 
-### (\{'', '', '', ''})
+### (&#123;'', '', '', ''&#125;)
 
-![({'', '', '', ''})](/benchmarks/92.webp)
+![(&#123;'', '', '', ''&#125;)](/benchmarks/92.webp)
 
 ### ('', '', '', '', '')
 
@@ -287,29 +287,29 @@ Now to apply theory, the binary suggests that `(7)` uses 1 byte for the type and
 
 ![('aaaaaaaaa')](/benchmarks/117.webp)
 
-### (\{0})
+### (&#123;0&#125;)
 
-![({0})](/benchmarks/18.webp)
+![(&#123;0&#125;)](/benchmarks/18.webp)
 
-### (\{'a', 'a', 'a'})
+### (&#123;'a', 'a', 'a'&#125;)
 
-![({'a', 'a', 'a'})](/benchmarks/54.webp)
+![(&#123;'a', 'a', 'a'&#125;)](/benchmarks/54.webp)
 
-### (\{Vector2.new(1, 2)})
+### (&#123;Vector2.new(1, 2)&#125;)
 
-![({Vector2_new(1, 2)})](/benchmarks/23.webp)
+![(&#123;Vector2_new(1, 2)&#125;)](/benchmarks/23.webp)
 
-### (\{Vector2int16.new(-1, 3), Vector2int16.new(-1, 3)})
+### (&#123;Vector2int16.new(-1, 3), Vector2int16.new(-1, 3)&#125;)
 
-![({Vector2int16_new(-1, 3), Vector2int16_new(-1, 3)})](/benchmarks/107.webp)
+![(&#123;Vector2int16_new(-1, 3), Vector2int16_new(-1, 3)&#125;)](/benchmarks/107.webp)
 
 ### ('', '', '', '', '', '')
 
 ![('', '', '', '', '', '')](/benchmarks/96.webp)
 
-### (\{'', '', '', '', ''})
+### (&#123;'', '', '', '', ''&#125;)
 
-![({'', '', '', '', ''})](/benchmarks/101.webp)
+![(&#123;'', '', '', '', ''&#125;)](/benchmarks/101.webp)
 
 ### ('aaaaaaaaaa')
 
@@ -323,9 +323,9 @@ Now to apply theory, the binary suggests that `(7)` uses 1 byte for the type and
 
 ![(true, false, true, false, true, false)](/benchmarks/83.webp)
 
-### (\{true, false, true, false, true})
+### (&#123;true, false, true, false, true&#125;)
 
-![({true, false, true, false, true})](/benchmarks/68.webp)
+![(&#123;true, false, true, false, true&#125;)](/benchmarks/68.webp)
 
 ### (Vector3.one)
 
@@ -359,9 +359,9 @@ Now to apply theory, the binary suggests that `(7)` uses 1 byte for the type and
 
 ![(CFrame_identity)](/benchmarks/169.webp)
 
-### (\{true, false, true, false, true, false})
+### (&#123;true, false, true, false, true, false&#125;)
 
-![({true, false, true, false, true, false})](/benchmarks/76.webp)
+![(&#123;true, false, true, false, true, false&#125;)](/benchmarks/76.webp)
 
 ### ('', '', '', '', '', '', '')
 
@@ -375,9 +375,9 @@ Now to apply theory, the binary suggests that `(7)` uses 1 byte for the type and
 
 ![(true, false, true, false, true, false, true)](/benchmarks/72.webp)
 
-### (\{'', '', '', '', '', ''})
+### (&#123;'', '', '', '', '', ''&#125;)
 
-![({'', '', '', '', '', ''})](/benchmarks/88.webp)
+![(&#123;'', '', '', '', '', ''&#125;)](/benchmarks/88.webp)
 
 ### (CFrame.new(1, -2, 3))
 
@@ -395,9 +395,9 @@ Now to apply theory, the binary suggests that `(7)` uses 1 byte for the type and
 
 ![(CFrame_new(1, 2, 3))](/benchmarks/165.webp)
 
-### (\{'a', 'a', 'a', 'a'})
+### (&#123;'a', 'a', 'a', 'a'&#125;)
 
-![({'a', 'a', 'a', 'a'})](/benchmarks/56.webp)
+![(&#123;'a', 'a', 'a', 'a'&#125;)](/benchmarks/56.webp)
 
 ### (CFrame.new())
 
@@ -407,9 +407,9 @@ Now to apply theory, the binary suggests that `(7)` uses 1 byte for the type and
 
 ![('a', 'a', 'a', 'a', 'a')](/benchmarks/59.webp)
 
-### (\{Vector3.new(1, 2, 3)})
+### (&#123;Vector3.new(1, 2, 3)&#125;)
 
-![({Vector3_new(1, 2, 3)})](/benchmarks/44.webp)
+![(&#123;Vector3_new(1, 2, 3)&#125;)](/benchmarks/44.webp)
 
 ### (Vector2int16.new(-1, 3), Vector2int16.new(-1, 3), Vector2int16.new(-1, 3))
 
@@ -419,9 +419,9 @@ Now to apply theory, the binary suggests that `(7)` uses 1 byte for the type and
 
 ![('aaaaaaaaaaaaa')](/benchmarks/157.webp)
 
-### (\{'', '', '', '', '', '', ''})
+### (&#123;'', '', '', '', '', '', ''&#125;)
 
-![({'', '', '', '', '', '', ''})](/benchmarks/91.webp)
+![(&#123;'', '', '', '', '', '', ''&#125;)](/benchmarks/91.webp)
 
 ### ('', '', '', '', '', '', '', '')
 
@@ -435,29 +435,29 @@ Now to apply theory, the binary suggests that `(7)` uses 1 byte for the type and
 
 ![('aaaaaaaaaaaaaa')](/benchmarks/122.webp)
 
-### (\{true, false, true, false, true, false, true})
+### (&#123;true, false, true, false, true, false, true&#125;)
 
-![({true, false, true, false, true, false, true})](/benchmarks/73.webp)
+![(&#123;true, false, true, false, true, false, true&#125;)](/benchmarks/73.webp)
 
-### (\{CFrame.identity})
+### (&#123;CFrame.identity&#125;)
 
-![({CFrame_identity})](/benchmarks/183.webp)
+![(&#123;CFrame_identity&#125;)](/benchmarks/183.webp)
 
-### (\{Vector3int16.new(-1, 3, -5), Vector3int16.new(-1, 3, -5)})
+### (&#123;Vector3int16.new(-1, 3, -5), Vector3int16.new(-1, 3, -5)&#125;)
 
-![({Vector3int16_new(-1, 3, -5), Vector3int16_new(-1, 3, -5)})](/benchmarks/34.webp)
+![(&#123;Vector3int16_new(-1, 3, -5), Vector3int16_new(-1, 3, -5)&#125;)](/benchmarks/34.webp)
 
-### (\{Vector2int16.new(-1, 3), Vector2int16.new(-1, 3), Vector2int16.new(-1, 3)})
+### (&#123;Vector2int16.new(-1, 3), Vector2int16.new(-1, 3), Vector2int16.new(-1, 3)&#125;)
 
-![({Vector2int16_new(-1, 3), Vector2int16_new(-1, 3), Vector2int16_new(-1, 3)})](/benchmarks/110.webp)
+![(&#123;Vector2int16_new(-1, 3), Vector2int16_new(-1, 3), Vector2int16_new(-1, 3)&#125;)](/benchmarks/110.webp)
 
 ### ('aaaaaaaaaaaaaaa')
 
 ![('aaaaaaaaaaaaaaa')](/benchmarks/115.webp)
 
-### (\{'a', 'a', 'a', 'a', 'a'})
+### (&#123;'a', 'a', 'a', 'a', 'a'&#125;)
 
-![({'a', 'a', 'a', 'a', 'a'})](/benchmarks/66.webp)
+![(&#123;'a', 'a', 'a', 'a', 'a'&#125;)](/benchmarks/66.webp)
 
 ### (Vector2.new(1, 2), Vector2.new(1, 2))
 
@@ -475,13 +475,13 @@ Now to apply theory, the binary suggests that `(7)` uses 1 byte for the type and
 
 ![('', '', '', '', '', '', '', '', '')](/benchmarks/93.webp)
 
-### (\{true, false, true, false, true, false, true, false})
+### (&#123;true, false, true, false, true, false, true, false&#125;)
 
-![({true, false, true, false, true, false, true, false})](/benchmarks/82.webp)
+![(&#123;true, false, true, false, true, false, true, false&#125;)](/benchmarks/82.webp)
 
-### (\{'', '', '', '', '', '', '', ''})
+### (&#123;'', '', '', '', '', '', '', ''&#125;)
 
-![({'', '', '', '', '', '', '', ''})](/benchmarks/97.webp)
+![(&#123;'', '', '', '', '', '', '', ''&#125;)](/benchmarks/97.webp)
 
 ### ('a', 'a', 'a', 'a', 'a', 'a')
 
@@ -495,21 +495,21 @@ Now to apply theory, the binary suggests that `(7)` uses 1 byte for the type and
 
 ![(CFrame_fromEulerAnglesYXZ(1, -2, 3))](/benchmarks/174.webp)
 
-### (\{Vector2.new(1, 2), Vector2.new(1, 2)})
+### (&#123;Vector2.new(1, 2), Vector2.new(1, 2)&#125;)
 
-![({Vector2_new(1, 2), Vector2_new(1, 2)})](/benchmarks/27.webp)
+![(&#123;Vector2_new(1, 2), Vector2_new(1, 2)&#125;)](/benchmarks/27.webp)
 
-### (\{0, 0})
+### (&#123;0, 0&#125;)
 
-![({0, 0})](/benchmarks/20.webp)
+![(&#123;0, 0&#125;)](/benchmarks/20.webp)
 
-### (\{'', '', '', '', '', '', '', '', ''})
+### (&#123;'', '', '', '', '', '', '', '', ''&#125;)
 
-![({'', '', '', '', '', '', '', '', ''})](/benchmarks/85.webp)
+![(&#123;'', '', '', '', '', '', '', '', ''&#125;)](/benchmarks/85.webp)
 
-### (\{'a', 'a', 'a', 'a', 'a', 'a'})
+### (&#123;'a', 'a', 'a', 'a', 'a', 'a'&#125;)
 
-![({'a', 'a', 'a', 'a', 'a', 'a'})](/benchmarks/63.webp)
+![(&#123;'a', 'a', 'a', 'a', 'a', 'a'&#125;)](/benchmarks/63.webp)
 
 ### (CFrame.fromEulerAnglesYXZ(1, 2, 3) + Vector3.new(1, 2, 3))
 
@@ -547,21 +547,21 @@ Now to apply theory, the binary suggests that `(7)` uses 1 byte for the type and
 
 ![(Vector3int16_new(-1, 3, -5), Vector3int16_new(-1, 3, -5), Vector3int16_new(-1, 3, -5))](/benchmarks/37.webp)
 
-### (\{CFrame.fromEulerAnglesYXZ(1, 2, 3)})
+### (&#123;CFrame.fromEulerAnglesYXZ(1, 2, 3)&#125;)
 
-![({CFrame_fromEulerAnglesYXZ(1, 2, 3)})](/benchmarks/179.webp)
+![(&#123;CFrame_fromEulerAnglesYXZ(1, 2, 3)&#125;)](/benchmarks/179.webp)
 
 ### ('aaaaaaaaaaaaaaaaaaaa')
 
 ![('aaaaaaaaaaaaaaaaaaaa')](/benchmarks/138.webp)
 
-### (\{Vector3int16.new(-1, 3, -5), Vector3int16.new(-1, 3, -5), Vector3int16.new(-1, 3, -5)})
+### (&#123;Vector3int16.new(-1, 3, -5), Vector3int16.new(-1, 3, -5), Vector3int16.new(-1, 3, -5)&#125;)
 
-![({Vector3int16_new(-1, 3, -5), Vector3int16_new(-1, 3, -5), Vector3int16_new(-1, 3, -5)})](/benchmarks/33.webp)
+![(&#123;Vector3int16_new(-1, 3, -5), Vector3int16_new(-1, 3, -5), Vector3int16_new(-1, 3, -5)&#125;)](/benchmarks/33.webp)
 
-### (\{'a', 'a', 'a', 'a', 'a', 'a', 'a'})
+### (&#123;'a', 'a', 'a', 'a', 'a', 'a', 'a'&#125;)
 
-![({'a', 'a', 'a', 'a', 'a', 'a', 'a'})](/benchmarks/64.webp)
+![(&#123;'a', 'a', 'a', 'a', 'a', 'a', 'a'&#125;)](/benchmarks/64.webp)
 
 ### ('aaaaaaaaaaaaaaaaaaaaa')
 
@@ -583,9 +583,9 @@ Now to apply theory, the binary suggests that `(7)` uses 1 byte for the type and
 
 ![(Vector3_new(1, 2, 3), Vector3_new(1, 2, 3))](/benchmarks/46.webp)
 
-### (\{'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a'})
+### (&#123;'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a'&#125;)
 
-![({'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a'})](/benchmarks/65.webp)
+![(&#123;'a', 'a', 'a', 'a', 'a', 'a', 'a', 'a'&#125;)](/benchmarks/65.webp)
 
 ### ('aaaaaaaaaaaaaaaaaaaaaaaa')
 
@@ -611,29 +611,29 @@ Now to apply theory, the binary suggests that `(7)` uses 1 byte for the type and
 
 ![('aaaaaaaaaaaaaaaaaaaaaaaaaa')](/benchmarks/129.webp)
 
-### (\{Vector3.new(1, 2, 3), Vector3.new(1, 2, 3)})
+### (&#123;Vector3.new(1, 2, 3), Vector3.new(1, 2, 3)&#125;)
 
-![({Vector3_new(1, 2, 3), Vector3_new(1, 2, 3)})](/benchmarks/50.webp)
+![(&#123;Vector3_new(1, 2, 3), Vector3_new(1, 2, 3)&#125;)](/benchmarks/50.webp)
 
-### (\{0, 0, 0})
+### (&#123;0, 0, 0&#125;)
 
-![({0, 0, 0})](/benchmarks/15.webp)
+![(&#123;0, 0, 0&#125;)](/benchmarks/15.webp)
 
 ### ('aaaaaaaaaaaaaaaaaaaaaaaaaaa')
 
 ![('aaaaaaaaaaaaaaaaaaaaaaaaaaa')](/benchmarks/136.webp)
 
-### (\{Vector2.new(1, 2), Vector2.new(1, 2), Vector2.new(1, 2)})
+### (&#123;Vector2.new(1, 2), Vector2.new(1, 2), Vector2.new(1, 2)&#125;)
 
-![({Vector2_new(1, 2), Vector2_new(1, 2), Vector2_new(1, 2)})](/benchmarks/32.webp)
+![(&#123;Vector2_new(1, 2), Vector2_new(1, 2), Vector2_new(1, 2)&#125;)](/benchmarks/32.webp)
 
 ### ('aaaaaaaaaaaaaaaaaaaaaaaaaaaa')
 
 ![('aaaaaaaaaaaaaaaaaaaaaaaaaaaa')](/benchmarks/149.webp)
 
-### (\{CFrame.identity, CFrame.identity})
+### (&#123;CFrame.identity, CFrame.identity&#125;)
 
-![({CFrame_identity, CFrame_identity})](/benchmarks/173.webp)
+![(&#123;CFrame_identity, CFrame_identity&#125;)](/benchmarks/173.webp)
 
 ### ('aaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
 
@@ -667,9 +667,9 @@ Now to apply theory, the binary suggests that `(7)` uses 1 byte for the type and
 
 ![('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')](/benchmarks/118.webp)
 
-### (\{0, 0, 0, 0})
+### (&#123;0, 0, 0, 0&#125;)
 
-![({0, 0, 0, 0})](/benchmarks/3.webp)
+![(&#123;0, 0, 0, 0&#125;)](/benchmarks/3.webp)
 
 ### ('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
 
@@ -699,17 +699,17 @@ Now to apply theory, the binary suggests that `(7)` uses 1 byte for the type and
 
 ![('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')](/benchmarks/150.webp)
 
-### (\{Vector3.new(1, 2, 3), Vector3.new(1, 2, 3), Vector3.new(1, 2, 3)})
+### (&#123;Vector3.new(1, 2, 3), Vector3.new(1, 2, 3), Vector3.new(1, 2, 3)&#125;)
 
-![({Vector3_new(1, 2, 3), Vector3_new(1, 2, 3), Vector3_new(1, 2, 3)})](/benchmarks/52.webp)
+![(&#123;Vector3_new(1, 2, 3), Vector3_new(1, 2, 3), Vector3_new(1, 2, 3)&#125;)](/benchmarks/52.webp)
 
 ### ('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
 
 ![('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')](/benchmarks/148.webp)
 
-### (\{CFrame.fromEulerAnglesYXZ(1, 2, 3), CFrame.fromEulerAnglesYXZ(1, 2, 3)})
+### (&#123;CFrame.fromEulerAnglesYXZ(1, 2, 3), CFrame.fromEulerAnglesYXZ(1, 2, 3)&#125;)
 
-![({CFrame_fromEulerAnglesYXZ(1, 2, 3), CFrame_fromEulerAnglesYXZ(1, 2, 3)})](/benchmarks/180.webp)
+![(&#123;CFrame_fromEulerAnglesYXZ(1, 2, 3), CFrame_fromEulerAnglesYXZ(1, 2, 3)&#125;)](/benchmarks/180.webp)
 
 ### (CFrame.new(), CFrame.new(), CFrame.new())
 
@@ -723,9 +723,9 @@ Now to apply theory, the binary suggests that `(7)` uses 1 byte for the type and
 
 ![('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')](/benchmarks/155.webp)
 
-### (\{CFrame.identity, CFrame.identity, CFrame.identity})
+### (&#123;CFrame.identity, CFrame.identity, CFrame.identity&#125;)
 
-![({CFrame_identity, CFrame_identity, CFrame_identity})](/benchmarks/166.webp)
+![(&#123;CFrame_identity, CFrame_identity, CFrame_identity&#125;)](/benchmarks/166.webp)
 
 ### (0, 0, 0, 0, 0)
 
@@ -743,9 +743,9 @@ Now to apply theory, the binary suggests that `(7)` uses 1 byte for the type and
 
 ![('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')](/benchmarks/121.webp)
 
-### (\{0, 0, 0, 0, 0})
+### (&#123;0, 0, 0, 0, 0&#125;)
 
-![({0, 0, 0, 0, 0})](/benchmarks/19.webp)
+![(&#123;0, 0, 0, 0, 0&#125;)](/benchmarks/19.webp)
 
 ### ('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa')
 
@@ -763,9 +763,9 @@ Now to apply theory, the binary suggests that `(7)` uses 1 byte for the type and
 
 ![(0, 0, 0, 0, 0, 0)](/benchmarks/8.webp)
 
-### (\{0, 0, 0, 0, 0, 0})
+### (&#123;0, 0, 0, 0, 0, 0&#125;)
 
-![({0, 0, 0, 0, 0, 0})](/benchmarks/2.webp)
+![(&#123;0, 0, 0, 0, 0, 0&#125;)](/benchmarks/2.webp)
 
 ### (CFrame.fromEulerAnglesYXZ(1, 2, 3), CFrame.fromEulerAnglesYXZ(1, 2, 3), CFrame.fromEulerAnglesYXZ(1, 2, 3))
 
@@ -775,31 +775,31 @@ Now to apply theory, the binary suggests that `(7)` uses 1 byte for the type and
 
 ![(CFrame_fromEulerAnglesYXZ(1, 2, 3) + Vector3_new(1, 2, 3), CFrame_fromEulerAnglesYXZ(1, 2, 3) + Vector3_new(1, 2, 3), CFrame_fromEulerAnglesYXZ(1, 2, 3) + Vector3_new(1, 2, 3))](/benchmarks/164.webp)
 
-### (\{CFrame.fromEulerAnglesYXZ(1, 2, 3), CFrame.fromEulerAnglesYXZ(1, 2, 3), CFrame.fromEulerAnglesYXZ(1, 2, 3)})
+### (&#123;CFrame.fromEulerAnglesYXZ(1, 2, 3), CFrame.fromEulerAnglesYXZ(1, 2, 3), CFrame.fromEulerAnglesYXZ(1, 2, 3)&#125;)
 
-![({CFrame_fromEulerAnglesYXZ(1, 2, 3), CFrame_fromEulerAnglesYXZ(1, 2, 3), CFrame_fromEulerAnglesYXZ(1, 2, 3)})](/benchmarks/175.webp)
+![(&#123;CFrame_fromEulerAnglesYXZ(1, 2, 3), CFrame_fromEulerAnglesYXZ(1, 2, 3), CFrame_fromEulerAnglesYXZ(1, 2, 3)&#125;)](/benchmarks/175.webp)
 
 ### (0, 0, 0, 0, 0, 0, 0)
 
 ![(0, 0, 0, 0, 0, 0, 0)](/benchmarks/12.webp)
 
-### (\{0, 0, 0, 0, 0, 0, 0})
+### (&#123;0, 0, 0, 0, 0, 0, 0&#125;)
 
-![({0, 0, 0, 0, 0, 0, 0})](/benchmarks/21.webp)
+![(&#123;0, 0, 0, 0, 0, 0, 0&#125;)](/benchmarks/21.webp)
 
 ### (0, 0, 0, 0, 0, 0, 0, 0)
 
 ![(0, 0, 0, 0, 0, 0, 0, 0)](/benchmarks/7.webp)
 
-### (\{0, 0, 0, 0, 0, 0, 0, 0})
+### (&#123;0, 0, 0, 0, 0, 0, 0, 0&#125;)
 
-![({0, 0, 0, 0, 0, 0, 0, 0})](/benchmarks/16.webp)
+![(&#123;0, 0, 0, 0, 0, 0, 0, 0&#125;)](/benchmarks/16.webp)
 
 ### (0, 0, 0, 0, 0, 0, 0, 0, 0)
 
 ![(0, 0, 0, 0, 0, 0, 0, 0, 0)](/benchmarks/11.webp)
 
-### (\{0, 0, 0, 0, 0, 0, 0, 0, 0})
+### (&#123;0, 0, 0, 0, 0, 0, 0, 0, 0&#125;)
 
-![({0, 0, 0, 0, 0, 0, 0, 0, 0})](/benchmarks/6.webp)
+![(&#123;0, 0, 0, 0, 0, 0, 0, 0, 0&#125;)](/benchmarks/6.webp)
 

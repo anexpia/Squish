@@ -1783,7 +1783,7 @@ do
 							tryrealloc(cursor, 1)
 							pushu1(cursor, if x == math.huge then 11 else 12)
 						end
-					elseif (x % 1 ~= 0 or x >= 2^64) then
+					elseif (x % 1 ~= 0 or x >= 2^64 or x <= -2^64) then
 						local m, e = math.frexp(x)
 						
 						if e >= -13 and e <= 16 and (m * 2^11) % 1 == 0 then
@@ -2671,7 +2671,7 @@ do
 				local success, readresult = safeUnwrapSerdes(readresult) 
 
 				if (index.tag == "string" or index.tag == "any") and (success or readresult.tag == "any") then
-					return types.newtable(nil, {index = index, readresult = t, writeresult = t})
+					return types.newtable(nil, {index = index, readresult = readresult, writeresult = readresult})
 				end
 
 				print(`Expected to be provided a record containing string:SerDes pairs, but got a table with {index.tag}:{if success then "SerDes" else readresult.tag} pairs.`)
@@ -3786,9 +3786,8 @@ if CFrame ~= nil then
 	
 	for i, v in idToRotation do
 		local axis, theta = v:ToAxisAngle()
-		axis *= math.sin(theta / 2)
-
-		rotationToId[axis * theta] = i
+		local hashcheckvec = vector.floor(((axis :: vector) * theta) * 1000) / 1000
+		rotationToId[hashcheckvec] = i
 	end
 
 	local range = (2^15 - 0.5)
@@ -3797,7 +3796,8 @@ if CFrame ~= nil then
 	
 	local function SerRotation(cursor: Cursor, cframe: CFrame, sizeoffset: number?)
 		local axis, theta = ToAxisAngle(cframe)
-		local specialId = rotationToId[axis * theta]
+		local hashcheckvec = vector.floor(((axis :: vector) * theta) * 1000) / 1000
+		local specialId = rotationToId[hashcheckvec]
 
 		if specialId then
 			tryrealloc(cursor, 1 + (sizeoffset or 0))				
@@ -5230,7 +5230,7 @@ do
 								tryrealloc(cursor, 1)
 								pushu1(cursor, if x == math.huge then hugeid else nhugeid)
 							end
-						elseif (x % 1 ~= 0 or x >= 2^64) then
+						elseif (x % 1 ~= 0 or x >= 2^64 or x <= -2^64) then
 							local m, e = math.frexp(x)
 							
 							if e >= -13 and e <= 16 and (m * 2^11) % 1 == 0 then

@@ -68,17 +68,17 @@ In Luau, the `number` type is 8 bytes large, but only 52 of the bits are dedicat
 
 Unsigned integers are whole numbers that can be serialized using 1 to 8 bytes.
 
-***N = \{ 0, 1, 2, 3, 4, 5, . . . }***
+***N = &#123; 0, 1, 2, 3, 4, 5, . . . &#125;***
 
 They may only be positive and can represent all possible permutations of their bits. These are the easiest to wrap our heads around and manipulate. They are often used to implement [Fixed Point](https://en.wikipedia.org/wiki/Fixed-point_arithmetic) numbers by multiplying by some scale factor and shifting by some offset, then doing the reverse when deserializing.
 
 | Bytes | Range | Min | Max |
 | - | - | - | - |
-| ***1*** | **\{ 0, 1, 2, 3, . . . , 253, 254, 255 }** | ***0*** | ***255*** |
-| ***2*** | **\{ 0, 1, 2, 3, . . . , 65,534, 65,535 }** | ***0*** | ***65,535*** |
-| ***3*** | **\{ 0, 1, 2, 3, . . . , 16,777,214, 16,777,215 }** | ***0*** | ***16,777,215*** |
+| ***1*** | **&#123; 0, 1, 2, 3, . . . , 253, 254, 255 &#125;** | ***0*** | ***255*** |
+| ***2*** | **&#123; 0, 1, 2, 3, . . . , 65,534, 65,535 &#125;** | ***0*** | ***65,535*** |
+| ***3*** | **&#123; 0, 1, 2, 3, . . . , 16,777,214, 16,777,215 &#125;** | ***0*** | ***16,777,215*** |
 | . . . | . . . | . . . | . . . |
-| ***n*** | **\{ 0, 1, 2, 3, . . . , 2^(8n) - 2, 2^(8n) - 1 }** | ***0*** | ***2^(8n) - 1*** |
+| ***n*** | **&#123; 0, 1, 2, 3, . . . , 2^(8n) - 2, 2^(8n) - 1 &#125;** | ***0*** | ***2^(8n) - 1*** |
 
 **WARNING:** Using 7 or 8 bytes puts uints outside the 52 bit range of representation, leading to inaccurate results.
 
@@ -126,17 +126,17 @@ print(Squish.u16().des(cursor))
 
 Signed Integers are Integers that can be serialized with 1 through 8 bytes:
 
-***Z = \{ ..., -2, -1, 0, 1, 2, 3, ... }***
+***Z = &#123; ..., -2, -1, 0, 1, 2, 3, ... &#125;***
 
 They use [2's Compliment](https://en.wikipedia.org/wiki/Two%27s_complement) to represent negative numbers. The first bit is called the *sign bit* and the rest of the bits are called the *magnitude bits*. The sign bit is 0 for positive numbers and 1 for negative numbers. This implies the range of signed integers is one power of two smaller than the range of unsigned integers with the same number of bits, because the sign bit is not included in the magnitude bits.
 
 | Bytes | Range | Min | Max |
 | - | - | - | - |
-| ***1*** | **\{ -128, -127, . . . , 126, 127 }** | ***-128*** | ***127*** |
-| ***2*** | **\{ -32,768, -32,767, . . . , 32,766, 32,767 }** | ***-32,768*** | ***32,767*** |
-| ***3*** | **\{ -8,388,608, -8,388,607, . . . , 8,388,606, 8,388,607 }** | ***-8,388,608*** | ***8,388,607*** |
+| ***1*** | **&#123; -128, -127, . . . , 126, 127 &#125;** | ***-128*** | ***127*** |
+| ***2*** | **&#123; -32,768, -32,767, . . . , 32,766, 32,767 &#125;** | ***-32,768*** | ***32,767*** |
+| ***3*** | **&#123; -8,388,608, -8,388,607, . . . , 8,388,606, 8,388,607 &#125;** | ***-8,388,608*** | ***8,388,607*** |
 | . . . | . . . | . . . | . . . |
-| ***n*** | **\{ -2^(8n - 1), -2^(8n - 1) + 1, . . . , 2^(8n - 1) - 2, 2^(8n - 1) - 1 }** | ***-2^(8n - 1)*** | ***2^(8n - 1) - 1*** |
+| ***n*** | **&#123; -2^(8n - 1), -2^(8n - 1) + 1, . . . , 2^(8n - 1) - 2, 2^(8n - 1) - 1 &#125;** | ***-2^(8n - 1)*** | ***2^(8n - 1) - 1*** |
 
 **WARNING:** Using 7 or 8 bytes puts ints outside the 52 bit range of representation, leading to inaccurate results.
 
@@ -197,7 +197,7 @@ print(Squish.i8().des(cursor))
 
 Floating Point Numbers are Rational Numbers that can be represented with either 4 or 8 bytes:
 
-***Q = \{ ..., -2.0, ..., -1.0, ..., 0.0, ..., 1.0, ..., 2.0, ... }***
+***Q = &#123; ..., -2.0, ..., -1.0, ..., 0.0, ..., 1.0, ..., 2.0, ... &#125;***
 
 With 4 bytes (called a `float`), the possible values that can be represented are a bit more complicated. The first bit is used to represent the sign of the number, the next 8 bits are used to represent the exponent, and the last 23 bits are used to represent the mantissa.
 
@@ -374,7 +374,7 @@ print(Squish.string(13).des(cursor))
 
 There are many ways to compress serialized strings, a lossless approach is to treat the string itself as a number and convert the number into a higher base, or radix. This is called [base conversion](https://en.wikipedia.org/wiki/Radix). Strings come in many different *flavors* though, so we need to know how to serialize each *flavor*. Each string is composed of a sequence of certain characters. The set of those certain characters is called that string's smallest **Alphabet**. For example the string ***"Hello, World!"*** has the alphabet ***" !,HWdelorw"***. We can assign a number to each character in the alphabet like its position in the string. With our example:
 ```lua
-\{
+{
 	[' '] = 1, ['!'] = 2, [','] = 3, ['H'] = 4, ['W'] = 5,
 	['d'] = 6, ['e'] = 7, ['l'] = 8, ['o'] = 9, ['r'] = 10,
 	['w'] = 11,
@@ -419,7 +419,7 @@ print(Squish.string.convert(y, Squish.string.binary, Squish.string.duodecimal))
 print(Squish.string.convert(y, Squish.string.binary, Squish.string.hexadecimal))
 -- 7B
 print(Squish.string.convert(y, Squish.string.binary, Squish.string.utf8))
--- \{
+-- {
 ```
 
 ## Literals
@@ -522,7 +522,7 @@ print(anyArray.des(cursor)) -- will print an identical array to the 'values' one
 
 ## Arrays
 
-**[Array](../api/Squish#array)**s are a classic table type `\{T}`. Like strings, which are also arrays (of bytes), after serializing every element in sequence we append a VLQ representing the count. An array can store an array or any other table type.
+**[Array](../api/Squish#array)**s are a classic table type `{T}`. Like strings, which are also arrays (of bytes), after serializing every element in sequence we append a VLQ representing the count. An array can store an array or any other table type.
 
 ```lua
 local arr = Squish.array
@@ -530,7 +530,7 @@ local float = Squish.f32()
 local myarr = arr(float)
 
 local cursor = Squish.cursor()
-myarr.ser(cursor, \{1, 2, 3, 4, 5.5, 6.6, -7.7, -8.9, 10.01})
+myarr.ser(cursor, {1, 2, 3, 4, 5.5, 6.6, -7.7, -8.9, 10.01})
 Squish.print(cursor)
 -- Pos: 37 / 40
 -- Buf: { 0 0 128 63 0 0 0 64 0 0 64 64 0 0 128 64 0 0 176 64 51 51 211 64 102 102 246 192 102 102 14 193 246 40 32 65 137 0 0 0 }
@@ -548,7 +548,7 @@ local float = Squish.f32()
 local myarr = arr(float, 8)
 
 local cursor = Squish.cursor()
-myarr.ser(cursor, \{1, 2, 3, 4, 5.5, 6.6, -7.7, -8.9, 10.01})
+myarr.ser(cursor, {1, 2, 3, 4, 5.5, 6.6, -7.7, -8.9, 10.01})
 Squish.print(cursor)
 -- Pos: 32 / 40
 -- Buf: { 0 0 128 63 0 0 0 64 0 0 64 64 0 0 128 64 0 0 176 64 51 51 211 64 102 102 246 192 102 102 14 193 0 0 0 0 0 0 0 0 }
@@ -562,7 +562,7 @@ print(myarr.des(cursor))
 
 ## Maps
 
-**[Map](../api/Squish#map)**s are a classic table type `\{ [T]: U }` that map T's to U's. A map can store a map or any other table type.
+**[Map](../api/Squish#map)**s are a classic table type `{ [T]: U }` that map T's to U's. A map can store a map or any other table type.
 
 ```lua
 local u = Squish.uint
@@ -571,7 +571,7 @@ local vec2 = Squish.Vector2
 local mymap = Squish.map(vec2(u(2)), vec3(u(3)))
 
 local cursor = Squish.cursor()
-mymap.ser(cursor, \{
+mymap.ser(cursor, {
     [Vector2.new(1, 2)] = Vector3.new(1, 2, 3),
     [Vector2.new(4, 29)] = Vector3.new(4, 29, 33),
     [Vector2.new(72, 483)] = Vector3.new(72, 483, 555),
@@ -584,7 +584,7 @@ local buf = Squish.tobuffer(cursor)
 
 local cursor = Squish.frombuffer(buf)
 print(mymap.des(cursor))
--- \{
+-- {
 --    [Vector2(24346692898)] = 72, 483, 555,
 --    [Vector2(243466928B0)] = 4, 29, 33,
 --    [Vector2(243466928C8)] = 1, 2, 3
@@ -593,7 +593,7 @@ print(mymap.des(cursor))
 
 ## Records
 
-**[Record](../api/Squish#record)**s (Structs) `\{ prop1: any, prop2: any, ... }` map enumerated string identifiers to different values, like a named tuple. Because all keys are string literals known ahead of time, none of them have to be serialized! A record can store a record or any other table type.
+**[Record](../api/Squish#record)**s (Structs) `{ prop1: any, prop2: any, ... }` map enumerated string identifiers to different values, like a named tuple. Because all keys are string literals known ahead of time, none of them have to be serialized! A record can store a record or any other table type.
 
 When defining compound types the code can become verbose and difficult to read. If this is an issue, it is encouraged to store each SerDes in a variable with a shorter name.
 
@@ -610,12 +610,12 @@ local map = Squish.map
 local opt = Squish.opt
 local record = Squish.record
 
-local playerserdes = record \{
+local playerserdes = record {
     position = T(vec2(float)),
     health = T(u(1)),
     name = T(str),
     poisoned = T(bool),
-    items = T(arr(record \{
+    items = T(arr(record {
         count = T(vlq),
         name = T(str),
     })),
@@ -624,17 +624,17 @@ local playerserdes = record \{
 }
 
 local cursor = Squish.cursor()
-playerserdes.ser(cursor, \{
+playerserdes.ser(cursor, {
     position = Vector2.new(287.3855, -13486.3),
     health = 9,
     name = "Cedrick",
     poisoned = true,
-    items = \{
-        \{ name = 'Lantern', count = 2 },
-        \{ name = 'Waterskin', count = 1 },
-        \{ name = 'Map', count = 4 },
+    items = {
+        { name = 'Lantern', count = 2 },
+        { name = 'Waterskin', count = 1 },
+        { name = 'Map', count = 4 },
     },
-    inns = \{
+    inns = {
         ['The Copper Cauldron'] = true,
         Infirmary = true,
         ['His Recess'] = true,
@@ -649,7 +649,7 @@ local buf = Squish.tobuffer(cursor)
 
 local cursor = Squish.frombuffer(buf)
 print(playerserdes.des(cursor))
--- \{
+-- {
 --     ["health"] = 9,
 --     ["inns"] =  ▼  {
 --        ["His Recess"] = true,
@@ -700,16 +700,16 @@ local serdes = Squish.table(Squish.variant({
 }))
 
 local cursor = Squish.cursor()
-serdes.ser(cursor, \{
+serdes.ser(cursor, {
     wow = -5.352345,
     [23846.4522] = true,
     [false] = 'Gaming!',
     ThisWontSerialize = DateTime.now(),
-    [\{
+    [{
         CFrame.new(-24.2435, 2, 3), CFrame.new(), Vector3.new(354, -245, -23),
         [100] = Vector3.zAxis,
         [Vector3.zero] = 255,
-    }] = \{
+    }] = {
         [1] = CFrame.identity,
         [2] = Vector3.zero,
         [3] = 256,
@@ -720,7 +720,7 @@ local buf = Squish.tobuffer(cursor)
 
 local cursor = Squish.frombuffer(buf)
 print(serdes.des(cursor))
--- \{
+-- {
 --     ["wow"] = -5.352345,
 --     [23846.4522] = true,
 --     [Table(24BE4A11A98)] =  ▼  {
