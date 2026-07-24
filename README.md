@@ -16,11 +16,11 @@ Documentation is present [here](https://anexpia.github.io/Squish).
 - **Pesde**:
 ```bash
 pesde add anexpia/squish
-psede install
+pesde install
 ```
 
 - **Wally**:
 Add to your `wally.toml` under `[dependencies]`:
 ```toml
-Squish = "anexpia/squish@6.0.0"
+Squish = "anexpia/squish@6.0.2"
 ```
