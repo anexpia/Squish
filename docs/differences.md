@@ -31,6 +31,7 @@ Many of the SerDes were rewritten to be more performant. Below are the public-fa
 - [ **NEW** ] **[number](../api/Squish#number)**: Serdes accepting any number of any size.
 - [ **NEW** ] **[Nil](../api/Squish#Nil)**: Serdes for.. nil.
 - [ **NEW** ] **[dedup](../api/Squish#dedup)**: Serdes that deduplicates serialized values.
+- [ **NEW** ] **[ref](../api/Squish#ref)**: Serdes that adds values to `cursor.refs` table, useful for types that aren't supported.
 - [ **NEW** ] **[Color3f16](../api/Squish#Color3f16)**: Serdes for color3, but not restricted to \[0-255] range.
 - [ **NEW** ] **[Instance](../api/Squish#Instance)**: Serdes for Instances.
 - [ **NEW** ] **[variant](../api/Squish#variant)**: Serdes for multiple types and literals combined.

@@ -2,5 +2,5 @@
 # It is not intended for manual editing.
 format = 2
 name = "anexpia/squish"
-version = "6.0.2"
+version = "6.1.0"
 target = "luau"

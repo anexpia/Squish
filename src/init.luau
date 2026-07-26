@@ -14,7 +14,7 @@ local VALIDATION_ENABLED = false
 local has4wideVectors = pcall(function() return vector.create(0,0,0).w end)
 local kcachemtbl = {__mode = "k"}
 local kvcachemtbl = {__mode = "kv"}
-
+local vcachemtbl = {__mode = "v"}
 
 export type SquishRaycastResult = {
 	Distance: number,
@@ -88,14 +88,6 @@ type Length = number
 
 type AnyTable = {[any]: any}
 type NeverTable = {never}
-
-type function getErrorTable()
-	return NeverTable
-end
-
-type function getAnyTable()
-	return AnyTable
-end
 
 type function optional(t: type, default: type)
 	if (not t) or t.tag == "nil" or t.tag == "unknown" or t.tag == "any" then return default end
@@ -2552,7 +2544,7 @@ do
 			local success, t = safeUnwrapSerdes(t) 
 			if not success then
 				print(`Expected provided parameter [{i}] to be a SerDes, but got {t.tag}.`)
-				return getErrorTable()
+				return NeverTable
 			end
 
 			args.head[i] = t
@@ -2562,7 +2554,7 @@ do
 			local success, t = safeUnwrapSerdes(args.tail) 
 			if not success then
 				print(`Expected provided parameter [tail] to be a SerDes, but got {t.tag}.`)
-				return getErrorTable()
+				return NeverTable
 			end
 
 			args.tail = safeUnwrapSerdes(args.tail) 
@@ -2635,9 +2627,9 @@ end
 do
 	type function UnwrapRecord(defType: type)
 		if not defType:is("table") then
-			if defType.tag == "any" then return getAnyTable() end
+			if defType.tag == "any" then return AnyTable end
 			print("records expect a table containing string:SerDes pairs.")
-			return getErrorTable()
+			return NeverTable
 		end
 
 		local props = defType:properties()
@@ -2649,7 +2641,7 @@ do
 		for keyType, propData in props do
 			if not (keyType:is("singleton") and typeof(keyType:value()) == "string") then
 				print("Expected key to be a string, but got " .. keyType.tag)
-				return getErrorTable()
+				return NeverTable
 			end
 
 			local serdesType = propData.read
@@ -2671,10 +2663,10 @@ do
 				end
 
 				print(`Expected record definition valuetype to be SerDes, but got {serdesType.tag} for {keyType:value()}`)
-				return getErrorTable()
+				return NeverTable
 			else 
 				print(`Expected record definition valuetype to be SerDes, but got nothing for {keyType:value()}`)
-				return getErrorTable()
+				return NeverTable
 			end
 
 		end
@@ -2696,7 +2688,7 @@ do
 				print("Expected to be provided a record containing string:SerDes pairs, but got nothing.")
 			end
 
-			return getErrorTable()
+			return NeverTable
 		end
 
 		return types.newtable(newProps)
@@ -2896,29 +2888,35 @@ do
 end
 
 do
-	local mapCache = setmetatable({}, kvcachemtbl)
-	
+	local mapCache = setmetatable({}, kcachemtbl)
+
 	-- Returns a SerDes for dictionaries, with optional parameter for how long the map should always be.
 	-- Serialization of keys and values is determined by keySerDes and valueSerDes.
 	-- if the type of a key or value is not supported, it may error or behave unpredictably.
 	function Squish.map<K, V>(keySerDes: SerDes<K>, valueSerDes: SerDes<V>, length: Length?): SerDes<{ [K]: V }>
 
-
 		assertIsSerdes(keySerDes, 1)
 		assertIsSerdes(valueSerDes, 2)
 		assertIsLength(length, 3)
 
-		local cachekey = tostring(keySerDes) .. tostring(valueSerDes) .. tostring(length)
-		if mapCache[cachekey] then
-			return mapCache[cachekey]
-		end
+		keySerDes = Squish.unopt(keySerDes)
+		valueSerDes = Squish.unopt(valueSerDes)
 
-		if optMap[keySerDes] then
-			keySerDes = optMap[keySerDes]
-		end
+		local cache = mapCache[keySerDes]
+		local subcache = cache and cache[valueSerDes]
+		local key = length or 0
 
-		if optMap[valueSerDes] then
-			valueSerDes = optMap[valueSerDes]
+		if subcache then
+			local old = subcache[key]
+			if old then return old end
+		else
+			subcache = setmetatable({}, vcachemtbl)
+
+			if cache then cache[valueSerDes] = subcache
+			else
+				cache = setmetatable({[valueSerDes] = subcache}, kcachemtbl)
+				mapCache[keySerDes] = cache
+			end
 		end
 
 		local map = {
@@ -2966,23 +2964,24 @@ do
 			end,
 		}
 
-		mapCache[cachekey] = map 
-		
+		subcache[key] = map 
+
 		return map
 	end
 end
 
-do
-	local nilidkey, nanidkey = table.freeze{}, table.freeze{}
+local nilidkey, nanidkey = table.freeze{}, table.freeze{}
 	
-	local commonmtbl = {
-		__index = function(self, key)
-			if key == nil then return rawget(self, nilidkey)
-			elseif key ~= key then return rawget(self, nanidkey) end 
+local literalsmap_mtbl = {
+	__index = function(self, key)
+		if key == nil then return rawget(self, nilidkey)
+		elseif key ~= key then return rawget(self, nanidkey) end 
 			
-			return nil
-		end,
-	}
+		return nil
+	end,
+}
+	
+do
 	
 	-- Returns SerDes for only values that are provided to this function. 
 	function Squish.literal<T>(array: {T}): SerDes<T>
@@ -2999,7 +2998,7 @@ do
 		end
 
 		if map[nanidkey] then
-			setmetatable(map, commonmtbl)
+			setmetatable(map, literalsmap_mtbl)
 		end
 
 		local serdes: SerDes<any> = {
@@ -3049,17 +3048,19 @@ do
 		for i = 1, select("#", ...) do 
 			local v = select(i, ...)
 
-			if literalsMap[v] then continue end 
+			if literalsMap[v] then continue end
+			if v ~= v and literalsMap[nanidkey] then continue end
+			if v == nil and literalsMap[nilidkey] then continue end
 
 			lastidx += 1
 			literals[lastidx] = v 
 
 			if v ~= v then
 				literalsMap[nanidkey] = lastidx
-				setmetatable(literalsMap, commonmtbl)
+				setmetatable(literalsMap, literalsmap_mtbl)
 			elseif v == nil then 
 				literalsMap[nilidkey] = lastidx
-				setmetatable(literalsMap, commonmtbl)
+				setmetatable(literalsMap, literalsmap_mtbl)
 			else 
 				literalsMap[v] = lastidx
 			end
@@ -3229,7 +3230,7 @@ do
 			end,
 		}
 		
-		tableCache[tbl] = tbl
+		tableCache[serdes] = tbl
 		return tbl
 	end
 end
@@ -3298,7 +3299,7 @@ do
 					if VALIDATION_ENABLED then beginValidationScope(cursor, "vector (4)") assertSerializeType(cursor, x, vectortype) end
 
 					tryrealloc(cursor, 16)
-					local buf, pos = getbuf(cursor), incrementpos(cursor, 12)
+					local buf, pos = getbuf(cursor), incrementpos(cursor, 16)
 					buffer.writef32(buf, pos, x.w)
 					buffer.writef32(buf, pos + 4, x.z)
 					buffer.writef32(buf, pos + 8, x.y)
@@ -3716,6 +3717,12 @@ if Enum ~= nil then
 end
 
 if CatalogSearchParams ~= nil then
+	local assettypeserdes = enumitem(Enum.AssetType)
+	local salestypefilterserdes = enumitem(Enum.SalesTypeFilter)
+	local categoryfilterserdes = enumitem(Enum.CatalogCategoryFilter)
+	local sortaggregationserdes = enumitem(Enum.CatalogSortAggregation)
+	local sorttypeserdes = enumitem(Enum.CatalogSortType)
+
 	local catalogSearchParamsCache: SerDes<CatalogSearchParams> = {
 		type = "CatalogSearchParams",
 		name = "CatalogSearchParams",
@@ -3729,12 +3736,12 @@ if CatalogSearchParams ~= nil then
 			pushu4(cursor, params.MaxPrice)
 			pushstr(cursor, params.CreatorName)
 			pushstr(cursor, params.SearchKeyword)
-			enumitem(Enum.CatalogSortType).ser(cursor, params.SortType)
-			enumitem(Enum.CatalogSortAggregation).ser(cursor, params.SortAggregation)
-			enumitem(Enum.CatalogCategoryFilter).ser(cursor, params.CategoryFilter)
-			enumitem(Enum.SalesTypeFilter).ser(cursor, params.SalesTypeFilter)
+			sorttypeserdes.ser(cursor, params.SortType)
+			sortaggregationserdes.ser(cursor, params.SortAggregation)
+			categoryfilterserdes.ser(cursor, params.CategoryFilter)
+			salestypefilterserdes.ser(cursor, params.SalesTypeFilter)
 			for _, assetType in params.AssetTypes do
-				enumitem(Enum.AssetType).ser(cursor, assetType)
+				assettypeserdes.ser(cursor, assetType)
 			end
 			pushvlqrealloc(cursor, #params.AssetTypes)
 
@@ -3746,14 +3753,14 @@ if CatalogSearchParams ~= nil then
 			local assetCount = popvlq(cursor)
 			local assetTypes = table.create(assetCount)
 			for i = assetCount, 1, -1 do
-				assetTypes[i] = enumitem(Enum.AssetType).des(cursor) :: Enum.AssetType
+				assetTypes[i] = assettypeserdes.des(cursor) :: Enum.AssetType
 			end
 			params.AssetTypes = assetTypes
 
-			params.SalesTypeFilter = enumitem(Enum.SalesTypeFilter).des(cursor)
-			params.CategoryFilter = enumitem(Enum.CatalogCategoryFilter).des(cursor) :: Enum.CatalogCategoryFilter
-			params.SortAggregation = enumitem(Enum.CatalogSortAggregation).des(cursor)
-			params.SortType = enumitem(Enum.CatalogSortType).des(cursor) :: Enum.CatalogSortType
+			params.SalesTypeFilter = salestypefilterserdes.des(cursor)
+			params.CategoryFilter = categoryfilterserdes.des(cursor) :: Enum.CatalogCategoryFilter
+			params.SortAggregation = sortaggregationserdes.des(cursor)
+			params.SortType = sorttypeserdes.des(cursor) :: Enum.CatalogSortType
 			params.SearchKeyword = popstr(cursor)
 			params.CreatorName = popstr(cursor)
 			params.MaxPrice = popu4(cursor)
@@ -3920,7 +3927,7 @@ if CFrame ~= nil then
 
 				local push = push 
 				
-				SerRotation(cursor, cframe, 12)
+				SerRotation(cursor, cframe, size)
 
 				local pos = cframe.Position
 				push(cursor, pos.Z)
@@ -4003,19 +4010,19 @@ if ColorSequenceKeypoint ~= nil then
 	function pushcolorsequencekeypoint(cursor, keypoint)
 		local x = keypoint.Value
 		
-		tryrealloc(cursor, 4)
-		local buf, pos = getbuf(cursor), incrementpos(cursor, 4)
-		buffer.writeu8(buf, pos, math.round(x.B * 255))
+		local buf, pos = getbuf(cursor), incrementpos(cursor, 5)
+		buffer.writeu8(buf, pos, math.round(x.R * 255))
 		buffer.writeu8(buf, pos + 1, math.round(x.G * 255))
-		buffer.writeu8(buf, pos + 2, math.round(x.R * 255))
-		buffer.writeu8(buf, pos + 3, math.round(keypoint.Time * 255))
+		buffer.writeu8(buf, pos + 2, math.round(x.B * 255))
+		buffer.writeu16(buf, pos + 3, math.round(keypoint.Time * 65535))
 	end
 
 	function popcolorsequencekeypoint(cursor)
-		local buf, pos = getbuf(cursor), incrementpos(cursor, -4)
+		local buf, pos = getbuf(cursor), decrementpos(cursor, 5)
 		
-		local time = buffer.readu8(buf, pos - 1) / 255
-		local color = Color3.fromRGB(buffer.readu8(buf, pos - 2), buffer.readu8(buf, pos - 3), buffer.readu8(buf, pos - 4))
+		local color = Color3.fromRGB(buffer.readu8(buf, pos), buffer.readu8(buf, pos + 1), buffer.readu8(buf, pos + 2))
+		local time = buffer.readu16(buf, pos + 3) / 65535
+
 		return ColorSequenceKeypoint.new(time, color)
 	end
 
@@ -4025,7 +4032,7 @@ if ColorSequenceKeypoint ~= nil then
 		ser = function(cursor: Cursor, x: ColorSequenceKeypoint)
 			if VALIDATION_ENABLED then beginValidationScope(cursor, "ColorSequenceKeypoint") assertSerializeType(cursor, x, "ColorSequenceKeypoint") end
 
-			tryrealloc(cursor, 4)
+			tryrealloc(cursor, 5)
 			pushcolorsequencekeypoint(cursor, x)
 
 			if VALIDATION_ENABLED then exitValidationScope(cursor) end
@@ -4047,7 +4054,7 @@ if ColorSequence ~= nil then
 		ser = function(cursor: Cursor, sequence: ColorSequence)
 			if VALIDATION_ENABLED then beginValidationScope(cursor, "ColorSequence") assertSerializeType(cursor, sequence, "ColorSequence") end
 
-			tryrealloc(cursor, 4 * #sequence.Keypoints)
+			tryrealloc(cursor, 5 * #sequence.Keypoints)
 			for _, keypoint in sequence.Keypoints do
 				pushcolorsequencekeypoint(cursor, keypoint)
 			end
@@ -4174,13 +4181,14 @@ if Font ~= nil then
 			if VALIDATION_ENABLED then beginValidationScope(cursor, "Font") assertSerializeType(cursor, font, "Font") end
 
 			local assetId = string.match(font.Family, "^rbxassetid://(%d+)$")
+			local id = 0
+
 			if assetId then
-				tryrealloc(cursor, 5)
+				tryrealloc(cursor, 5) -- u4 num, u1 id
 				pushu4(cursor, tonumber(assetId) :: number)
-				pushu1(cursor, 0)
 			else
 				local builtinName = string.match(font.Family, "^rbxasset://fonts/families/(.+).json$")
-				local id, towrite 
+				local towrite 
 
 				if builtinName then
 					id = 1
@@ -4190,12 +4198,11 @@ if Font ~= nil then
 					towrite = font.Family
 				end
 
-				tryrealloc(cursor, #towrite + 2)
+				tryrealloc(cursor, #towrite + 1) -- string, u1 id
 				pushstr(cursor, towrite)
-				pushu1(cursor, id)
 			end
 
-			pushbool(cursor, font.Bold)
+			pushu1(cursor, id)
 			weightenumser(cursor, font.Weight)
 			styleenumser(cursor, font.Style)
 
@@ -4205,7 +4212,6 @@ if Font ~= nil then
 		des = function(cursor): Font
 			local style = styleenumdes(cursor) :: Enum.FontStyle
 			local weight = weightenumdes(cursor) :: Enum.FontWeight
-			local bold = popbool(cursor)
 			local fontType = popu1(cursor)
 			local familyUri
 
@@ -4217,9 +4223,7 @@ if Font ~= nil then
 				familyUri = popstr(cursor)
 			end
 
-			local font = Font.new(familyUri, weight, style)
-			font.Bold = bold
-			return font
+			return Font.new(familyUri, weight, style)
 		end,
 	}
 
@@ -4385,25 +4389,32 @@ if NumberSequence ~= nil then
 end
 
 if OverlapParams ~= nil then
+	local filtertypeserdes = enumitem(Enum.RaycastFilterType)
+	
 	local overlapParamsCache: SerDes<OverlapParams> = {
 		type = "OverlapParams",
 		name = "OverlapParams",
 		ser = function(cursor: Cursor, params: OverlapParams)
 			if VALIDATION_ENABLED then beginValidationScope(cursor, "OverlapParams") assertSerializeType(cursor, params, "OverlapParams") end
 
-			tryrealloc(cursor, 1 + 2 + #params.CollisionGroup)
+			local collisiongroup = params.CollisionGroup
+
+			tryrealloc(cursor, 3 + #collisiongroup)
 			pushboolpack(cursor, params.BruteForceAllSlow, params.RespectCanCollide)
 			pushu2(cursor, params.MaxParts)
-			pushstr(cursor, params.CollisionGroup)
-			enumitem(Enum.RaycastFilterType).ser(cursor, params.FilterType)
+
+			pushstr(cursor, collisiongroup)
+			filtertypeserdes.ser(cursor, params.FilterType)
 
 			if VALIDATION_ENABLED then exitValidationScope(cursor) end
 		end,
 
 		des = function(cursor): OverlapParams
 			local params = OverlapParams.new()
-			params.FilterType = enumitem(Enum.RaycastFilterType).des(cursor) :: Enum.RaycastFilterType
+
+			params.FilterType = filtertypeserdes.des(cursor)
 			params.CollisionGroup = popstr(cursor)
+
 			params.MaxParts = popu2(cursor)
 			params.BruteForceAllSlow, params.RespectCanCollide = popboolpack(cursor)
 			return params
@@ -4418,25 +4429,33 @@ if OverlapParams ~= nil then
 end
 
 if RaycastParams ~= nil then
+	local filtertypeserdes = enumitem(Enum.RaycastFilterType)
+
 	local raycastParamsCache: SerDes<RaycastParams> = {
 		type = "RaycastParams",
 		name = "RaycastParams",
 		ser = function(cursor: Cursor, params: RaycastParams)
 			if VALIDATION_ENABLED then beginValidationScope(cursor, "RaycastParams") assertSerializeType(cursor, params, "RaycastParams") end
 
-			tryrealloc(cursor, 1 + #params.CollisionGroup)
+			local collisiongroup = params.CollisionGroup
+
+			tryrealloc(cursor, 1 + #collisiongroup)
 			pushboolpack(cursor, params.BruteForceAllSlow, params.RespectCanCollide, params.IgnoreWater)
-			pushstr(cursor, params.CollisionGroup)
-			enumitem(Enum.RaycastFilterType).ser(cursor, params.FilterType)
+
+			pushstr(cursor, collisiongroup)
+			filtertypeserdes.ser(cursor, params.FilterType)
 
 			if VALIDATION_ENABLED then exitValidationScope(cursor) end
 		end,
 
 		des = function(cursor): RaycastParams
 			local params = RaycastParams.new()
-			params.FilterType = enumitem(Enum.RaycastFilterType).des(cursor) :: Enum.RaycastFilterType
+
+			params.FilterType = filtertypeserdes.des(cursor)
 			params.CollisionGroup = popstr(cursor)
+
 			params.BruteForceAllSlow, params.RespectCanCollide, params.IgnoreWater = popboolpack(cursor)
+
 			return params
 		end,
 	}
@@ -4800,6 +4819,7 @@ end
 
 if RotationCurveKey ~= nil then
 	local rotationCurveKeyCache = setmetatable({}, kvcachemtbl)
+	local interpolationmodeserdes = enumitem(Enum.KeyInterpolationMode)
 
 	-- Returns SerDes for 'RotationCurveKey' datatype, with optional parameter for which SerDes to use.
 	-- Defaults to f32.
@@ -4824,7 +4844,7 @@ if RotationCurveKey ~= nil then
 			ser = function(cursor: Cursor, key: RotationCurveKey)
 				if VALIDATION_ENABLED then beginValidationScope(cursor, "RotationCurveKey") assertSerializeType(cursor, key, "RotationCurveKey") end
 
-				enumitem(Enum.KeyInterpolationMode).ser(cursor, key.Interpolation)
+				interpolationmodeserdes.ser(cursor, key.Interpolation)
 				pushrealloc(cursor, key.Value)
 				tryrealloc(cursor, 4)
 				pushf4(cursor, key.Time)
@@ -4836,7 +4856,7 @@ if RotationCurveKey ~= nil then
 				return RotationCurveKey.new(
 					popf4(cursor),
 					pop(cursor),
-					enumitem(Enum.KeyInterpolationMode).des(cursor) :: Enum.KeyInterpolationMode
+					interpolationmodeserdes.des(cursor)
 				)
 			end,
 		}
@@ -4847,6 +4867,9 @@ if RotationCurveKey ~= nil then
 end
 
 if TweenInfo ~= nil then
+	local easingdirectionserdes = enumitem(Enum.EasingDirection)
+	local easingstyleserdes = enumitem(Enum.EasingStyle)
+	
 	local tweenInfoCache: SerDes<TweenInfo> = {
 		type = "TweenInfo",
 		name = "TweenInfo",
@@ -4858,15 +4881,15 @@ if TweenInfo ~= nil then
 			pushf4(cursor, info.Time)
 			pushbool(cursor, info.Reverses)
 			pushvlqrealloc(cursor, info.RepeatCount)
-			enumitem(Enum.EasingDirection).ser(cursor, info.EasingDirection)
-			enumitem(Enum.EasingStyle).ser(cursor, info.EasingStyle)
+			easingdirectionserdes.ser(cursor, info.EasingDirection)
+			easingstyleserdes.ser(cursor, info.EasingStyle)
 
 			if VALIDATION_ENABLED then exitValidationScope(cursor) end
 		end,
 
 		des = function(cursor): TweenInfo
-			local easing = enumitem(Enum.EasingStyle).des(cursor) :: Enum.EasingStyle
-			local direction = enumitem(Enum.EasingDirection).des(cursor) :: Enum.EasingDirection
+			local easing = easingstyleserdes.des(cursor)
+			local direction = easingdirectionserdes.des(cursor)
 			local repeats = popvlq(cursor)
 			local reverses = popbool(cursor)
 			local duration = popf4(cursor)
@@ -5051,31 +5074,31 @@ if Instance ~= nil then
 	]]
 	
 	type RobloxClasses = {
-		Accessory: Accessory, AccessoryDescription: AccessoryDescription, Accoutrement: Accoutrement, Actor: Actor, AdGui: AdGui, AdPortal: AdPortal, AdService: AdService, AdvancedDragger: AdvancedDragger, AirController: AirController,
-		AlignOrientation: AlignOrientation, AlignPosition: AlignPosition, AnalyticsService: AnalyticsService, AngularVelocity: AngularVelocity, Animation: Animation, AnimationClip: AnimationClip, AnimationClipProvider: AnimationClipProvider, AnimationConstraint: AnimationConstraint, AnimationController: AnimationController, AnimationFromVideoCreatorService: AnimationFromVideoCreatorService,
-		AnimationGraphDefinition: AnimationGraphDefinition, AnimationNode: AnimationNode, AnimationNodeDefinition: AnimationNodeDefinition, AnimationRigData: AnimationRigData, AnimationTrack: AnimationTrack, Animator: Animator, Annotation: Annotation, ArcHandles: ArcHandles, AssetDeliveryProxy: AssetDeliveryProxy, AssetPatchSettings: AssetPatchSettings,
-		AssetService: AssetService, Atmosphere: Atmosphere, AtmosphereSensor: AtmosphereSensor, Attachment: Attachment, AudioAnalyzer: AudioAnalyzer, AudioChannelMixer: AudioChannelMixer, AudioChannelSplitter: AudioChannelSplitter, AudioChorus: AudioChorus, AudioCompressor: AudioCompressor, AudioDeviceInput: AudioDeviceInput,
-		AudioDeviceOutput: AudioDeviceOutput, AudioDistortion: AudioDistortion, AudioEcho: AudioEcho, AudioEmitter: AudioEmitter, AudioEqualizer: AudioEqualizer, AudioFader: AudioFader, AudioFilter: AudioFilter, AudioFlanger: AudioFlanger, AudioGate: AudioGate, AudioLimiter: AudioLimiter,
-		AudioListener: AudioListener, AudioPages: AudioPages, AudioPitchShifter: AudioPitchShifter, AudioPlayer: AudioPlayer, AudioRecorder: AudioRecorder, AudioReverb: AudioReverb, AudioSearchParams: AudioSearchParams, AudioSpeechToText: AudioSpeechToText, AudioTextToSpeech: AudioTextToSpeech, AudioTremolo: AudioTremolo,
-		AuroraScriptService: AuroraScriptService, AvatarCreationService: AvatarCreationService, AvatarEditorService: AvatarEditorService, Backpack: Backpack, BackpackItem: BackpackItem, BadgeService: BadgeService, BallSocketConstraint: BallSocketConstraint, BanHistoryPages: BanHistoryPages, BaseCoreGuiConfiguration: BaseCoreGuiConfiguration, BasePart: BasePart,
-		BasePlayerGui: BasePlayerGui, BaseRemoteEvent: BaseRemoteEvent, BaseScript: BaseScript, BaseWrap: BaseWrap, Beam: Beam, BevelMesh: BevelMesh, BillboardGui: BillboardGui, BinaryStringValue: BinaryStringValue, BindableEvent: BindableEvent, BindableFunction: BindableFunction,
-		BlockMesh: BlockMesh, BloomEffect: BloomEffect, BlurEffect: BlurEffect, BodyAngularVelocity: BodyAngularVelocity, BodyColors: BodyColors, BodyForce: BodyForce, BodyGyro: BodyGyro, BodyMover: BodyMover, BodyPartDescription: BodyPartDescription, BodyPosition: BodyPosition,
-		BodyThrust: BodyThrust, BodyVelocity: BodyVelocity, Bone: Bone, BoolValue: BoolValue, BoxHandleAdornment: BoxHandleAdornment, BrickColorValue: BrickColorValue, BrowserService: BrowserService, BubbleChatConfiguration: BubbleChatConfiguration, BubbleChatMessageProperties: BubbleChatMessageProperties, BuoyancySensor: BuoyancySensor,
-		CFrameValue: CFrameValue, CacheableContentProvider: CacheableContentProvider, Camera: Camera, CanvasGroup: CanvasGroup, Capture: Capture, CaptureService: CaptureService, CapturesPages: CapturesPages, CapturesViewConfiguration: CapturesViewConfiguration, CatalogPages: CatalogPages, ChangeHistoryService: ChangeHistoryService,
-		ChannelTabsConfiguration: ChannelTabsConfiguration, CharacterAppearance: CharacterAppearance, CharacterMesh: CharacterMesh, Chat: Chat, ChatInputBarConfiguration: ChatInputBarConfiguration, ChatWindowConfiguration: ChatWindowConfiguration, ChatWindowMessageProperties: ChatWindowMessageProperties, ChorusSoundEffect: ChorusSoundEffect, ClickDetector: ClickDetector, ClientReplicator: ClientReplicator,
-		ClimbController: ClimbController, Clothing: Clothing, Clouds: Clouds, ClusterPacketCache: ClusterPacketCache, CollectionService: CollectionService, Color3Value: Color3Value, ColorCorrectionEffect: ColorCorrectionEffect, ColorGradingEffect: ColorGradingEffect, CommerceService: CommerceService, CompositeValueCurve: CompositeValueCurve,
-		CompressorSoundEffect: CompressorSoundEffect, ConeHandleAdornment: ConeHandleAdornment, ConfigService: ConfigService, ConfigSnapshot: ConfigSnapshot, Configuration: Configuration, ConfigureServerService: ConfigureServerService, Constraint: Constraint, ContentProvider: ContentProvider, ContextActionService: ContextActionService, Controller: Controller,
-		ControllerBase: ControllerBase, ControllerManager: ControllerManager, ControllerPartSensor: ControllerPartSensor, ControllerSensor: ControllerSensor, ControllerService: ControllerService, CookiesService: CookiesService, CoreGuiConfiguration: CoreGuiConfiguration, CoreScriptDebuggingManagerHelper: CoreScriptDebuggingManagerHelper, CornerWedgePart: CornerWedgePart, CreatorStoreService: CreatorStoreService,
-		CurveAnimation: CurveAnimation, CustomEvent: CustomEvent, CustomEventReceiver: CustomEventReceiver, CylinderHandleAdornment: CylinderHandleAdornment, CylinderMesh: CylinderMesh, CylindricalConstraint: CylindricalConstraint, DataModel: DataModel, DataModelMesh: DataModelMesh, DataModelSession: DataModelSession, DataStore: DataStore,
-		DataStoreGetOptions: DataStoreGetOptions, DataStoreIncrementOptions: DataStoreIncrementOptions, DataStoreInfo: DataStoreInfo, DataStoreKey: DataStoreKey, DataStoreKeyInfo: DataStoreKeyInfo, DataStoreKeyPages: DataStoreKeyPages, DataStoreListingPages: DataStoreListingPages, DataStoreObjectVersionInfo: DataStoreObjectVersionInfo, DataStoreOptions: DataStoreOptions, DataStorePages: DataStorePages,
-		DataStoreService: DataStoreService, DataStoreSetOptions: DataStoreSetOptions, DataStoreVersionPages: DataStoreVersionPages, Debris: Debris, Decal: Decal, DepthOfFieldEffect: DepthOfFieldEffect, Dialog: Dialog, DialogChoice: DialogChoice, DigitsRigDescription: DigitsRigDescription, DistortionSoundEffect: DistortionSoundEffect,
-		DoubleConstrainedValue: DoubleConstrainedValue, DragDetector: DragDetector, Dragger: Dragger, DynamicRotate: DynamicRotate, EchoSoundEffect: EchoSoundEffect, EditableImage: EditableImage, EditableMesh: EditableMesh, EncodingService: EncodingService, EqualizerSoundEffect: EqualizerSoundEffect, EulerRotationCurve: EulerRotationCurve,
-		ExperienceInviteOptions: ExperienceInviteOptions, ExperienceNotificationService: ExperienceNotificationService, Explosion: Explosion, FaceControls: FaceControls, FaceInstance: FaceInstance, Feature: Feature, FeatureRestrictionManager: FeatureRestrictionManager, File: File, FileMesh: FileMesh, Fire: Fire,
-		Flag: Flag, FlagStand: FlagStand, FlagStandService: FlagStandService, FlangeSoundEffect: FlangeSoundEffect, FloatCurve: FloatCurve, FloorWire: FloorWire, FluidForceSensor: FluidForceSensor, Folder: Folder, ForceField: ForceField, FormFactorPart: FormFactorPart,
-		Frame: Frame, FriendPages: FriendPages, FriendService: FriendService, FunctionalTest: FunctionalTest, GamePassService: GamePassService, GamepadService: GamepadService, GeneratedFolder: GeneratedFolder, GenerationService: GenerationService, GenericChallengeService: GenericChallengeService, Geometry: Geometry,
-		GeometryService: GeometryService, GetTextBoundsParams: GetTextBoundsParams, GlobalDataStore: GlobalDataStore, Glue: Glue, GroundController: GroundController, GroupService: GroupService, GuiBase: GuiBase, GuiBase2d: GuiBase2d, GuiBase3d: GuiBase3d, GuiButton: GuiButton,
-		GuiLabel: GuiLabel, GuiMain: GuiMain, GuiObject: GuiObject, GuiService: GuiService, GuidRegistryService: GuidRegistryService, HSRDataContentProvider: HSRDataContentProvider, HandleAdornment: HandleAdornment, Handles: Handles, HandlesBase: HandlesBase, HapticEffect: HapticEffect,
-		HapticService: HapticService, Hat: Hat, HeapProfilerService: HeapProfilerService, HeightmapImporterService: HeightmapImporterService, HiddenSurfaceRemovalAsset: HiddenSurfaceRemovalAsset, Highlight: Highlight, HingeConstraint: HingeConstraint, Hint: Hint, Hole: Hole, Hopper: Hopper,
+	Accessory: Accessory, AccessoryDescription: AccessoryDescription, Accoutrement: Accoutrement, Actor: Actor, AdGui: AdGui, AdPortal: AdPortal, AdService: AdService, AdvancedDragger: AdvancedDragger, AirController: AirController,
+	AlignOrientation: AlignOrientation, AlignPosition: AlignPosition, AnalyticsService: AnalyticsService, AngularVelocity: AngularVelocity, Animation: Animation, AnimationClip: AnimationClip, AnimationClipProvider: AnimationClipProvider, AnimationConstraint: AnimationConstraint, AnimationController: AnimationController, AnimationFromVideoCreatorService: AnimationFromVideoCreatorService,
+	AnimationGraphDefinition: AnimationGraphDefinition, AnimationNode: AnimationNode, AnimationNodeDefinition: AnimationNodeDefinition, AnimationRigData: AnimationRigData, AnimationTrack: AnimationTrack, Animator: Animator, Annotation: Annotation, ArcHandles: ArcHandles, AssetDeliveryProxy: AssetDeliveryProxy, AssetPatchSettings: AssetPatchSettings,
+	AssetService: AssetService, Atmosphere: Atmosphere, AtmosphereSensor: AtmosphereSensor, Attachment: Attachment, AudioAnalyzer: AudioAnalyzer, AudioChannelMixer: AudioChannelMixer, AudioChannelSplitter: AudioChannelSplitter, AudioChorus: AudioChorus, AudioCompressor: AudioCompressor, AudioDeviceInput: AudioDeviceInput,
+	AudioDeviceOutput: AudioDeviceOutput, AudioDistortion: AudioDistortion, AudioEcho: AudioEcho, AudioEmitter: AudioEmitter, AudioEqualizer: AudioEqualizer, AudioFader: AudioFader, AudioFilter: AudioFilter, AudioFlanger: AudioFlanger, AudioGate: AudioGate, AudioLimiter: AudioLimiter,
+	AudioListener: AudioListener, AudioPages: AudioPages, AudioPitchShifter: AudioPitchShifter, AudioPlayer: AudioPlayer, AudioRecorder: AudioRecorder, AudioReverb: AudioReverb, AudioSearchParams: AudioSearchParams, AudioSpeechToText: AudioSpeechToText, AudioTextToSpeech: AudioTextToSpeech, AudioTremolo: AudioTremolo,
+	AuroraScriptService: AuroraScriptService, AvatarCreationService: AvatarCreationService, AvatarEditorService: AvatarEditorService, Backpack: Backpack, BackpackItem: BackpackItem, BadgeService: BadgeService, BallSocketConstraint: BallSocketConstraint, BanHistoryPages: BanHistoryPages, BaseCoreGuiConfiguration: BaseCoreGuiConfiguration, BasePart: BasePart,
+	BasePlayerGui: BasePlayerGui, BaseRemoteEvent: BaseRemoteEvent, BaseScript: BaseScript, BaseWrap: BaseWrap, Beam: Beam, BevelMesh: BevelMesh, BillboardGui: BillboardGui, BinaryStringValue: BinaryStringValue, BindableEvent: BindableEvent, BindableFunction: BindableFunction,
+	BlockMesh: BlockMesh, BloomEffect: BloomEffect, BlurEffect: BlurEffect, BodyAngularVelocity: BodyAngularVelocity, BodyColors: BodyColors, BodyForce: BodyForce, BodyGyro: BodyGyro, BodyMover: BodyMover, BodyPartDescription: BodyPartDescription, BodyPosition: BodyPosition,
+	BodyThrust: BodyThrust, BodyVelocity: BodyVelocity, Bone: Bone, BoolValue: BoolValue, BoxHandleAdornment: BoxHandleAdornment, BrickColorValue: BrickColorValue, BrowserService: BrowserService, BubbleChatConfiguration: BubbleChatConfiguration, BubbleChatMessageProperties: BubbleChatMessageProperties, BuoyancySensor: BuoyancySensor,
+	CFrameValue: CFrameValue, CacheableContentProvider: CacheableContentProvider, Camera: Camera, CanvasGroup: CanvasGroup, Capture: Capture, CaptureService: CaptureService, CapturesPages: CapturesPages, CapturesViewConfiguration: CapturesViewConfiguration, CatalogPages: CatalogPages, ChangeHistoryService: ChangeHistoryService,
+	ChannelTabsConfiguration: ChannelTabsConfiguration, CharacterAppearance: CharacterAppearance, CharacterMesh: CharacterMesh, Chat: Chat, ChatInputBarConfiguration: ChatInputBarConfiguration, ChatWindowConfiguration: ChatWindowConfiguration, ChatWindowMessageProperties: ChatWindowMessageProperties, ChorusSoundEffect: ChorusSoundEffect, ClickDetector: ClickDetector, ClientReplicator: ClientReplicator,
+	ClimbController: ClimbController, Clothing: Clothing, Clouds: Clouds, ClusterPacketCache: ClusterPacketCache, CollectionService: CollectionService, Color3Value: Color3Value, ColorCorrectionEffect: ColorCorrectionEffect, ColorGradingEffect: ColorGradingEffect, CommerceService: CommerceService, CompositeValueCurve: CompositeValueCurve,
+	CompressorSoundEffect: CompressorSoundEffect, ConeHandleAdornment: ConeHandleAdornment, ConfigService: ConfigService, ConfigSnapshot: ConfigSnapshot, Configuration: Configuration, ConfigureServerService: ConfigureServerService, Constraint: Constraint, ContentProvider: ContentProvider, ContextActionService: ContextActionService, Controller: Controller,
+	ControllerBase: ControllerBase, ControllerManager: ControllerManager, ControllerPartSensor: ControllerPartSensor, ControllerSensor: ControllerSensor, ControllerService: ControllerService, CookiesService: CookiesService, CoreGuiConfiguration: CoreGuiConfiguration, CoreScriptDebuggingManagerHelper: CoreScriptDebuggingManagerHelper, CornerWedgePart: CornerWedgePart, CreatorStoreService: CreatorStoreService,
+	CurveAnimation: CurveAnimation, CustomEvent: CustomEvent, CustomEventReceiver: CustomEventReceiver, CylinderHandleAdornment: CylinderHandleAdornment, CylinderMesh: CylinderMesh, CylindricalConstraint: CylindricalConstraint, DataModel: DataModel, DataModelMesh: DataModelMesh, DataModelSession: DataModelSession, DataStore: DataStore,
+	DataStoreGetOptions: DataStoreGetOptions, DataStoreIncrementOptions: DataStoreIncrementOptions, DataStoreInfo: DataStoreInfo, DataStoreKey: DataStoreKey, DataStoreKeyInfo: DataStoreKeyInfo, DataStoreKeyPages: DataStoreKeyPages, DataStoreListingPages: DataStoreListingPages, DataStoreObjectVersionInfo: DataStoreObjectVersionInfo, DataStoreOptions: DataStoreOptions, DataStorePages: DataStorePages,
+	DataStoreService: DataStoreService, DataStoreSetOptions: DataStoreSetOptions, DataStoreVersionPages: DataStoreVersionPages, Debris: Debris, Decal: Decal, DepthOfFieldEffect: DepthOfFieldEffect, Dialog: Dialog, DialogChoice: DialogChoice, DigitsRigDescription: DigitsRigDescription, DistortionSoundEffect: DistortionSoundEffect,
+	DoubleConstrainedValue: DoubleConstrainedValue, DragDetector: DragDetector, Dragger: Dragger, DynamicRotate: DynamicRotate, EchoSoundEffect: EchoSoundEffect, EditableImage: EditableImage, EditableMesh: EditableMesh, EncodingService: EncodingService, EqualizerSoundEffect: EqualizerSoundEffect, EulerRotationCurve: EulerRotationCurve,
+	ExperienceInviteOptions: ExperienceInviteOptions, ExperienceNotificationService: ExperienceNotificationService, Explosion: Explosion, FaceControls: FaceControls, FaceInstance: FaceInstance, Feature: Feature, FeatureRestrictionManager: FeatureRestrictionManager, File: File, FileMesh: FileMesh, Fire: Fire,
+	Flag: Flag, FlagStand: FlagStand, FlagStandService: FlagStandService, FlangeSoundEffect: FlangeSoundEffect, FloatCurve: FloatCurve, FloorWire: FloorWire, FluidForceSensor: FluidForceSensor, Folder: Folder, ForceField: ForceField, FormFactorPart: FormFactorPart,
+	Frame: Frame, FriendPages: FriendPages, FriendService: FriendService, FunctionalTest: FunctionalTest, GamePassService: GamePassService, GamepadService: GamepadService, GeneratedFolder: GeneratedFolder, GenerationService: GenerationService, GenericChallengeService: GenericChallengeService, Geometry: Geometry,
+	GeometryService: GeometryService, GetTextBoundsParams: GetTextBoundsParams, GlobalDataStore: GlobalDataStore, Glue: Glue, GroundController: GroundController, GroupService: GroupService, GuiBase: GuiBase, GuiBase2d: GuiBase2d, GuiBase3d: GuiBase3d, GuiButton: GuiButton,
+	GuiLabel: GuiLabel, GuiMain: GuiMain, GuiObject: GuiObject, GuiService: GuiService, GuidRegistryService: GuidRegistryService, HSRDataContentProvider: HSRDataContentProvider, HandleAdornment: HandleAdornment, Handles: Handles, HandlesBase: HandlesBase, HapticEffect: HapticEffect,
+	HapticService: HapticService, Hat: Hat, HeapProfilerService: HeapProfilerService, HeightmapImporterService: HeightmapImporterService, HiddenSurfaceRemovalAsset: HiddenSurfaceRemovalAsset, Highlight: Highlight, HingeConstraint: HingeConstraint, Hint: Hint, Hole: Hole, Hopper: Hopper,
 	HopperBin: HopperBin, HttpRbxApiService: HttpRbxApiService, HttpService: HttpService, Humanoid: Humanoid, HumanoidController: HumanoidController, HumanoidDescription: HumanoidDescription, HumanoidRigDescription: HumanoidRigDescription, IKControl: IKControl, ILegacyStudioBridge: ILegacyStudioBridge, ImageButton: ImageButton,
 	ImageHandleAdornment: ImageHandleAdornment, ImageLabel: ImageLabel, IncrementalPatchBuilder: IncrementalPatchBuilder, InputAction: InputAction, InputBinding: InputBinding, InputContext: InputContext, InputObject: InputObject, InsertService: InsertService, Instance: Instance, InstanceAdornment: InstanceAdornment,
 	InstanceExtensionsService: InstanceExtensionsService, IntConstrainedValue: IntConstrainedValue, IntValue: IntValue, IntersectOperation: IntersectOperation, InventoryPages: InventoryPages, JointInstance: JointInstance, JointsService: JointsService, KeyboardService: KeyboardService, Keyframe: Keyframe, KeyframeMarker: KeyframeMarker,
@@ -5086,35 +5109,35 @@ if Instance ~= nil then
 	ModuleScript: ModuleScript, Motor: Motor, Motor6D: Motor6D, MotorFeature: MotorFeature, Mouse: Mouse, MouseService: MouseService, NegateOperation: NegateOperation, NetworkMarker: NetworkMarker, NetworkPeer: NetworkPeer, NetworkReplicator: NetworkReplicator,
 	NoCollisionConstraint: NoCollisionConstraint, NotificationService: NotificationService, NumberPose: NumberPose, NumberValue: NumberValue, Object: Object, ObjectValue: ObjectValue, OpenCloudApiV1: OpenCloudApiV1, OpenCloudService: OpenCloudService, OperationGraph: OperationGraph, OrderedDataStore: OrderedDataStore,
 	OutfitPages: OutfitPages, PVAdornment: PVAdornment, PVInstance: PVInstance, PackageLink: PackageLink, PackageService: PackageService, Packages: Packages, Pages: Pages, Pants: Pants, Part: Part, PartAdornment: PartAdornment,
-	PartOperation: PartOperation, PartOperationAsset: PartOperationAsset, ParticleEmitter: ParticleEmitter, PatchBundlerFileWatch: PatchBundlerFileWatch, PatchMapping: PatchMapping, Path: Path, Path2D: Path2D, PathfindingLink: PathfindingLink, PathfindingModifier: PathfindingModifier, PathfindingService: PathfindingService,
-	PermissionsService: PermissionsService, PhysicsService: PhysicsService, PitchShiftSoundEffect: PitchShiftSoundEffect, PlacesService: PlacesService, Plane: Plane, PlaneConstraint: PlaneConstraint, Platform: Platform, PlayerData: PlayerData, PlayerDataRecord: PlayerDataRecord, PlayerDataRecordConfig: PlayerDataRecordConfig,
-	PlayerDataService: PlayerDataService, PlayerGui: PlayerGui, PlayerListConfiguration: PlayerListConfiguration, PlayerMouse: PlayerMouse, PlayerScripts: PlayerScripts, PlayerViewService: PlayerViewService, Players: Players, PluginManagementService: PluginManagementService, PointLight: PointLight, PointsService: PointsService,
-	PolicyService: PolicyService, PopLatencyService: PopLatencyService, Pose: Pose, PoseBase: PoseBase, PostEffect: PostEffect, Preloaded: Preloaded, PrismaticConstraint: PrismaticConstraint, ProceduralModel: ProceduralModel, ProcessInstancePhysicsService: ProcessInstancePhysicsService, ProximityPrompt: ProximityPrompt,
-	ProximityPromptService: ProximityPromptService, PublishService: PublishService, PyramidHandleAdornment: PyramidHandleAdornment, RayValue: RayValue, RecommendationPages: RecommendationPages, RecommendationService: RecommendationService, ReflectionMetadata: ReflectionMetadata, ReflectionMetadataCallbacks: ReflectionMetadataCallbacks, ReflectionMetadataClass: ReflectionMetadataClass, ReflectionMetadataClasses: ReflectionMetadataClasses,
-	ReflectionMetadataEnum: ReflectionMetadataEnum, ReflectionMetadataEnumItem: ReflectionMetadataEnumItem, ReflectionMetadataEnums: ReflectionMetadataEnums, ReflectionMetadataEvents: ReflectionMetadataEvents, ReflectionMetadataFunctions: ReflectionMetadataFunctions, ReflectionMetadataItem: ReflectionMetadataItem, ReflectionMetadataMember: ReflectionMetadataMember, ReflectionMetadataProperties: ReflectionMetadataProperties, ReflectionMetadataYieldFunctions: ReflectionMetadataYieldFunctions, ReflectionService: ReflectionService,
-	RemoteCommandService: RemoteCommandService, RemoteDebuggerServer: RemoteDebuggerServer, RemoteEvent: RemoteEvent, RemoteFunction: RemoteFunction, RenderingTest: RenderingTest, ReplicatedFirst: ReplicatedFirst, ReplicatedStorage: ReplicatedStorage, ReverbSoundEffect: ReverbSoundEffect, RigidConstraint: RigidConstraint, RocketPropulsion: RocketPropulsion,
-	RodConstraint: RodConstraint, RopeConstraint: RopeConstraint, Rotate: Rotate, RotateP: RotateP, RotateV: RotateV, RotationCurve: RotationCurve, RunService: RunService, RunningAverageItemDouble: RunningAverageItemDouble, RunningAverageItemInt: RunningAverageItemInt, RunningAverageTimeIntervalItem: RunningAverageTimeIntervalItem,
-	SceneAnalysisService: SceneAnalysisService, ScreenGui: ScreenGui, ScreenshotCapture: ScreenshotCapture, ScreenshotHud: ScreenshotHud, Script: Script, ScriptBuilder: ScriptBuilder, ScriptContext: ScriptContext, ScriptProfilerService: ScriptProfilerService, ScriptService: ScriptService, ScrollingFrame: ScrollingFrame,
-	Seat: Seat, Selection: Selection, SelectionBox: SelectionBox, SelectionHighlightManager: SelectionHighlightManager, SelectionLasso: SelectionLasso, SelectionPartLasso: SelectionPartLasso, SelectionPointLasso: SelectionPointLasso, SelectionSphere: SelectionSphere, SelfViewConfiguration: SelfViewConfiguration, SensorBase: SensorBase,
-	ServerReplicator: ServerReplicator, ServerScriptService: ServerScriptService, ServerStorage: ServerStorage, ServiceProvider: ServiceProvider, ServiceVisibilityService: ServiceVisibilityService, SessionCheckService: SessionCheckService, SharedTableRegistry: SharedTableRegistry, Shirt: Shirt, ShirtGraphic: ShirtGraphic, SkateboardController: SkateboardController,
-	SkateboardPlatform: SkateboardPlatform, Skin: Skin, Sky: Sky, SlidingBallConstraint: SlidingBallConstraint, SlimContentProvider: SlimContentProvider, Smoke: Smoke, SmoothVoxelsUpgraderService: SmoothVoxelsUpgraderService, Snap: Snap, SocialService: SocialService, SolidModelContentProvider: SolidModelContentProvider,
-	Sound: Sound, SoundEffect: SoundEffect, SoundGroup: SoundGroup, SoundService: SoundService, Sparkles: Sparkles, SpawnLocation: SpawnLocation, SpawnerService: SpawnerService, SpecialMesh: SpecialMesh, SphereHandleAdornment: SphereHandleAdornment, SpotLight: SpotLight,
-	SpringConstraint: SpringConstraint, StandardPages: StandardPages, StarterCharacterScripts: StarterCharacterScripts, StarterGear: StarterGear, StarterGui: StarterGui, StarterPack: StarterPack, StarterPlayer: StarterPlayer, StarterPlayerScripts: StarterPlayerScripts, StartupMessageService: StartupMessageService, Stats: Stats,
-	StatsItem: StatsItem, Status: Status, StopWatchReporter: StopWatchReporter, StringValue: StringValue, StudioTestService: StudioTestService, StudioTheme: StudioTheme, StyleBase: StyleBase, StyleDerive: StyleDerive, StyleLink: StyleLink, StyleQuery: StyleQuery,
-	StyleRule: StyleRule, StyleSheet: StyleSheet, StylingService: StylingService, SunRaysEffect: SunRaysEffect, SurfaceAppearance: SurfaceAppearance, SurfaceGui: SurfaceGui, SurfaceGuiBase: SurfaceGuiBase, SurfaceLight: SurfaceLight, SurfaceSelection: SurfaceSelection, SwimController: SwimController,
-	SyncScriptBuilder: SyncScriptBuilder, Team: Team, Teams: Teams, TeleportAsyncResult: TeleportAsyncResult, TeleportOptions: TeleportOptions, TeleportService: TeleportService, Terrain: Terrain, TerrainDetail: TerrainDetail, TerrainIterateOperation: TerrainIterateOperation, TerrainModifyOperation: TerrainModifyOperation,
-	TerrainReadOperation: TerrainReadOperation, TerrainRegion: TerrainRegion, TerrainWriteOperation: TerrainWriteOperation, TestCase: TestCase, TestService: TestService, TextBox: TextBox, TextBoxService: TextBoxService, TextButton: TextButton, TextChannel: TextChannel, TextChannelWindow: TextChannelWindow,
-	TextChatCommand: TextChatCommand, TextChatConfigurations: TextChatConfigurations, TextChatMessage: TextChatMessage, TextChatMessageProperties: TextChatMessageProperties, TextChatService: TextChatService, TextFilterResult: TextFilterResult, TextFilterTranslatedResult: TextFilterTranslatedResult, TextGenerator: TextGenerator, TextLabel: TextLabel, TextService: TextService,
-	TextSource: TextSource, Texture: Texture, TimerService: TimerService, Tool: Tool, Torque: Torque, TorsionSpringConstraint: TorsionSpringConstraint, TotalCountTimeIntervalItem: TotalCountTimeIntervalItem, TouchInputService: TouchInputService, TouchTransmitter: TouchTransmitter, TraceRouteService: TraceRouteService,
-	Trail: Trail, Translator: Translator, TremoloSoundEffect: TremoloSoundEffect, TriangleMeshPart: TriangleMeshPart, TrussPart: TrussPart, Tween: Tween, TweenBase: TweenBase, TweenService: TweenService, UGCValidationService: UGCValidationService, UIAspectRatioConstraint: UIAspectRatioConstraint,
-	UIBase: UIBase, UIComponent: UIComponent, UIConstraint: UIConstraint, UICorner: UICorner, UIDragDetector: UIDragDetector, UIDragDetectorService: UIDragDetectorService, UIFlexItem: UIFlexItem, UIGradient: UIGradient, UIGridLayout: UIGridLayout, UIGridStyleLayout: UIGridStyleLayout,
-	UILayout: UILayout, UIListLayout: UIListLayout, UIPadding: UIPadding, UIPageLayout: UIPageLayout, UIScale: UIScale, UIShadow: UIShadow, UISizeConstraint: UISizeConstraint, UIStroke: UIStroke, UITableLayout: UITableLayout, UITextSizeConstraint: UITextSizeConstraint,
-	UnionOperation: UnionOperation, UniqueIdLookupService: UniqueIdLookupService, UniversalConstraint: UniversalConstraint, UnreliableRemoteEvent: UnreliableRemoteEvent, UserInputService: UserInputService, UserService: UserService, VRService: VRService, VRStatusService: VRStatusService, ValueBase: ValueBase, ValueCurve: ValueCurve,
-	Vector3Curve: Vector3Curve, Vector3Value: Vector3Value, VectorForce: VectorForce, VehicleController: VehicleController, VehicleSeat: VehicleSeat, VelocityMotor: VelocityMotor, VideoCapture: VideoCapture, VideoCaptureService: VideoCaptureService, VideoDisplay: VideoDisplay, VideoFrame: VideoFrame,
-	VideoPlayer: VideoPlayer, VideoSampler: VideoSampler, VideoScreenCaptureService: VideoScreenCaptureService, VideoService: VideoService, ViewportFrame: ViewportFrame, VirtualInput: VirtualInput, VirtualInputManager: VirtualInputManager, VirtualUser: VirtualUser, VisibilityCheckDispatcher: VisibilityCheckDispatcher, Visit: Visit,
-	VisualizationMode: VisualizationMode, VisualizationModeCategory: VisualizationModeCategory, VisualizationModeService: VisualizationModeService, VoiceChatInternal: VoiceChatInternal, VoiceChatService: VoiceChatService, WebStreamClient: WebStreamClient, WedgePart: WedgePart, Weld: Weld, WeldConstraint: WeldConstraint, Wire: Wire,
-	WireframeHandleAdornment: WireframeHandleAdornment, Workspace: Workspace, WorkspaceAnnotation: WorkspaceAnnotation, WorldModel: WorldModel, WorldRoot: WorldRoot, WrapDeformer: WrapDeformer, WrapLayer: WrapLayer, WrapTarget: WrapTarget, WrapTextureTransfer: WrapTextureTransfer, 
-}
+	PartOperation: PartOperation, PartOperationAsset: PartOperationAsset, ParticleEmitter: ParticleEmitter, PatchBundlerFileWatch: PatchBundlerFileWatch, PatchMapping: PatchMapping, Path: Path, Path2D: Path2D, Path3D: Path3D, PathfindingLink: PathfindingLink, PathfindingModifier: PathfindingModifier,
+	PathfindingService: PathfindingService, PermissionsService: PermissionsService, PhysicsService: PhysicsService, PitchShiftSoundEffect: PitchShiftSoundEffect, PlacesService: PlacesService, Plane: Plane, PlaneConstraint: PlaneConstraint, Platform: Platform, PlayerData: PlayerData, PlayerDataRecord: PlayerDataRecord,
+	PlayerDataRecordConfig: PlayerDataRecordConfig, PlayerDataService: PlayerDataService, PlayerGui: PlayerGui, PlayerListConfiguration: PlayerListConfiguration, PlayerMouse: PlayerMouse, PlayerScripts: PlayerScripts, PlayerViewService: PlayerViewService, Players: Players, PluginManagementService: PluginManagementService, PointLight: PointLight,
+	PointsService: PointsService, PolicyService: PolicyService, PopLatencyService: PopLatencyService, Pose: Pose, PoseBase: PoseBase, PostEffect: PostEffect, Preloaded: Preloaded, PrismaticConstraint: PrismaticConstraint, ProceduralModel: ProceduralModel, ProcessInstancePhysicsService: ProcessInstancePhysicsService,
+	ProximityPrompt: ProximityPrompt, ProximityPromptService: ProximityPromptService, PublishService: PublishService, PyramidHandleAdornment: PyramidHandleAdornment, RayValue: RayValue, RecommendationPages: RecommendationPages, RecommendationService: RecommendationService, ReflectionMetadata: ReflectionMetadata, ReflectionMetadataCallbacks: ReflectionMetadataCallbacks, ReflectionMetadataClass: ReflectionMetadataClass,
+	ReflectionMetadataClasses: ReflectionMetadataClasses, ReflectionMetadataEnum: ReflectionMetadataEnum, ReflectionMetadataEnumItem: ReflectionMetadataEnumItem, ReflectionMetadataEnums: ReflectionMetadataEnums, ReflectionMetadataEvents: ReflectionMetadataEvents, ReflectionMetadataFunctions: ReflectionMetadataFunctions, ReflectionMetadataItem: ReflectionMetadataItem, ReflectionMetadataMember: ReflectionMetadataMember, ReflectionMetadataProperties: ReflectionMetadataProperties, ReflectionMetadataYieldFunctions: ReflectionMetadataYieldFunctions,
+	ReflectionService: ReflectionService, RemoteCommandService: RemoteCommandService, RemoteDebuggerServer: RemoteDebuggerServer, RemoteEvent: RemoteEvent, RemoteFunction: RemoteFunction, RenderingTest: RenderingTest, ReplicatedFirst: ReplicatedFirst, ReplicatedStorage: ReplicatedStorage, ReverbSoundEffect: ReverbSoundEffect, RigidConstraint: RigidConstraint,
+	RocketPropulsion: RocketPropulsion, RodConstraint: RodConstraint, RopeConstraint: RopeConstraint, Rotate: Rotate, RotateP: RotateP, RotateV: RotateV, RotationCurve: RotationCurve, RunService: RunService, RunningAverageItemDouble: RunningAverageItemDouble, RunningAverageItemInt: RunningAverageItemInt,
+	RunningAverageTimeIntervalItem: RunningAverageTimeIntervalItem, SceneAnalysisService: SceneAnalysisService, ScreenGui: ScreenGui, ScreenshotCapture: ScreenshotCapture, ScreenshotHud: ScreenshotHud, Script: Script, ScriptBuilder: ScriptBuilder, ScriptContext: ScriptContext, ScriptProfilerService: ScriptProfilerService, ScriptService: ScriptService,
+	ScrollingFrame: ScrollingFrame, Seat: Seat, Selection: Selection, SelectionBox: SelectionBox, SelectionHighlightManager: SelectionHighlightManager, SelectionLasso: SelectionLasso, SelectionPartLasso: SelectionPartLasso, SelectionPointLasso: SelectionPointLasso, SelectionSphere: SelectionSphere, SelfViewConfiguration: SelfViewConfiguration,
+	SensorBase: SensorBase, ServerReplicator: ServerReplicator, ServerScriptService: ServerScriptService, ServerStorage: ServerStorage, ServiceProvider: ServiceProvider, ServiceVisibilityService: ServiceVisibilityService, SessionCheckService: SessionCheckService, SharedTableRegistry: SharedTableRegistry, Shirt: Shirt, ShirtGraphic: ShirtGraphic,
+	SkateboardController: SkateboardController, SkateboardPlatform: SkateboardPlatform, Skin: Skin, Sky: Sky, SlidingBallConstraint: SlidingBallConstraint, SlimContentProvider: SlimContentProvider, Smoke: Smoke, SmoothVoxelsUpgraderService: SmoothVoxelsUpgraderService, Snap: Snap, SocialService: SocialService,
+	SolidModelContentProvider: SolidModelContentProvider, Sound: Sound, SoundEffect: SoundEffect, SoundGroup: SoundGroup, SoundService: SoundService, Sparkles: Sparkles, SpawnLocation: SpawnLocation, SpawnerService: SpawnerService, SpecialMesh: SpecialMesh, SphereHandleAdornment: SphereHandleAdornment,
+	SpotLight: SpotLight, SpringConstraint: SpringConstraint, StandardPages: StandardPages, StarterCharacterScripts: StarterCharacterScripts, StarterGear: StarterGear, StarterGui: StarterGui, StarterPack: StarterPack, StarterPlayer: StarterPlayer, StarterPlayerScripts: StarterPlayerScripts, StartupMessageService: StartupMessageService,
+	Stats: Stats, StatsItem: StatsItem, Status: Status, StopWatchReporter: StopWatchReporter, StringValue: StringValue, StudioTestService: StudioTestService, StudioTheme: StudioTheme, StyleBase: StyleBase, StyleDerive: StyleDerive, StyleLink: StyleLink,
+	StyleQuery: StyleQuery, StyleRule: StyleRule, StyleSheet: StyleSheet, StylingService: StylingService, SunRaysEffect: SunRaysEffect, SurfaceAppearance: SurfaceAppearance, SurfaceGui: SurfaceGui, SurfaceGuiBase: SurfaceGuiBase, SurfaceLight: SurfaceLight, SurfaceSelection: SurfaceSelection,
+	SwimController: SwimController, SyncScriptBuilder: SyncScriptBuilder, Team: Team, Teams: Teams, TeleportAsyncResult: TeleportAsyncResult, TeleportOptions: TeleportOptions, TeleportService: TeleportService, Terrain: Terrain, TerrainDetail: TerrainDetail, TerrainIterateOperation: TerrainIterateOperation,
+	TerrainModifyOperation: TerrainModifyOperation, TerrainReadOperation: TerrainReadOperation, TerrainRegion: TerrainRegion, TerrainWriteOperation: TerrainWriteOperation, TestCase: TestCase, TestService: TestService, TextBox: TextBox, TextBoxService: TextBoxService, TextButton: TextButton, TextChannel: TextChannel,
+	TextChannelWindow: TextChannelWindow, TextChatCommand: TextChatCommand, TextChatConfigurations: TextChatConfigurations, TextChatMessage: TextChatMessage, TextChatMessageProperties: TextChatMessageProperties, TextChatService: TextChatService, TextFilterResult: TextFilterResult, TextFilterTranslatedResult: TextFilterTranslatedResult, TextGenerator: TextGenerator, TextLabel: TextLabel,
+	TextService: TextService, TextSource: TextSource, Texture: Texture, TimerService: TimerService, Tool: Tool, Torque: Torque, TorsionSpringConstraint: TorsionSpringConstraint, TotalCountTimeIntervalItem: TotalCountTimeIntervalItem, TouchInputService: TouchInputService, TouchTransmitter: TouchTransmitter,
+	TraceRouteService: TraceRouteService, Trail: Trail, Translator: Translator, TremoloSoundEffect: TremoloSoundEffect, TriangleMeshPart: TriangleMeshPart, TrussPart: TrussPart, Tween: Tween, TweenBase: TweenBase, TweenService: TweenService, UGCValidationService: UGCValidationService,
+	UIAspectRatioConstraint: UIAspectRatioConstraint, UIBase: UIBase, UIComponent: UIComponent, UIConstraint: UIConstraint, UICorner: UICorner, UIDragDetector: UIDragDetector, UIDragDetectorService: UIDragDetectorService, UIFlexItem: UIFlexItem, UIGradient: UIGradient, UIGridLayout: UIGridLayout,
+	UIGridStyleLayout: UIGridStyleLayout, UILayout: UILayout, UIListLayout: UIListLayout, UIPadding: UIPadding, UIPageLayout: UIPageLayout, UIScale: UIScale, UIShadow: UIShadow, UISizeConstraint: UISizeConstraint, UIStroke: UIStroke, UITableLayout: UITableLayout,
+	UITextSizeConstraint: UITextSizeConstraint, UnionOperation: UnionOperation, UniqueIdLookupService: UniqueIdLookupService, UniversalConstraint: UniversalConstraint, UnreliableRemoteEvent: UnreliableRemoteEvent, UserInputService: UserInputService, UserService: UserService, VRService: VRService, VRStatusService: VRStatusService, ValueBase: ValueBase,
+	ValueCurve: ValueCurve, Vector3Curve: Vector3Curve, Vector3Value: Vector3Value, VectorForce: VectorForce, VehicleController: VehicleController, VehicleSeat: VehicleSeat, VelocityMotor: VelocityMotor, VideoCapture: VideoCapture, VideoCaptureService: VideoCaptureService, VideoDisplay: VideoDisplay,
+	VideoFrame: VideoFrame, VideoPlayer: VideoPlayer, VideoSampler: VideoSampler, VideoScreenCaptureService: VideoScreenCaptureService, VideoService: VideoService, ViewportFrame: ViewportFrame, VirtualInput: VirtualInput, VirtualInputManager: VirtualInputManager, VirtualUser: VirtualUser, VisibilityCheckDispatcher: VisibilityCheckDispatcher,
+	Visit: Visit, VisualizationMode: VisualizationMode, VisualizationModeCategory: VisualizationModeCategory, VisualizationModeService: VisualizationModeService, VoiceChatInternal: VoiceChatInternal, VoiceChatService: VoiceChatService, WebStreamClient: WebStreamClient, WedgePart: WedgePart, Weld: Weld, WeldConstraint: WeldConstraint,
+	Wire: Wire, WireframeHandleAdornment: WireframeHandleAdornment, Workspace: Workspace, WorkspaceAnnotation: WorkspaceAnnotation, WorldModel: WorldModel, WorldRoot: WorldRoot, WrapDeformer: WrapDeformer, WrapLayer: WrapLayer, WrapTarget: WrapTarget, WrapTextureTransfer: WrapTextureTransfer,
+	}
 	
 	type function toInstance(RobloxClasses: type, classname: type)
 		if classname and not (classname.tag == "unknown" or classname.tag == "any" or classname.tag == "string") then
@@ -5334,8 +5357,8 @@ do
 	function Squish.variant<T, L>(types: {SerDes<T>}, literals: {L}?): SerDes<T | L>
 		local toindex: {[string]: number} = {}
 		local toserdes: {[number]: SerDes<any>} = {}
-		local literalsMap: {[L]: number} = {}
-		local idtoLiteral = {}
+		local literalsMap: {[L]: number} 
+		local idtoLiteral: {L}
 
 		local hassubtypes = false
 		local count = 0
@@ -5371,14 +5394,21 @@ do
 		if literals ~= nil then
 			assertSchemaType(literals, "table", 2)
 
-			local literalscount = 0
-			for i, literal in literals do
-				literalsMap[literal] = literalscount
-				idtoLiteral[literalscount] = literal
-				literalscount += 1
+			literalsMap, idtoLiteral = {}, {}
+
+			for i, v in literals do
+				local id = i - 1 
+				
+				if v ~= v then literalsMap[nanidkey] = id
+				else literalsMap[v] = id end
+
+				idtoLiteral[id] = v
 			end
-			
-		else idtoLiteral, literalsMap = nil, nil end
+
+			if literalsMap[nanidkey] then
+				setmetatable(literalsMap, literalsmap_mtbl)
+			end
+		end
 
 		return Squish.anyFrom(toindex, toserdes, literalsMap, idtoLiteral, hassubtypes, false)
 	end
