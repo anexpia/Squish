@@ -2246,8 +2246,9 @@ end
 do
 	local refSerDes: SerDes<any> = {
 		name = "ref",
-		pushref = pushref, 
-		popref = popref,
+		
+		ser = pushref, 
+		des = popref,
 	}
 
 	-- Returns SerDes that pushes / pops values from cursor.refs array.
