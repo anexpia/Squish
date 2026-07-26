@@ -2252,6 +2252,19 @@ do
 end
 
 do
+	local refSerDes: SerDes<any> = {
+		name = "ref",
+		pushref = pushref, 
+		popref = popref,
+	}
+
+	-- Returns SerDes that pushes / pops values from cursor.refs array.
+	function Squish.ref(): SerDes<any>
+		return refSerDes
+	end
+end
+
+do
 	local bufSerDes: SerDes<buffer> = {
 		type = "buffer",
 		name = "buffer",

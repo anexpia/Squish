@@ -588,6 +588,15 @@
 
 ]=]
 
+-- --- @class ref
+
+--- @function ref
+--- @within Squish
+--- @tag Basic
+--- @return SerDes<any>
+--- Returns SerDes that pushes / pops values from cursor.refs array.
+--- Essentially a wrapper for `util.pushref` and `util.popref`.
+
 -- --- @class tuple
 
 --- @function tuple
