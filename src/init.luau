@@ -966,7 +966,7 @@ local function pushref(cursor: Cursor, v: any)
 		else 
 			cursor.refs = {}
 			cursor.reflookup = reflookup
-			cursor.reflastindex = 0
+			cursor.reflastindex = 1 -- start from 1 to avoid remoteevents stringify'ing the array.
 		end
 	end 
 
@@ -984,7 +984,11 @@ end
 
 -- Pops value from references table using vlq.
 local function popref(cursor: Cursor)
-	return assert(cursor.refs, "References table was not provided to cursor.")[popvlq(cursor)]
+	local idx = popvlq(cursor)
+	local refs = cursor.refs 
+
+	if refs then return refs[idx] end
+	return nil
 end
 
 -- Prints the bytes of the buffer and the position of the cursor. 
