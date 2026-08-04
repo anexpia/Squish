@@ -41,7 +41,7 @@ export type Cursor = {
 	validationscopes: {string}?,
 }
 
-export type SerDes<T...> = {
+export type SerDes<T> = {
 
 	read type: string?,
 	read name: string?,
@@ -50,7 +50,7 @@ export type SerDes<T...> = {
 
 	read multypeinfo: {
 		read toindex: {[string]: number}?,
-		read toserdes: {[number]: SerDes<any>}?,
+		read toserdes: {[number]: any}?,
 
 		read literals: {any}?,
 		read literalsMap: {[any]: number}?,
@@ -59,6 +59,25 @@ export type SerDes<T...> = {
 		read numberfastpath: boolean?,
 	}?, 
 
+	read __T: T,
+
+	read ser: typeof(
+		-- Serializes the provided value(s) into the buffer, as defined by the schema.
+		function(cursor: Cursor, ...: T): () end
+	),
+
+	read des: typeof(
+		-- Deserializes and returns the value(s) from the buffer, as defined by the schema.
+		function(cursor: Cursor, ...: any): T end
+	),
+}
+
+type TupleSerDes<T...> = {
+	read type: string?,
+	read name: string?,
+	
+	read structure: any,
+	
 	read ser: typeof(
 		-- Serializes the provided value(s) into the buffer, as defined by the schema.
 		function(cursor: Cursor, ...: T...): () end
@@ -72,6 +91,9 @@ export type SerDes<T...> = {
 
 type RaycastResultSerDes = {
 	read type: "RaycastResult",
+	read name: "RaycastResult",
+
+	read __T: "RaycastResult",
 
 	read ser: typeof(
 		-- Serializes the provided RaycastResult into the buffer, as defined by the schema.
@@ -119,81 +141,6 @@ type function safeUnwrapSerdes(t: type): (boolean, type)
 	end
 
 	return false, t
-end
-
-type function unwrapTypesIntoUnion(defType: type): type
-	if not defType:is("table") then
-		if defType.tag == "any" or defType.tag == "unknown" then return defType end
-
-		print("Expected a types table containing string:SerDes pairs.")
-		return types.never
-	end
-
-	local props = defType:properties()
-
-	local desKey = types.singleton("des")
-	local missingvalues = true
-
-	local alreadyadded = {}
-	local result = {}
-
-	for keyType, propData in props do
-		if not (keyType:is("singleton") and typeof(keyType:value()) == "string") then
-			print("Expected type name to be a string, but got " .. keyType.tag)
-			return types.never
-		end
-
-		local serdesType = propData.read
-
-		if serdesType then
-
-			if serdesType:is("table") then
-				local desFunc = serdesType:readproperty(desKey)
-
-				if desFunc and desFunc:is("function") then
-					missingvalues = false
-
-					local rets = desFunc:returns()
-					local unwrappedType = (rets.head and rets.head[1]) or types.unknown
-
-					if alreadyadded[unwrappedType] then continue end
-					alreadyadded[unwrappedType] = true
-					table.insert(result, unwrappedType)
-
-					continue
-				end
-			end
-
-			print(`Expected types definition valuetype to be SerDes, but got {serdesType.tag} for {keyType:value()}`)
-			return types.never
-		else 
-			print(`Expected types definition valuetype to be SerDes, but got nothing for {keyType:value()}`)
-			return types.never
-		end
-
-	end
-
-	if missingvalues then
-		local indexer = defType:indexer()
-
-		if indexer then
-			local index = indexer.index
-			local readresult = indexer.readresult
-			local success, readresult = safeUnwrapSerdes(readresult) 
-
-			if (index.tag == "string" or index.tag == "any") and (success or readresult.tag == "any") then
-				return readresult
-			end
-
-			print(`Expected to be provided a types table containing string:SerDes pairs, but got a table with {index.tag}:{if success then "SerDes" else readresult.tag} pairs.`)
-		else 
-			print("Expected to be provided a types table containing string:SerDes pairs, but got nothing.")
-		end
-
-		return types.never
-	end
-
-	return types.unionof(unpack(result))
 end
 
 local function subtypeof(v: any, t: string?)
@@ -1181,7 +1128,7 @@ do
 	}
 
 	-- Returns SerDes for up to 8 boolean values at a time.
-	function Squish.boolpack(): SerDes<boolean, boolean, boolean, boolean, boolean, boolean, boolean, boolean>
+	function Squish.boolpack(): TupleSerDes<boolean, boolean, boolean, boolean, boolean, boolean, boolean, boolean>
 		return booleanpackCache
 	end
 end
@@ -2538,49 +2485,28 @@ do
 end
 
 do
-	type function unwrapTuple(serdes: type, f: type)
-		local args = f:returns()
-
-		for i, t in args.head do 
+	type function unwrapTuple(f: type)
+		local args = f:parameters()
+		local head = args.head :: {type}
+				
+		for i, t in head do 
 			local success, t = safeUnwrapSerdes(t) 
 			if not success then
 				print(`Expected provided parameter [{i}] to be a SerDes, but got {t.tag}.`)
 				return NeverTable
 			end
-
-			args.head[i] = t
+			
+			head[i] = t
 		end
 
-		if args.tail then 
-			local success, t = safeUnwrapSerdes(args.tail) 
-			if not success then
-				print(`Expected provided parameter [tail] to be a SerDes, but got {t.tag}.`)
-				return NeverTable
-			end
+		local s = TupleSerDes(unpack(head))
 
-			args.tail = safeUnwrapSerdes(args.tail) 
-		end
-
-		local serargs = {head = {types.any}, tail = args.tail}
-		table.move(args.head, 1, #args.head, 2, serargs.head)
-
-		local serkey = types.singleton("ser")
-		local ser: type = serdes:readproperty(serkey)
-		ser:setparameters(serargs.head, serargs.tail)
-		serdes:setproperty(serkey, ser)
-
-		local deskey = types.singleton("des")
-		local des: type = serdes:readproperty(deskey)
-		des:setparameters({types.any})
-		des:setreturns(args.head, args.tail)
-		serdes:setproperty(deskey, des)
-
-		return serdes
+		return s
 	end
 
 	-- Returns SerDes for multiple values at a time.
 	-- <strong>Example:</strong> <em>Squish.tuple(Squish.string(), Squish.u8(), Squish.bool()).</em>
-	function Squish.tuple<T...>(...: T...): unwrapTuple<SerDes<any>, () -> T...>
+	function Squish.tuple<T...>(...: T...): unwrapTuple<(T...) -> ()>
 		local serdesargs: { SerDes<any> } = { ... }
 
 		for i, serdes in serdesargs do 
@@ -5140,7 +5066,7 @@ if Instance ~= nil then
 	Wire: Wire, WireframeHandleAdornment: WireframeHandleAdornment, Workspace: Workspace, WorkspaceAnnotation: WorkspaceAnnotation, WorldModel: WorldModel, WorldRoot: WorldRoot, WrapDeformer: WrapDeformer, WrapLayer: WrapLayer, WrapTarget: WrapTarget, WrapTextureTransfer: WrapTextureTransfer,
 	}
 	
-	type function toInstance(RobloxClasses: type, classname: type)
+	type function toInstance(classname: type)
 		if classname and not (classname.tag == "unknown" or classname.tag == "any" or classname.tag == "string") then
 			local isvalid = classname:is("singleton") and typeof(classname:value()) == "string"
 			local class = isvalid and RobloxClasses:readproperty(classname)
@@ -5182,7 +5108,7 @@ if Instance ~= nil then
 
 	-- Returns SerDes for 'Instance' datatype, with optional parameter for the class of the instance (checks inheritance).
 	-- Defaults to all instances.
-	function Squish.Instance<T>(classname: T | keyof<RobloxClasses> | nil): SerDes<toInstance<RobloxClasses, T>>
+	function Squish.Instance<T>(classname: T | keyof<RobloxClasses> | nil): SerDes<toInstance<T>>
 		if classname then assertSchemaType(classname, "string", 1) end 
 
 		local classname = classname or "Instance"
@@ -5355,7 +5281,7 @@ do
 
 	-- Returns SerDes for types provided to the function, with support for literals.
 	-- <strong>Example</strong>: <em>Squish.variant({number = Squish.f32(), boolean = Squish.boolean()}, {"hello"})</em>
-	function Squish.variant<T, L>(types: {SerDes<T>}, literals: {L}?): SerDes<T | L>
+	function Squish.variant<T, L>(types: {T}, literals: {L}?): SerDes<index<T, "__T"> | L>
 		local toindex: {[string]: number} = {}
 		local toserdes: {[number]: SerDes<any>} = {}
 		local literalsMap: {[L]: number} 

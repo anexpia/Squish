@@ -1,6 +1,6 @@
 [package]
 name = "anexpia/squish"
-version = "6.1.1"
+version = "6.1.2"
 registry = "https://github.com/UpliftGames/wally-index"
 licence = "MIT"
 
