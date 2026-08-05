@@ -16,14 +16,6 @@ local kcachemtbl = {__mode = "k"}
 local kvcachemtbl = {__mode = "kv"}
 local vcachemtbl = {__mode = "v"}
 
-export type SquishRaycastResult = {
-	Distance: number,
-	Position: Vector3,
-	Normal: Vector3,
-	Material: Enum.Material,
-	Instance: BasePart?,
-}
-
 export type Cursor = { 
 	[number]: buffer,
 
@@ -59,7 +51,7 @@ export type SerDes<T> = {
 		read numberfastpath: boolean?,
 	}?, 
 
-	read __T: T,
+	read __T: T?,
 
 	read ser: typeof(
 		-- Serializes the provided value(s) into the buffer, as defined by the schema.
@@ -89,11 +81,22 @@ type TupleSerDes<T...> = {
 	),
 }
 
+-- regex: --\[roblox\]<<[\s\S]*?-->>\n?
+--[roblox]<<
+
+export type SquishRaycastResult = {
+	Distance: number,
+	Position: Vector3,
+	Normal: Vector3,
+	Material: Enum.Material,
+	Instance: BasePart?,
+}
+
 type RaycastResultSerDes = {
 	read type: "RaycastResult",
 	read name: "RaycastResult",
 
-	read __T: "RaycastResult",
+	read __T: RaycastResult,
 
 	read ser: typeof(
 		-- Serializes the provided RaycastResult into the buffer, as defined by the schema.
@@ -105,6 +108,8 @@ type RaycastResultSerDes = {
 		function(cursor: Cursor): SquishRaycastResult return nil :: any end
 	),
 }
+
+-->>
 
 type Length = number
 
@@ -3352,6 +3357,8 @@ do
 	end
 end
 
+--[roblox]<<
+
 if Vector2 ~= nil then
 	local f32 = Squish.f32()
 
@@ -5148,6 +5155,8 @@ if Instance ~= nil then
 	end
 
 end
+
+-->>
 
 do
 	local literalid = 231
