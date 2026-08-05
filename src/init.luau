@@ -16,6 +16,13 @@ local kcachemtbl = {__mode = "k"}
 local kvcachemtbl = {__mode = "kv"}
 local vcachemtbl = {__mode = "v"}
 
+type function extractFirst(fn: type): type 
+	local params = fn:parameters()
+	local head = params.head
+
+	return (head and head[1]) or types.any 
+end
+
 export type Cursor = { 
 	[number]: buffer,
 
@@ -33,7 +40,7 @@ export type Cursor = {
 	validationscopes: {string}?,
 }
 
-export type SerDes<T> = {
+export type SerDes<T...> = {
 
 	read type: string?,
 	read name: string?,
@@ -51,25 +58,8 @@ export type SerDes<T> = {
 		read numberfastpath: boolean?,
 	}?, 
 
-	read __T: T?,
+	read __T: extractFirst<(T...) -> ()>?,
 
-	read ser: typeof(
-		-- Serializes the provided value(s) into the buffer, as defined by the schema.
-		function(cursor: Cursor, ...: T): () end
-	),
-
-	read des: typeof(
-		-- Deserializes and returns the value(s) from the buffer, as defined by the schema.
-		function(cursor: Cursor, ...: any): T end
-	),
-}
-
-type TupleSerDes<T...> = {
-	read type: string?,
-	read name: string?,
-	
-	read structure: any,
-	
 	read ser: typeof(
 		-- Serializes the provided value(s) into the buffer, as defined by the schema.
 		function(cursor: Cursor, ...: T...): () end
@@ -82,34 +72,6 @@ type TupleSerDes<T...> = {
 }
 
 -- regex: --\[roblox\]<<[\s\S]*?-->>\n?
---[roblox]<<
-
-export type SquishRaycastResult = {
-	Distance: number,
-	Position: Vector3,
-	Normal: Vector3,
-	Material: Enum.Material,
-	Instance: BasePart?,
-}
-
-type RaycastResultSerDes = {
-	read type: "RaycastResult",
-	read name: "RaycastResult",
-
-	read __T: RaycastResult,
-
-	read ser: typeof(
-		-- Serializes the provided RaycastResult into the buffer, as defined by the schema.
-		function(cursor: Cursor, result: RaycastResult): () end
-	),
-
-	read des: typeof(
-		-- Deserializes and returns the RaycastResult from the buffer, in table form.
-		function(cursor: Cursor): SquishRaycastResult return nil :: any end
-	),
-}
-
--->>
 
 type Length = number
 
@@ -175,28 +137,7 @@ local function assertIsLength(v: any, parameter: string | number, context: strin
 
 	parameter, context = getParameterAndContext(parameter, context)
 	error(`Expected {parameter} to be a number in {context}, but got {typeof(v)}.`, 0)
-
-	-- local istable = type(v) == 'table'
-	-- local isserdes = istable and type(rawget(v, "ser")) == "function" and type(rawget(v, "des")) == "function"
-	-- local isnumberserdes = isserdes and ((not v.type) or v.type == "number")
-
-	-- if isnumberserdes then
-	-- 	return
-	-- end 
-
-	-- parameter, context = getParameterAndContext(parameter, context)
-
-	-- if istable then
-	-- 	if isserdes then
-	-- 		error(`Expected {parameter} to be a number or length SerDes in {context}, but got a SerDes of type {v.type}.`, 0)
-	-- 	else 
-	-- 		error(`Expected {parameter} to be a number or length SerDes in {context}, but got a table without either or both 'ser' and 'des' fields.`, 0)
-	-- 	end
-	-- else 
-	-- 	error(`Expected {parameter} to be a number or length SerDes in {context}, but got {typeof(v)}.`, 0)
-	-- end
 end
-
 
 -- Asserts that the SerDes 'v' is of type 't' (or nil) and does a formatted error message if otherwise.
 local function assertSerdesType(serdes: SerDes<any>, t: string, parameter: string | number, context: string?)
@@ -1133,7 +1074,7 @@ do
 	}
 
 	-- Returns SerDes for up to 8 boolean values at a time.
-	function Squish.boolpack(): TupleSerDes<boolean, boolean, boolean, boolean, boolean, boolean, boolean, boolean>
+	function Squish.boolpack(): SerDes<boolean, boolean, boolean, boolean, boolean, boolean, boolean, boolean>
 		return booleanpackCache
 	end
 end
@@ -2504,7 +2445,7 @@ do
 			head[i] = t
 		end
 
-		local s = TupleSerDes(unpack(head))
+		local s = SerDes(unpack(head))
 
 		return s
 	end
@@ -4545,7 +4486,7 @@ if RaycastParams ~= nil then
 
 	-- Returns SerDes for 'RaycastResult' datatype, with optional parameter for which SerDes to use for the positional component.
 	-- Defaults to f32.
-	function Squish.RaycastResult(serdes: SerDes<number>?): RaycastResultSerDes
+	function Squish.RaycastResult(serdes: SerDes<number>?): SerDes<RaycastResult>
 		if serdes == nil then serdes = Squish.f32()
 		else 
 			assertIsSerdes(serdes, 1) 
@@ -4565,7 +4506,7 @@ if RaycastParams ~= nil then
 		local insser, insdes = ins.ser, ins.des
 		local matser, matdes = material.ser, material.des
 
-		local raycastresult: RaycastResultSerDes = {
+		local raycastresult: SerDes<RaycastResult> = {
 			type = "RaycastResult",
 			name = "RaycastResult",
 			structure = serdes,
@@ -4592,7 +4533,7 @@ if RaycastParams ~= nil then
 				if VALIDATION_ENABLED then exitValidationScope(cursor) end
 			end,
 
-			des = function(cursor): SquishRaycastResult
+			des = function(cursor): RaycastResult
 				local pop = pop 
 
 				return {
@@ -4601,7 +4542,7 @@ if RaycastParams ~= nil then
 					Position = Vector3.new(pop(cursor), pop(cursor), pop(cursor)),
 					Distance = popf4(cursor),
 					Instance = insdes(cursor),
-				}
+				} :: any
 			end,
 		}
 

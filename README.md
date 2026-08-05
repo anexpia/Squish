@@ -22,5 +22,5 @@ pesde install
 - **Wally**:
 Add to your `wally.toml` under `[dependencies]`:
 ```toml
-Squish = "anexpia/squish@6.1.3"
+Squish = "anexpia/squish@6.1.4"
 ```
